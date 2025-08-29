@@ -1,0 +1,266 @@
+/* Professional Login Page - Big Tech Inspired */
+/* Maintains LocRaven color theme with clean, professional design */
+
+.auth-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.auth-card {
+  background: var(--bg-secondary);
+  border: 0.0625rem solid var(--border-primary);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(1.25rem);
+}
+
+/* Professional Header */
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.brand-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-icon {
+  width: 3rem;
+  height: 3rem;
+  background: var(--gradient-primary);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logo-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.brand-text h1 {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.brand-text p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Welcome Section */
+.auth-welcome {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.auth-welcome h2 {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.auth-welcome p {
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Auth Methods */
+.auth-methods {
+  margin-bottom: 2rem;
+}
+
+/* Auth Content */
+.auth-title {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.auth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.auth-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border: 0.125rem solid var(--border-primary);
+  border-radius: 0.5rem;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.auth-button:hover {
+  border-color: var(--primary);
+  background: var(--bg-secondary);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+}
+
+.auth-button.primary {
+  background: white;
+  color: #1f2937;
+  border-color: #e5e7eb;
+}
+
+.auth-button.primary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+}
+
+.auth-button.secondary {
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+}
+
+.auth-button.secondary:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-primary);
+}
+
+.google-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* Benefits Section */
+.auth-benefits {
+  margin-bottom: 2rem;
+  padding-top: 1.5rem;
+  border-top: 0.0625rem solid var(--border-color);
+  text-align: center;
+}
+
+.benefit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.benefit:last-child {
+  margin-bottom: 0;
+}
+
+.benefit-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* Footer */
+.auth-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 0.0625rem solid var(--border-color);
+}
+
+.back-link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-family: inherit;
+}
+
+.back-link:hover {
+  color: var(--primary-light);
+}
+
+.auth-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.footer-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: var(--text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 1rem 0.5rem;
+  }
+  
+  .auth-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .brand-text h1 {
+    font-size: var(--text-2xl);
+  }
+  
+  .auth-welcome h2 {
+    font-size: var(--text-xl);
+  }
+  
+  .auth-footer {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .auth-links {
+    justify-content: center;
+  }
+}

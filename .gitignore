@@ -1,0 +1,190 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables (using hardcoded values for Cloudflare Pages compatibility)
+.env*
+!.env.example
+
+# Cloudflare local development
+.dev.vars*
+
+# OpenNext build output
+.open-next/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.vercel/
+.cache/
+
+# Next.js specific
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+jest-coverage/
+__tests__/__snapshots__
+playwright-report/
+test-results/
+
+# Supabase local development
+supabase/.branches
+supabase/.temp
+.supabase/
+
+# Generated content (AI-generated pages)
+public/generated/**/*.html
+!public/generated/.gitkeep
+
+# Temporary files
+*.tmp
+temp/
+tmp/
+.temp/
+
+# OS files
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# Package manager caches
+.npm
+.yarn-integrity
+.pnpm-store/
+
+# ESLint cache
+.eslintcache
+
+# REPL history
+.node_repl_history
+
+# Output of npm pack
+*.tgz
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+
+# API keys and secrets
+*.key
+*.pem
+*.cert
+
+# Local server files
+*.pid
+*.seed
+*.pid.lock
+
+# Deployment artifacts
+.netlify/
+.deploy/
+.cloudflare/
+
+# Development tools
+test-*.html
+debug-*.js
+*.local.json
+
+# Tailwind CSS build artifacts
+.tailwindcss/
+tailwind.output.css
+tailwind-built.css
+
+# Source maps in production
+*.map
+*.js.map
+*.css.map
+
+# Production optimization files
+.swc/
+.next/trace
+.next/server/chunks/*.js
+.next/static/chunks/*.js
+
+# Environment-specific configs
+.env.production.local
+.env.staging.local
+
+# Build analysis
+.next/analyze/
+analyze/
+bundle-analyzer/
+
+# Responsive component cache
+.component-cache/
+.ui-cache/
+
+# ESLint modern config (we use eslint.config.js)
+.eslintignore
+
+# Modern ESLint cache
+.eslintcache.json
+
+# TypeScript incremental compilation
+*.tsbuildinfo.json
+
+# Webpack bundle analyzer reports
+webpack-analyzer/
+bundle-report.html
+
+# Development optimization artifacts
+.next/cache/webpack/
+.next/static/development/
+.swc/
+
+# Cloudflare Workers specific
+.wrangler/
+wrangler.log
+
+# Modern package managers
+.pnpm/
+.yarn/
+
+# macOS extended attributes
+**/.DS_Store
+**/*~
+
+# Development screenshots and recordings
+screenshots/
+recordings/
+*.webm
+*.mov
+
+# Local development databases
+*.db-journal
+development.db
+test.db
+
+# Documentation (context engineering docs)
+docs/
+*storybook.log
+storybook-static

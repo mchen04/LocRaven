@@ -1,0 +1,242 @@
+/* Enhanced Update Form Styles */
+.enhanced-update-form {
+  background: var(--bg-secondary);
+  border: 0.0625rem solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  height: fit-content;
+}
+
+.form-header {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.form-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.form-header p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.update-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Form Groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.form-label svg {
+  color: var(--primary);
+}
+
+/* Form Inputs */
+.form-textarea {
+  background: var(--bg-primary);
+  border: 0.0625rem solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 7.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.2s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.1875rem rgba(99, 102, 241, 0.1);
+}
+
+.form-textarea::placeholder {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.form-input {
+  background: var(--bg-primary);
+  border: 0.0625rem solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.1875rem rgba(99, 102, 241, 0.1);
+}
+
+/* Error States */
+.form-textarea.error,
+.form-input.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 0.1875rem rgba(239, 68, 68, 0.1);
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Helper Text */
+.form-helper {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.char-count {
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Timing Fields Layout */
+.timing-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 40rem) {
+  .timing-fields {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Generate Button */
+.btn-generate {
+  background: var(--gradient);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+}
+
+.btn-generate:hover:not(:disabled) {
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.25rem 0.75rem rgba(99, 102, 241, 0.3);
+}
+
+.btn-generate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Spinner */
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 0.125rem solid transparent;
+  border-top: 0.125rem solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Processing Status */
+.processing-status {
+  background: rgba(99, 102, 241, 0.1);
+  border: 0.0625rem solid rgba(99, 102, 241, 0.2);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.processing-message {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.processing-message small {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* Responsive Design */
+@media (max-width: 48rem) {
+  .enhanced-update-form {
+    padding: 1.5rem;
+  }
+  
+  .form-header h2 {
+    font-size: var(--text-xl);
+  }
+  
+  .form-textarea {
+    min-height: 6.25rem;
+    font-size: 0.85rem;
+  }
+  
+  .form-helper {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+}
+
+/* Dark theme datetime input styling */
+.form-input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+.form-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.form-input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
