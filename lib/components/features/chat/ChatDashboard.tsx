@@ -506,7 +506,7 @@ const ChatDashboard: React.FC = () => {
               <p style={{ color: '#9ca3af', textAlign: 'center' }}>Manage your account and preferences</p>
             </div>
 
-            {/* Account Section */}
+            {/* Account Section - All in One */}
             <div className="settings-section" style={{ 
               background: 'rgba(255, 255, 255, 0.05)', 
               borderRadius: '0.5rem', 
@@ -516,17 +516,96 @@ const ChatDashboard: React.FC = () => {
             }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ffffff', marginBottom: '1rem' }}>Account Information</h3>
               
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Email</label>
-                <span style={{ color: '#ffffff' }}>{user?.email || 'Not logged in'}</span>
-              </div>
-              
-              {business && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Business</label>
-                  <span style={{ color: '#ffffff' }}>{business.name || 'Unnamed Business'}</span>
+              {/* Account Info Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Email</label>
+                  <span style={{ color: '#ffffff' }}>{user?.email || 'Not logged in'}</span>
                 </div>
-              )}
+                
+                {business && (
+                  <>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Business</label>
+                      <span style={{ color: '#ffffff' }}>{business.name || 'Unnamed Business'}</span>
+                    </div>
+                    
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Location</label>
+                      <span style={{ color: '#ffffff' }}>
+                        {business.address_city && business.address_state 
+                          ? `${business.address_city}, ${business.address_state}` 
+                          : 'Not specified'
+                        }
+                      </span>
+                    </div>
+                    
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Primary Category</label>
+                      <span style={{ color: '#ffffff' }}>{business.primary_category || 'Not specified'}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Action Buttons Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
+                <button style={{
+                  background: '#6366f1',
+                  border: 'none',
+                  color: 'white',
+                  padding: '0.75rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  textAlign: 'center'
+                }}>
+                  Export Data
+                </button>
+                
+                <button style={{
+                  background: '#f59e0b',
+                  border: 'none',
+                  color: 'white',
+                  padding: '0.75rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  textAlign: 'center'
+                }}>
+                  Clear Pages
+                </button>
+                
+                <button style={{
+                  background: '#10b981',
+                  border: 'none',
+                  color: 'white',
+                  padding: '0.75rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  textAlign: 'center'
+                }}>
+                  Help
+                </button>
+                
+                <button style={{
+                  background: '#8b5cf6',
+                  border: 'none',
+                  color: 'white',
+                  padding: '0.75rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  textAlign: 'center'
+                }}>
+                  Support
+                </button>
+              </div>
             </div>
 
             {/* Danger Zone */}
@@ -592,7 +671,255 @@ const ChatDashboard: React.FC = () => {
               <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Subscription</h2>
               <p style={{ color: '#9ca3af', textAlign: 'center' }}>Manage your billing and subscription</p>
             </div>
-            <SubscriptionManager />
+            
+            {/* Enhanced Subscription Layout */}
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+              
+              {/* Main Subscription Status */}
+              <div style={{ 
+                background: 'rgba(255, 255, 255, 0.05)', 
+                borderRadius: '0.5rem', 
+                padding: '1.5rem',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ffffff', margin: 0 }}>Current Status</h3>
+                  <button style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.375rem 0.75rem',
+                    background: 'transparent',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '0.375rem',
+                    color: '#d1d5db',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer'
+                  }}>
+                    Refresh
+                  </button>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Plan</label>
+                    <span style={{ color: '#ffffff', fontWeight: '500' }}>Professional</span>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Status</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></span>
+                      <span style={{ color: '#10b981', fontWeight: '500' }}>Active</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Next Billing</label>
+                    <span style={{ color: '#ffffff' }}>September 28, 2025</span>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Amount</label>
+                    <span style={{ color: '#ffffff', fontWeight: '500' }}>$79.00</span>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Started</label>
+                    <span style={{ color: '#ffffff' }}>August 28, 2025</span>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Billing Method</label>
+                    <span style={{ color: '#ffffff' }}>Credit Card</span>
+                  </div>
+                </div>
+
+                {/* Billing Management */}
+                <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff', marginBottom: '1rem' }}>Billing Management</h4>
+                  
+                  <button style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    width: 'fit-content',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    cursor: 'pointer'
+                  }}>
+                    Manage Subscription & Billing
+                  </button>
+                  
+                  <p style={{ fontSize: '0.875rem', color: '#9ca3af', margin: '0.75rem 0 0 0', textAlign: 'left' }}>
+                    <strong style={{ color: '#ffffff' }}>Stripe Customer Portal</strong> handles all subscription management including plan changes, cancellations, payment methods, and billing history.
+                  </p>
+                </div>
+              </div>
+              
+              {/* Account Overview Sidebar */}
+              <div className="subscription-sidebar" style={{ 
+                background: 'rgba(255, 255, 255, 0.05)', 
+                borderRadius: '0.5rem', 
+                padding: '1.5rem',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ffffff', marginBottom: '1rem' }}>Account Overview</h3>
+                
+                {/* Plan Features */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.75rem' }}>Plan Features</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                      <span style={{ color: '#10b981' }}>✓</span>
+                      <span style={{ color: '#d1d5db' }}>Unlimited business updates</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                      <span style={{ color: '#10b981' }}>✓</span>
+                      <span style={{ color: '#d1d5db' }}>Advanced AI optimization</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                      <span style={{ color: '#10b981' }}>✓</span>
+                      <span style={{ color: '#d1d5db' }}>Priority support</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                      <span style={{ color: '#10b981' }}>✓</span>
+                      <span style={{ color: '#d1d5db' }}>Custom business pages</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                      <span style={{ color: '#10b981' }}>✓</span>
+                      <span style={{ color: '#d1d5db' }}>Analytics dashboard</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+                      <span style={{ color: '#10b981' }}>✓</span>
+                      <span style={{ color: '#d1d5db' }}>Social media integration</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Account Details */}
+                <div style={{ paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.75rem' }}>Account Details</h4>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      padding: '0.5rem',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '0.25rem'
+                    }}>
+                      <span style={{ color: '#d1d5db', fontSize: '0.875rem' }}>Member Since</span>
+                      <span style={{ color: '#ffffff', fontWeight: '500' }}>Aug 2025</span>
+                    </div>
+                    
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      padding: '0.5rem',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '0.25rem'
+                    }}>
+                      <span style={{ color: '#d1d5db', fontSize: '0.875rem' }}>Plan Type</span>
+                      <span style={{ color: '#ffffff', fontWeight: '500' }}>Monthly</span>
+                    </div>
+                    
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      padding: '0.5rem',
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      borderRadius: '0.25rem',
+                      border: '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>
+                      <span style={{ color: '#d1d5db', fontSize: '0.875rem' }}>Auto-Renew</span>
+                      <span style={{ color: '#10b981', fontWeight: '500' }}>Enabled</span>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+              
+            </div>
+            
+            {/* Plan Comparison */}
+            <div className="plan-comparison" style={{ 
+              background: 'rgba(255, 255, 255, 0.05)', 
+              borderRadius: '0.5rem', 
+              padding: '1.5rem',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ffffff', marginBottom: '1rem', textAlign: 'center' }}>Available Plans</h3>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)', 
+                  padding: '1rem', 
+                  borderRadius: '0.375rem', 
+                  textAlign: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <h4 style={{ color: '#ffffff', fontSize: '1rem', fontWeight: '600', margin: '0 0 0.5rem 0' }}>Basic</h4>
+                  <p style={{ color: '#d1d5db', fontSize: '0.875rem', margin: '0 0 0.75rem 0' }}>Perfect for small businesses getting started</p>
+                  <div style={{ color: '#ffffff', fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.75rem' }}>$29<span style={{ fontSize: '0.875rem', fontWeight: '400' }}>/mo</span></div>
+                  <ul style={{ color: '#d1d5db', fontSize: '0.875rem', listStyle: 'none', padding: 0, margin: 0 }}>
+                    <li>Up to 5 business updates per month</li>
+                    <li>Basic AI optimization</li>
+                    <li>Standard support</li>
+                    <li>Mobile-responsive pages</li>
+                  </ul>
+                </div>
+                
+                <div style={{ 
+                  background: 'rgba(99, 102, 241, 0.1)', 
+                  padding: '1rem', 
+                  borderRadius: '0.375rem', 
+                  textAlign: 'center',
+                  border: '2px solid #6366f1'
+                }}>
+                  <div style={{ background: '#6366f1', color: 'white', fontSize: '0.75rem', fontWeight: '600', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', marginBottom: '0.5rem', width: 'fit-content', margin: '0 auto 0.5rem' }}>CURRENT</div>
+                  <h4 style={{ color: '#ffffff', fontSize: '1rem', fontWeight: '600', margin: '0 0 0.5rem 0' }}>Professional</h4>
+                  <p style={{ color: '#d1d5db', fontSize: '0.875rem', margin: '0 0 0.75rem 0' }}>Ideal for growing businesses</p>
+                  <div style={{ color: '#ffffff', fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.75rem' }}>$79<span style={{ fontSize: '0.875rem', fontWeight: '400' }}>/mo</span></div>
+                  <ul style={{ color: '#d1d5db', fontSize: '0.875rem', listStyle: 'none', padding: 0, margin: 0 }}>
+                    <li>Unlimited business updates</li>
+                    <li>Advanced AI optimization</li>
+                    <li>Priority support</li>
+                    <li>Custom business pages</li>
+                    <li>Analytics dashboard</li>
+                  </ul>
+                </div>
+                
+                <div style={{ 
+                  background: 'rgba(255, 255, 255, 0.05)', 
+                  padding: '1rem', 
+                  borderRadius: '0.375rem', 
+                  textAlign: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <h4 style={{ color: '#ffffff', fontSize: '1rem', fontWeight: '600', margin: '0 0 0.5rem 0' }}>Enterprise</h4>
+                  <p style={{ color: '#d1d5db', fontSize: '0.875rem', margin: '0 0 0.75rem 0' }}>For established businesses requiring premium features</p>
+                  <div style={{ color: '#ffffff', fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.75rem' }}>$199<span style={{ fontSize: '0.875rem', fontWeight: '400' }}>/mo</span></div>
+                  <ul style={{ color: '#d1d5db', fontSize: '0.875rem', listStyle: 'none', padding: 0, margin: 0 }}>
+                    <li>Everything in Professional</li>
+                    <li>Dedicated account manager</li>
+                    <li>Custom integrations</li>
+                    <li>Multi-location support</li>
+                    <li>White-label options</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
           </div>
         ) : viewMode === 'analytics' && selectedPage ? (
           <LinkAnalytics page={selectedPage} onClose={handleBackToChat} />
