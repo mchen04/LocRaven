@@ -416,7 +416,7 @@ const ChatDashboard: React.FC = () => {
             }}
           >
             <Link2 size={20} className="nav-icon" />
-            {isSidebarOpen && <span>Active Links</span>}
+            {isSidebarOpen && <span>Links</span>}
           </button>
 
           <button 
@@ -477,21 +477,33 @@ const ChatDashboard: React.FC = () => {
       <main className="chat-main">
 
         {viewMode === 'profile' ? (
-          <BusinessProfileView />
+          <div style={{ padding: '2rem' }}>
+            <div className="business-details-header" style={{ marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Business Details</h2>
+              <p style={{ color: '#9ca3af', textAlign: 'center', margin: '0' }}>Manage your business profile and information</p>
+            </div>
+            <BusinessProfileView />
+          </div>
         ) : viewMode === 'links' ? (
-          <ActiveLinksView 
-            pages={pages} 
-            activePages={activePages}
-            expiredPages={expiredPages}
-            onRefresh={refetchPages} 
-            onPageClick={handleLinkClick}
-            onDeletePage={deletePage}
-          />
+          <div style={{ padding: '2rem' }}>
+            <div className="links-header" style={{ marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Links</h2>
+              <p style={{ color: '#9ca3af', textAlign: 'center', margin: '0' }}>Manage your active and expired pages</p>
+            </div>
+            <ActiveLinksView 
+              pages={pages} 
+              activePages={activePages}
+              expiredPages={expiredPages}
+              onRefresh={refetchPages} 
+              onPageClick={handleLinkClick}
+              onDeletePage={deletePage}
+            />
+          </div>
         ) : viewMode === 'settings' ? (
-          <div className="settings-view" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+          <div className="settings-view" style={{ padding: '2rem' }}>
             <div className="settings-header" style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: '1.875rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem' }}>Settings</h2>
-              <p style={{ color: '#9ca3af' }}>Manage your account and preferences</p>
+              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Settings</h2>
+              <p style={{ color: '#9ca3af', textAlign: 'center' }}>Manage your account and preferences</p>
             </div>
 
             {/* Account Section */}
@@ -575,10 +587,10 @@ const ChatDashboard: React.FC = () => {
             )}
           </div>
         ) : viewMode === 'subscription' ? (
-          <div className="subscription-view" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+          <div className="subscription-view" style={{ padding: '2rem' }}>
             <div className="subscription-header" style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: '1.875rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem' }}>Subscription</h2>
-              <p style={{ color: '#9ca3af' }}>Manage your billing and subscription</p>
+              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Subscription</h2>
+              <p style={{ color: '#9ca3af', textAlign: 'center' }}>Manage your billing and subscription</p>
             </div>
             <SubscriptionManager />
           </div>

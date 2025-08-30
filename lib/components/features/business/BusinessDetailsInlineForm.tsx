@@ -461,7 +461,6 @@ const BusinessDetailsInlineForm: React.FC<BusinessDetailsInlineFormProps> = ({ b
       )}
 
       <div className="form-header">
-        <h2>Business Details</h2>
         <div className="form-actions">
           {isEditing ? (
             <>
