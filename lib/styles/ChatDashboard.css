@@ -3,12 +3,20 @@
 /* ChatGPT-Inspired Dashboard Styles */
 
 .chat-dashboard {
-  display: flex;
+  display: grid;
+  grid-template-columns: 16.25rem 1fr;
   min-height: 100vh;
+  max-height: 100vh;
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-family-primary);
   position: relative;
+  overflow: hidden;
+}
+
+/* Adjust grid columns when sidebar is closed */
+.chat-dashboard:has(.sidebar.closed) {
+  grid-template-columns: 4.375rem 1fr;
 }
 
 /* Integrated Sidebar - ChatGPT Style */
@@ -17,15 +25,10 @@
   border-right: 0.0625rem solid var(--border-primary);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 100;
-  width: 16.25rem;
+  height: 100vh;
   overflow: hidden;
-}
-
-.sidebar.closed {
-  width: 4.375rem;
 }
 
 .sidebar.closed .sidebar-title,
@@ -481,11 +484,12 @@
 
 /* Main Chat Area */
 .chat-main {
-  flex: 1;
   display: flex;
   flex-direction: column;
   background: #212121;
-  overflow: hidden;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Split-screen container */
@@ -3276,6 +3280,14 @@ input[type="tel"]:-webkit-autofill:focus {
 
 /* Responsive Design */
 @media (max-width: 48rem) {
+  .chat-dashboard {
+    grid-template-columns: 1fr;
+  }
+  
+  .chat-dashboard:has(.sidebar.closed) {
+    grid-template-columns: 1fr;
+  }
+
   .mobile-sidebar-toggle {
     display: block;
   }
@@ -3287,6 +3299,7 @@ input[type="tel"]:-webkit-autofill:focus {
     height: 100vh;
     transform: translateX(-100%);
     width: 16.25rem !important;
+    z-index: 1000;
   }
 
   .sidebar.open {

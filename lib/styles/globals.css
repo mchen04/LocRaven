@@ -157,6 +157,12 @@ body {
   min-height: 100vh;
 }
 
+/* Prevent body scrolling for chat dashboard layout */
+body:has(.chat-dashboard) {
+  overflow: hidden;
+  height: 100vh;
+}
+
 /* Styled scrollbars for WebKit browsers */
 body::-webkit-scrollbar,
 html::-webkit-scrollbar,
