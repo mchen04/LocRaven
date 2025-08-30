@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormSection, FormField, Select } from '../../../ui/molecules';
+import { FormSection, FormField, FormFieldDisplay, Select } from '../../../ui/molecules';
 import { Input } from '../../../ui/atoms';
 import { config } from '../../../../utils/config';
 import { messages } from '../../../../constants/messages';
@@ -35,19 +35,19 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
       >
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
           <FormField label="Business Name">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)' }}>
-              {formData.name || 'Not specified'}
-            </div>
+            <FormFieldDisplay>
+              {formData.name}
+            </FormFieldDisplay>
           </FormField>
 
           <FormField label="Email">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)' }}>
-              {formData.email || 'Not specified'}
-            </div>
+            <FormFieldDisplay>
+              {formData.email}
+            </FormFieldDisplay>
           </FormField>
 
           <FormField label="Website">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)' }}>
+            <FormFieldDisplay>
               {formData.website ? (
                 <a href={formData.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>
                   {formData.website}
@@ -55,38 +55,38 @@ const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
               ) : (
                 'Not specified'
               )}
-            </div>
+            </FormFieldDisplay>
           </FormField>
 
           <FormField label="Primary Category">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)' }}>
+            <FormFieldDisplay>
               {formData.primary_category ? 
                 config.primaryCategories.find(c => c.value === formData.primary_category)?.label || formData.primary_category
-                : 'Not specified'
+                : null
               }
-            </div>
+            </FormFieldDisplay>
           </FormField>
 
           <FormField label="City">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)' }}>
-              {formData.address_city || 'Not specified'}
-            </div>
+            <FormFieldDisplay>
+              {formData.address_city}
+            </FormFieldDisplay>
           </FormField>
 
           <FormField label="State">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)' }}>
+            <FormFieldDisplay>
               {formData.address_state ? 
                 config.states.find(s => s.code === formData.address_state)?.name || formData.address_state
-                : 'Not specified'
+                : null
               }
-            </div>
+            </FormFieldDisplay>
           </FormField>
         </div>
 
         <FormField label="Business Description">
-          <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)', minHeight: '4rem' }}>
-            {formData.description || 'Not specified'}
-          </div>
+          <FormFieldDisplay minHeight="lg">
+            {formData.description}
+          </FormFieldDisplay>
         </FormField>
       </FormSection>
     );

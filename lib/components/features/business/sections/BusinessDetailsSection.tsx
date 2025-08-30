@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormSection, FormField, Select, TagInput } from '../../../ui/molecules';
+import { FormSection, FormField, FormFieldDisplay, Select, TagInput } from '../../../ui/molecules';
 import { Input } from '../../../ui/atoms';
 import { config } from '../../../../utils/config';
 import { messages } from '../../../../constants/messages';
@@ -33,43 +33,43 @@ const BusinessDetailsSection: React.FC<BusinessDetailsSectionProps> = ({
       >
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
           <FormField label="Price Positioning">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)' }}>
+            <FormFieldDisplay>
               {formData.price_positioning ? 
                 priceOptions.find(p => p.value === String(formData.price_positioning))?.label || formData.price_positioning
-                : 'Not specified'
+                : null
               }
-            </div>
+            </FormFieldDisplay>
           </FormField>
 
           <FormField label="Established Year">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)' }}>
-              {formData.established_year || 'Not specified'}
-            </div>
+            <FormFieldDisplay>
+              {formData.established_year}
+            </FormFieldDisplay>
           </FormField>
 
           <FormField label="Specialties">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)', minHeight: '3rem' }}>
+            <FormFieldDisplay minHeight="md">
               {formData.specialties && Array.isArray(formData.specialties) && formData.specialties.length > 0
                 ? formData.specialties.join(', ')
                 : 'None specified'
               }
-            </div>
+            </FormFieldDisplay>
           </FormField>
 
           <FormField label="Services">
-            <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)', minHeight: '3rem' }}>
+            <FormFieldDisplay minHeight="md">
               {formData.services && Array.isArray(formData.services) && formData.services.length > 0
                 ? formData.services.join(', ')
                 : 'None specified'
               }
-            </div>
+            </FormFieldDisplay>
           </FormField>
         </div>
 
         <FormField label="Business Description">
-          <div style={{ padding: '0.75rem', backgroundColor: 'var(--gray-50)', borderRadius: '0.375rem', border: '1px solid var(--border-primary)', minHeight: '4rem' }}>
-            {formData.description || 'Not specified'}
-          </div>
+          <FormFieldDisplay minHeight="lg">
+            {formData.description}
+          </FormFieldDisplay>
         </FormField>
       </FormSection>
     );

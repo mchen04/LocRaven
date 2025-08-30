@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, KeyboardEvent } from 'react';
 import { colors, spacing, radius, typography } from '../../../theme/tokens';
 import { messages } from '../../../constants/messages';
