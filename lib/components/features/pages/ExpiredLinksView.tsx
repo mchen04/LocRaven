@@ -5,6 +5,8 @@ import { ExternalLink, RefreshCw, Trash2, AlertCircle, MoreHorizontal } from 'lu
 import { reactivatePage } from '../../../services/data/expirationService';
 import { GeneratedPage } from '../../../../types';
 import { config } from '../../../utils/config';
+import { generatePageUrl } from '../../../utils/urlHelpers';
+import { Button } from '../../ui/atoms';
 
 interface ExpiredLinksViewProps {
   pages: GeneratedPage[];
@@ -125,16 +127,16 @@ const ReactivationModal: React.FC<ReactivationModalProps> = ({ isOpen, onClose, 
         </div>
         
         <div className="modal-footer">
-          <button className="btn-secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button 
-            className="btn-primary" 
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleConfirm}
             disabled={selectedOption === 'custom' && (!customDate || new Date(customDate) <= new Date())}
           >
             Reactivate
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -169,12 +171,12 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({ isOpen, onClose
         </div>
         
         <div className="modal-footer">
-          <button className="btn-secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button className="btn-danger" onClick={onConfirm}>
+          </Button>
+          <Button variant="danger" onClick={onConfirm}>
             Delete Permanently
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -350,7 +352,7 @@ const ExpiredLinksView: React.FC<ExpiredLinksViewProps> = ({ pages, onRefresh, o
 
               <div className="link-actions">
                 <a 
-                  href={page.url || `${config.env.appUrl}${page.file_path}`}
+                  href={generatePageUrl(page)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-link-btn disabled"

@@ -16,7 +16,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   className = '',
   ...inputProps
 }) => {
-  const [query, setQuery] = React.useState(inputProps.value || '');
+  const [query, setQuery] = React.useState(String(inputProps.value || ''));
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;

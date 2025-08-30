@@ -1,6 +1,7 @@
 import { supabase } from '../../utils/supabase';
 import type { WebsiteInfo } from '../ai/geminiApi';
 import { config } from '../../utils/config';
+import { generatePageUrl } from '../../utils/urlHelpers';
 
 export interface GeneratedWebsite {
   id: string;
@@ -147,7 +148,7 @@ export async function generateInitialBusinessPage(business: any): Promise<Genera
       // Note: Storage backup temporarily disabled while investigating Edge Function 500 errors
       // Page creation works perfectly from database - storage backup is non-critical
       
-      const cleanUrl = `${config.env.appUrl}${page.file_path}`;
+      const cleanUrl = generatePageUrl(page);
       
       return {
         id: page.id,

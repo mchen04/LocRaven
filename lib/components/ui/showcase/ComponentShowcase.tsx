@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button, Input, Card, Spinner } from '../atoms';
-import { SearchInput, AlertCard, LoadingCard } from '../molecules';
+import { SearchInput, AlertCard, LoadingCard, FormField } from '../molecules';
 import { ErrorBoundary } from '../organisms';
 
 const ComponentShowcase: React.FC = () => {
@@ -61,38 +61,43 @@ const ComponentShowcase: React.FC = () => {
               Inputs
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
-              <Input 
-                label="Text Input"
-                placeholder="Enter text..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-              />
-              <Input 
-                label="Email Input"
-                type="email"
-                placeholder="Enter email..."
-              />
-              <Input 
-                label="Password Input"
-                type="password"
-                placeholder="Enter password..."
-              />
-              <Input 
-                label="Error State"
-                placeholder="This field has an error"
-                error="This field is required"
-              />
-              <Input 
-                label="Success State"
-                placeholder="This field is valid"
-                success
-                defaultValue="Valid input"
-              />
-              <Input 
-                label="Disabled Input"
-                placeholder="Disabled field"
-                disabled
-              />
+              <FormField label="Text Input">
+                <Input 
+                  placeholder="Enter text..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                />
+              </FormField>
+              <FormField label="Email Input">
+                <Input 
+                  type="email"
+                  placeholder="Enter email..."
+                />
+              </FormField>
+              <FormField label="Password Input">
+                <Input 
+                  type="password"
+                  placeholder="Enter password..."
+                />
+              </FormField>
+              <FormField label="Error State" error="This field is required">
+                <Input 
+                  placeholder="This field has an error"
+                />
+              </FormField>
+              <FormField label="Success State">
+                <Input 
+                  placeholder="This field is valid"
+                  variant="success"
+                  defaultValue="Valid input"
+                />
+              </FormField>
+              <FormField label="Disabled Input">
+                <Input 
+                  placeholder="Disabled field"
+                  disabled
+                />
+              </FormField>
             </div>
           </div>
 

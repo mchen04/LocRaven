@@ -7,7 +7,6 @@ import { Calendar, Settings, LogOut, Building2, Link2, Menu, X, MoreHorizontal, 
 import { BusinessProfileView } from '../business';
 import LinkAnalytics from './LinkAnalytics';
 import { ActiveLinksView, PagePreview } from '../pages';
-import { SettingsModal } from '../../../components';
 import SubscriptionManager from '../../../components/SubscriptionManager';
 import { usePages } from '../../../hooks';
 import { GeneratedPage } from '../../../../types';
@@ -71,7 +70,6 @@ const ChatDashboard: React.FC = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasAutoSelectedProfile, setHasAutoSelectedProfile] = useState(false);
   const [showProfileTip, setShowProfileTip] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [websiteInfo, setWebsiteInfo] = useState<WebsiteInfo>({} as WebsiteInfo);
   
   const updateFromPreview = (field: string, value: any) => {
@@ -1042,11 +1040,6 @@ const ChatDashboard: React.FC = () => {
         )}
       </main>
 
-      {/* Settings Modal */}
-      <SettingsModal 
-        isOpen={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
 
     </div>
   );

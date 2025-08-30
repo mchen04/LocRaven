@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useBusiness } from '../contexts/BusinessContext';
 import { isPageExpired } from "../services/data/expirationService";
 import { config } from '../utils/config';
+import { generatePageUrl } from '../utils/urlHelpers';
 
 export const usePages = () => {
   const [pages, setPages] = useState<GeneratedPage[]>([]);
@@ -39,7 +40,7 @@ export const usePages = () => {
         const mappedPages = (data || []).map((page): GeneratedPage => ({
           ...page,
           business_name: business.name,
-          url: `${config.env.appUrl}${page.file_path}`,
+          url: generatePageUrl(page),
           active: true
         }));
 
@@ -79,22 +80,8 @@ export const usePages = () => {
     }
   }, [user?.id, business?.id]);
 
-  // Optimized: Only check expiring pages when needed, less frequent polling
-  useEffect(() => {
-    if (!business?.id || pages.length === 0) return;
-
-    // Check if any pages expire within the next 30 minutes (reduced from 2 hours)
-    const hasExpiringPages = pages.some(page => 
-      page.expires_at && 
-      new Date(page.expires_at).getTime() - Date.now() < 30 * 60 * 1000
-    );
-
-    if (!hasExpiringPages) return;
-
-    // Reduced polling frequency from 30s to 5 minutes for better performance
-    const intervalId = setInterval(loadPages, 5 * 60 * 1000);
-    return () => clearInterval(intervalId);
-  }, [pages.length, business?.id, loadPages]);
+  // Note: Client-side polling removed - expiration checking now happens on page load
+  // Real-time subscriptions below handle immediate updates from database changes
 
   // Subscribe to real-time changes
   useEffect(() => {

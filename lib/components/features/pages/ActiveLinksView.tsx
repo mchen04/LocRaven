@@ -6,6 +6,7 @@ import { formatExpirationTime, isExpiringSoon, extendPageExpiration, expirePage 
 import { GeneratedPage } from '../../../../types';
 import ExpiredLinksView from './ExpiredLinksView';
 import { config } from '../../../utils/config';
+import { generatePageUrl } from '../../../utils/urlHelpers';
 
 interface ActiveLinksViewProps {
   pages: GeneratedPage[];
@@ -221,7 +222,7 @@ const ActiveLinksView: React.FC<ActiveLinksViewProps> = ({ activePages, expiredP
 
               <div className="link-actions">
                 <a 
-                  href={page.url || `${config.env.appUrl}${page.file_path}`}
+                  href={generatePageUrl(page)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-link-btn"

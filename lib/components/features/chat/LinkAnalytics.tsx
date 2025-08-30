@@ -3,6 +3,7 @@
 import { BarChart3, TrendingUp, Clock, ExternalLink, Eye, MousePointer, Calendar } from 'lucide-react';
 import { config } from '../../../utils/config';
 import { GeneratedPage } from '../../../../types';
+import { generatePageUrl, generateDisplayUrl } from '../../../utils/urlHelpers';
 
 interface LinkAnalyticsProps {
   page: GeneratedPage;
@@ -45,8 +46,8 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ page, onClose }) => {
 
       <div className="analytics-url">
         <ExternalLink size={16} />
-        <a href={page.url || `${config.env.appUrl}${page.file_path}`} target="_blank" rel="noopener noreferrer">
-          {page.url || `${config.env.appUrl.replace(/^https?:\/\//, '')}${page.file_path}`}
+        <a href={generatePageUrl(page)} target="_blank" rel="noopener noreferrer">
+          {generateDisplayUrl(page)}
         </a>
       </div>
 

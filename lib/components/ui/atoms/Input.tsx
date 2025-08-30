@@ -1,91 +1,156 @@
 import React, { forwardRef } from 'react';
+import { colors, spacing, radius, typography } from '../../../theme/tokens';
 
-export interface InputProps {
-  label?: string;
-  placeholder?: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search';
-  value?: string;
-  defaultValue?: string;
-  disabled?: boolean;
-  required?: boolean;
-  error?: string;
-  success?: boolean;
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  variant?: 'default' | 'error' | 'success';
   size?: 'sm' | 'md' | 'lg';
-  className?: string;
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
-  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
-  'data-testid'?: string;
-  'aria-describedby'?: string;
+  fullWidth?: boolean;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
+  error?: boolean;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(({
-  label,
-  placeholder,
-  type = 'text',
-  value,
-  defaultValue,
-  disabled = false,
-  required = false,
-  error,
-  success = false,
-  size = 'md',
-  className = '',
-  onChange,
-  onBlur,
-  onFocus,
-  'data-testid': testId,
-  'aria-describedby': ariaDescribedBy,
-  ...props
-}, ref) => {
-  const baseClasses = 'block w-full border rounded-lg bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed';
-  
-  const sizeClasses = {
-    sm: 'py-1.5 px-2 text-sm',
-    md: 'py-2 px-3 text-sm',
-    lg: 'py-3 px-4 text-base'
-  };
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  (
+    {
+      variant = 'default',
+      size = 'md',
+      fullWidth = true,
+      startIcon,
+      endIcon,
+      error = false,
+      className = '',
+      disabled = false,
+      ...props
+    },
+    ref
+  ) => {
+    // Base input styles using design tokens
+    const baseStyles: React.CSSProperties = {
+      width: fullWidth ? '100%' : 'auto',
+      fontFamily: typography.fontFamily,
+      fontSize: typography.fontSize.base,
+      lineHeight: typography.lineHeight.normal,
+      borderRadius: radius.md,
+      border: `1px solid ${colors.border.primary}`,
+      backgroundColor: disabled ? colors.gray[100] : colors.white,
+      color: disabled ? colors.text.muted : colors.text.primary,
+      cursor: disabled ? 'not-allowed' : 'text',
+      transition: 'all 0.2s ease',
+      outline: 'none',
+    };
 
-  const stateClasses = error 
-    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-    : success
-    ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
-    : 'border-gray-300 focus:border-primary focus:ring-primary';
+    // Size-specific styles
+    const sizeStyles: Record<string, React.CSSProperties> = {
+      sm: {
+        padding: `${spacing[2]} ${spacing[3]}`,
+        fontSize: typography.fontSize.sm,
+      },
+      md: {
+        padding: `${spacing[3]} ${spacing[4]}`,
+        fontSize: typography.fontSize.base,
+      },
+      lg: {
+        padding: `${spacing[4]} ${spacing[5]}`,
+        fontSize: typography.fontSize.lg,
+      },
+    };
 
-  const combinedClasses = `${baseClasses} ${sizeClasses[size]} ${stateClasses} ${className}`;
+    // Variant-specific styles
+    const variantStyles: Record<string, React.CSSProperties> = {
+      default: {
+        borderColor: colors.border.primary,
+      },
+      error: {
+        borderColor: colors.danger.DEFAULT,
+        backgroundColor: `${colors.danger.DEFAULT}05`, // 5% opacity
+      },
+      success: {
+        borderColor: colors.success.DEFAULT,
+        backgroundColor: `${colors.success.DEFAULT}05`, // 5% opacity
+      },
+    };
 
-  return (
-    <div className="space-y-1">
-      {label && (
-        <label className="block text-sm font-medium text-gray-700">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-      )}
-      <input
-        ref={ref}
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        defaultValue={defaultValue}
-        disabled={disabled}
-        required={required}
-        className={combinedClasses}
-        onChange={onChange}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        data-testid={testId}
-        aria-describedby={ariaDescribedBy}
-        {...props}
-      />
-      {error && (
-        <p className="text-sm text-red-600" role="alert">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-});
+    // Focus styles
+    const focusStyles: React.CSSProperties = {
+      borderColor: error ? colors.danger.DEFAULT : colors.primary.DEFAULT,
+      boxShadow: `0 0 0 3px ${error ? colors.danger.DEFAULT : colors.primary.DEFAULT}1A`, // 10% opacity
+    };
+
+    // Icon wrapper styles
+    const iconWrapperStyles: React.CSSProperties = {
+      position: 'absolute',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      display: 'flex',
+      alignItems: 'center',
+      color: colors.text.muted,
+      pointerEvents: 'none',
+    };
+
+    const startIconStyles: React.CSSProperties = {
+      ...iconWrapperStyles,
+      left: spacing[3],
+    };
+
+    const endIconStyles: React.CSSProperties = {
+      ...iconWrapperStyles,
+      right: spacing[3],
+    };
+
+    // Adjust padding for icons
+    const inputWithIconsStyles: React.CSSProperties = {
+      paddingLeft: startIcon ? spacing[10] : undefined,
+      paddingRight: endIcon ? spacing[10] : undefined,
+    };
+
+    // Combine all styles
+    const combinedStyles: React.CSSProperties = {
+      ...baseStyles,
+      ...sizeStyles[size],
+      ...variantStyles[error ? 'error' : variant],
+      ...inputWithIconsStyles,
+    };
+
+    const containerStyles: React.CSSProperties = {
+      position: 'relative',
+      display: 'inline-block',
+      width: fullWidth ? '100%' : 'auto',
+    };
+
+    return (
+      <div style={containerStyles}>
+        {startIcon && (
+          <div style={startIconStyles}>
+            {startIcon}
+          </div>
+        )}
+        
+        <input
+          ref={ref}
+          style={combinedStyles}
+          className={className}
+          disabled={disabled}
+          onFocus={(e) => {
+            Object.assign(e.currentTarget.style, focusStyles);
+            props.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            Object.assign(e.currentTarget.style, variantStyles[error ? 'error' : variant]);
+            props.onBlur?.(e);
+          }}
+          {...props}
+        />
+        
+        {endIcon && (
+          <div style={endIconStyles}>
+            {endIcon}
+          </div>
+        )}
+      </div>
+    );
+  }
+);
 
 Input.displayName = 'Input';
 
