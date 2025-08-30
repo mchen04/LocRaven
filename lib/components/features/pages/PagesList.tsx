@@ -54,7 +54,7 @@ const PagesList: React.FC<PagesListProps> = ({ pages, onDeletePage }) => {
           </div>
         ) : (
           pages.map(page => {
-            const pageUrl = page.file_path + '.html';
+            const pageUrl = page.file_path;
             const readableTitle = page.title || extractReadableTitle(page.file_path);
             
             return (

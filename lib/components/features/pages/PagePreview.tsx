@@ -286,9 +286,7 @@ const PagePreview: React.FC<PagePreviewProps> = ({
           gridTemplateColumns: 'repeat(3, 1fr)',
           gridTemplateRows: 'repeat(2, 1fr)',
           gap: '1rem',
-          padding: '1.5rem',
-          maxHeight: '75vh',
-          overflowY: 'auto'
+          padding: '1.5rem'
         }}>
           {activeWebsiteInfo.multiPageData.pages.map((page, index) => {
             const intentColors = {
@@ -317,7 +315,10 @@ const PagePreview: React.FC<PagePreviewProps> = ({
                   padding: '1rem',
                   borderLeft: `4px solid ${intentColors[page.intent_type]}`,
                   transition: 'all 0.2s ease',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
@@ -365,16 +366,17 @@ const PagePreview: React.FC<PagePreviewProps> = ({
                   {page.url}
                 </p>
                 
+                {/* Action Buttons Container - pushed to bottom */}
+                <div style={{ marginTop: 'auto' }}>
+                
                 {/* Page Variant */}
                 <p style={{
                   fontSize: '0.75rem',
                   color: '#9ca3af',
-                  margin: '0.5rem 0 1rem 0'
+                  margin: '0.5rem 0 0.5rem 0'
                 }}>
                   Variant: {page.page_variant.replace(/-/g, ' ')}
                 </p>
-                
-                {/* Action Buttons */}
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                   {/* Edit Button */}
                   <button
@@ -452,6 +454,7 @@ const PagePreview: React.FC<PagePreviewProps> = ({
                 >
                   View Page ↗
                 </button>
+                </div>
               </div>
             );
           })}
