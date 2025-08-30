@@ -14,7 +14,9 @@ import {
   detectDynamicTags,
   calculateTagExpiration,
   loadTemplate,
-  replaceTemplatePlaceholders
+  replaceTemplatePlaceholders,
+  generateAIOptimizedContent,
+  generateIntentBasedURL
 } from '../_shared/utils.ts'
 
 // AI FAQ optimization imports
@@ -60,62 +62,123 @@ serve(async (req) => {
       throw new Error('Business not found')
     }
 
-    // Generate AI-native business update HTML (no template needed)
-    const updateSlug = generateSemanticSlug(contentText)
-    const businessSlug = slugify(business.name)
-    const countryCode = (business.country || 'us').toLowerCase()
-    const stateCode = (business.address_state || 'ca').toLowerCase()
-    const citySlug = slugify(business.address_city || 'city')
+    // Generate batch ID for coordinated multi-page lifecycle
+    const batchId = crypto.randomUUID();
     
-    // Create clean URL without timestamp
-    const filePath = `/${countryCode}/${stateCode}/${citySlug}/${businessSlug}/${updateSlug}`
+    // Generate 6 AI-optimized pages with different search intents
+    const intentTypes: ('direct' | 'local' | 'category' | 'branded-local' | 'service-urgent' | 'competitive')[] = 
+      ['direct', 'local', 'category', 'branded-local', 'service-urgent', 'competitive'];
+    const aiProvider = business.ai_provider || 'gemini';
     
-    // Generate enhanced page title for AI optimization
-    const pageTitle = `${business.name} - ${contentText.substring(0, 30)} - ${business.address_city}, ${business.address_state}`;
+    // Generate all 6 pages in parallel for maximum efficiency
+    const pageGenerationPromises = intentTypes.map(async (intentType) => {
+      try {
+        // Generate AI-optimized content for this intent
+        const { title, description } = await generateAIOptimizedContent(
+          business, 
+          {
+            content_text: contentText,
+            created_at: new Date().toISOString(),
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          }, 
+          intentType, 
+          aiProvider
+        );
+        
+        // Generate intent-specific URL structure
+        const { filePath, slug, pageVariant } = generateIntentBasedURL(
+          business,
+          { content_text: contentText },
+          intentType,
+          updateId
+        );
+        
+        // Generate AI-native HTML with optimized content
+        const processedHtml = generateAINativeBusinessUpdateHtml(business, { 
+          content_text: contentText,
+          created_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        }, filePath, title, description, intentType);
+        
+        return {
+          update_id: updateId,
+          business_id: businessId,
+          file_path: filePath,
+          title: title,
+          html_content: processedHtml,
+          content_intent: 'update',
+          slug: slug,
+          page_type: 'update',
+          intent_type: intentType,
+          page_variant: pageVariant,
+          generation_batch_id: batchId,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        };
+        
+      } catch (error) {
+        console.error(`Error generating ${intentType} page:`, error);
+        
+        // Fallback: generate basic page if AI fails
+        const { filePath, slug, pageVariant } = generateIntentBasedURL(
+          business,
+          { content_text: contentText },
+          intentType,
+          updateId
+        );
+        
+        const fallbackTitle = `${business.name} - Update - ${business.address_city}, ${business.address_state}`;
+        const fallbackHtml = generateAINativeBusinessUpdateHtml(business, { 
+          content_text: contentText,
+          created_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        }, filePath, fallbackTitle, contentText, intentType);
+        
+        return {
+          update_id: updateId,
+          business_id: businessId,
+          file_path: filePath,
+          title: fallbackTitle,
+          html_content: fallbackHtml,
+          content_intent: 'update',
+          slug: slug,
+          page_type: 'update',
+          intent_type: intentType,
+          page_variant: pageVariant,
+          generation_batch_id: batchId,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        };
+      }
+    });
     
-    // Generate pure AI-native HTML with FAQ optimization
-    const processedHtml = generateAINativeBusinessUpdateHtml(business, { 
-      content_text: contentText,
-      created_at: new Date().toISOString(),
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-    }, filePath)
+    // Wait for all pages to be generated
+    const pageData = await Promise.all(pageGenerationPromises);
     
-    // Store the page in database
-    const { data: page, error: insertError } = await supabase
-      .from('generated_pages')
-      .insert({
-        update_id: updateId,
-        business_id: businessId,
-        file_path: filePath,
-        title: pageTitle,
-        html_content: processedHtml,
-        content_intent: 'update',
-        slug: updateSlug,
-        page_type: 'update',
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-      })
-      .select()
-      .single()
-    
-    if (insertError) {
-      console.error('Error inserting page:', insertError)
-      throw new Error(`Failed to create page: ${insertError.message}`)
-    }
-
     const processingTime = Date.now() - startTime
 
+    // Update status to ready-for-preview instead of completed
     await supabase
       .from('updates')
       .update({ 
-        status: 'completed',
+        status: 'ready-for-preview',
         processing_time_ms: processingTime
       })
       .eq('id', updateId)
 
+    // Return page data for preview (do not insert into database yet)
     return successResponse({
-      url: filePath,
-      title: pageTitle,
-      processingTime
+      pages: pageData.map(page => ({
+        url: page.file_path,
+        title: page.title,
+        intent_type: page.intent_type,
+        page_variant: page.page_variant,
+        html_content: page.html_content,
+        slug: page.slug,
+        expires_at: page.expires_at
+      })),
+      batch_id: batchId,
+      total_pages: pageData.length,
+      processingTime,
+      previewMode: true
     })
   } catch (error) {
     console.error('Error processing update with template:', error)
@@ -138,7 +201,14 @@ serve(async (req) => {
 })
 
 // AI-Native Business Update HTML Generator  
-function generateAINativeBusinessUpdateHtml(business: any, updateData: any, filePath: string): string {
+function generateAINativeBusinessUpdateHtml(
+  business: any, 
+  updateData: any, 
+  filePath: string, 
+  optimizedTitle?: string, 
+  optimizedDescription?: string,
+  intentType?: string
+): string {
   const now = new Date()
   
   // Generate comprehensive JSON-LD with FAQ schema for AI understanding
@@ -192,17 +262,27 @@ function generateAINativeBusinessUpdateHtml(business: any, updateData: any, file
     }
   })
 
+  // Use optimized title and description if provided, otherwise fallback to basic
+  const pageTitle = optimizedTitle || `${business.name} Update - ${business.address_city}, ${business.address_state}`;
+  const pageDescription = optimizedDescription || updateData.content_text;
+  
+  // Add intent-specific meta tags for better AI search understanding
+  const intentMetaTags = intentType ? `
+<meta name="page-intent" content="${intentType}">
+<meta name="search-optimization" content="ai-powered-${intentType}">
+<meta name="content-variant" content="${intentType}-optimized">` : '';
+  
   // Pure AI-native HTML - no styling, maximum information
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>${business.name} Update - ${business.address_city}, ${business.address_state}</title>
-<meta name="description" content="${updateData.content_text}">
+<title>${pageTitle}</title>
+<meta name="description" content="${pageDescription}">
 <meta name="robots" content="index, follow">
 <meta name="geo.region" content="US-${business.address_state}">
 <meta name="geo.placename" content="${business.address_city}">
-<meta name="article:published_time" content="${updateData.created_at}">
+<meta name="article:published_time" content="${updateData.created_at}">${intentMetaTags}
 <script type="application/ld+json">
 ${JSON.stringify(jsonLD, null, 2)}
 </script>

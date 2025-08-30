@@ -9,6 +9,7 @@ import type { WebsiteInfo } from '../services';
 import '../styles/EnhancedUpdateForm.css';
 import '../styles/UpdateWithPreview.css';
 
+
 interface UpdateWithPreviewProps {
   onSuccess?: () => void;
   onError?: (error: string) => void;
@@ -100,8 +101,10 @@ const UpdateWithPreview: React.FC<UpdateWithPreviewProps> = ({
             updateId: update.id,
             businessId: business!.id,
             contentText: contentText,
-            goLiveAt: goLiveAt?.toISOString() || null,
-            expiresAt: expiresAt?.toISOString() || null
+            temporalInfo: {
+              updateCategory: 'general',
+              expiresAt: expiresAt?.toISOString() || null
+            }
           }
         });
 
@@ -135,6 +138,11 @@ const UpdateWithPreview: React.FC<UpdateWithPreviewProps> = ({
     onSuccess?.();
   };
 
+  const handleBackToForm = () => {
+    setShowPreview(false);
+    setPreviewData(null);
+  };
+
   // supabase is now imported at the top of the file
 
   return (
@@ -161,18 +169,33 @@ const UpdateWithPreview: React.FC<UpdateWithPreviewProps> = ({
               isReady: true,
               missingFields: []
             }}
+            onBackToForm={handleBackToForm}
           />
         ) : (
           <div className="preview-placeholder">
             <div className="placeholder-content">
-              <div className="placeholder-icon">📄</div>
-              <h3>Live Preview</h3>
-              <p>Fill out your update details and click "Generate Preview" to see how your AI-optimized page will look.</p>
+              <div className="placeholder-icon">🚀</div>
+              <h3>AI Multi-Page Preview</h3>
+              <p>Fill out your update details and click "Generate Preview" to see your AI-optimized pages.</p>
+              <div className="preview-features">
+                <div className="feature-item">
+                  <span className="feature-icon">🎯</span>
+                  <span>3 targeting strategies</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">🤖</span>
+                  <span>AI-optimized content</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">🌍</span>
+                  <span>GEO-targeted results</span>
+                </div>
+              </div>
               
               {isProcessing && (
                 <div className="preview-processing">
                   <div className="spinner" />
-                  <span>Generating your preview...</span>
+                  <span>Generating 3 AI-optimized pages...</span>
                 </div>
               )}
             </div>

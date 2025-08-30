@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 
 import '../../../styles/ChatDashboard.css';
-import { Calendar, Settings, LogOut, Building2, Link2, Menu, X, MoreHorizontal } from 'lucide-react';
+import { Calendar, Settings, LogOut, Building2, Link2, Menu, X, MoreHorizontal, CreditCard } from 'lucide-react';
 import { BusinessProfileView } from '../business';
 import LinkAnalytics from './LinkAnalytics';
 import { ActiveLinksView, PagePreview } from '../pages';
 import { SettingsModal } from '../../../components';
+import SubscriptionManager from '../../../components/SubscriptionManager';
 import { usePages } from '../../../hooks';
 import { GeneratedPage } from '../../../../types';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -32,6 +33,18 @@ interface WebsiteInfo {
     alternatives?: string[];
     reasoning?: string;
   };
+  multiPageData?: {
+    pages: Array<{
+      url: string;
+      title: string;
+      intent_type: 'direct' | 'local' | 'category' | 'branded-local' | 'service-urgent' | 'competitive';
+      page_variant: string;
+    }>;
+    batch_id: string;
+    total_pages: number;
+    processingTime: number;
+    updateId?: string;
+  };
 }
 import { config } from '../../../utils/config';
 import { generateWebsite } from "../../../services/data/websiteGenerator";
@@ -53,7 +66,7 @@ const ChatDashboard: React.FC = () => {
   const todaysDate = new Date().toISOString().split('T')[0];
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedPage, setSelectedPage] = useState<GeneratedPage | null>(null);
-  const [viewMode, setViewMode] = useState<'update' | 'preview' | 'analytics' | 'profile' | 'links'>('update');
+  const [viewMode, setViewMode] = useState<'update' | 'preview' | 'analytics' | 'profile' | 'links' | 'settings' | 'subscription'>('update');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasAutoSelectedProfile, setHasAutoSelectedProfile] = useState(false);
@@ -73,17 +86,39 @@ const ChatDashboard: React.FC = () => {
   
   const handleProcessUpdate = async () => {
     if (!updateText.trim()) return;
+    if (!business?.id) {
+      alert('Please set up your business profile first');
+      return;
+    }
     
     console.log('🚀 Processing update:', { updateText, startDate, endDate, business: business?.name });
     setIsProcessing(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('process-simple-update', {
+      // First create the update in database
+      const { data: update, error: updateError } = await supabase
+        .from('updates')
+        .insert({
+          business_id: business.id,
+          content_text: updateText,
+          expiration_date_time: endDate ? new Date(endDate + 'T23:59:59Z').toISOString() : null,
+          status: 'pending' as const
+        })
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+
+      // Call the enhanced multi-page generation function
+      const { data, error } = await supabase.functions.invoke('process-update-with-template', {
         body: {
-          updateText,
-          startDate,
-          endDate,
-          businessProfile: business
+          updateId: update.id,
+          businessId: business.id,
+          contentText: updateText,
+          temporalInfo: {
+            updateCategory: 'general',
+            expiresAt: endDate ? new Date(endDate + 'T23:59:59Z').toISOString() : null
+          }
         }
       });
       
@@ -95,14 +130,49 @@ const ChatDashboard: React.FC = () => {
         return;
       }
       
-      if (!data || !data.websiteInfo) {
+      if (!data || (!data.websiteInfo && !data.pages)) {
         console.error('❌ No data returned from Edge Function');
         alert('No data returned from processing. Please try again.');
         return;
       }
       
-      console.log('✅ Setting website info and switching to preview:', data.websiteInfo);
-      setWebsiteInfo(data.websiteInfo);
+      // Handle new multi-page response format
+      if (data.pages && Array.isArray(data.pages) && data.pages.length > 0) {
+        console.log('✅ Multi-page generation successful:', data.pages.length, 'pages');
+        
+        // Convert to websiteInfo format for existing PagePreview component
+        const websiteInfo = {
+          businessName: business?.name || 'Your Business',
+          businessType: business?.primary_category || 'business',
+          location: business?.address_city && business?.address_state 
+            ? `${business.address_city}, ${business.address_state}` 
+            : 'Your Location',
+          updateContent: updateText,
+          temporalInfo: {
+            expiresAt: endDate ? new Date(endDate + 'T23:59:59Z').toISOString() : undefined
+          },
+          previewData: {
+            title: data.pages[0].title, // Use the direct intent page as primary
+            description: `Generated ${data.pages.length} AI-optimized pages`,
+            eventDescription: updateText
+          },
+          // Add the multi-page data for the preview component
+          multiPageData: {
+            pages: data.pages,
+            batch_id: data.batch_id,
+            total_pages: data.total_pages,
+            processingTime: data.processingTime,
+            updateId: update.id // Store the actual updateId for publishing
+          }
+        };
+        
+        setWebsiteInfo(websiteInfo);
+      } else if (data.websiteInfo) {
+        // Fallback to single page format
+        console.log('✅ Setting website info and switching to preview:', data.websiteInfo);
+        setWebsiteInfo(data.websiteInfo);
+      }
+      
       setViewMode('preview');
     } catch (error: any) {
       console.error('💥 Unexpected error:', error);
@@ -190,6 +260,86 @@ const ChatDashboard: React.FC = () => {
     updateFromPreview(field, value);
   };
 
+  const handleEditPage = (index: number, field: string, value: string) => {
+    setWebsiteInfo(prev => {
+      if (!prev.multiPageData) return prev;
+      
+      const updatedPages = [...prev.multiPageData.pages];
+      updatedPages[index] = { ...updatedPages[index], [field]: value };
+      
+      return {
+        ...prev,
+        multiPageData: {
+          ...prev.multiPageData,
+          pages: updatedPages
+        }
+      };
+    });
+  };
+
+  const handleDeletePage = (index: number) => {
+    setWebsiteInfo(prev => {
+      if (!prev.multiPageData) return prev;
+      
+      const updatedPages = prev.multiPageData.pages.filter((_, i) => i !== index);
+      
+      return {
+        ...prev,
+        multiPageData: {
+          ...prev.multiPageData,
+          pages: updatedPages,
+          total_pages: updatedPages.length
+        }
+      };
+    });
+  };
+
+  const handlePublishPages = async (pageData: any[]) => {
+    if (!business?.id || !websiteInfo.multiPageData?.updateId || !websiteInfo.multiPageData?.batch_id) {
+      alert('Missing required data for publishing');
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('publish-pages', {
+        body: {
+          updateId: websiteInfo.multiPageData.updateId, // Use the actual updateId
+          businessId: business.id,
+          pageData: pageData,
+          batchId: websiteInfo.multiPageData.batch_id
+        }
+      });
+
+      if (error) {
+        console.error('❌ Error publishing pages:', error);
+        alert(`Error publishing pages: ${error.message}`);
+        return;
+      }
+
+      console.log('✅ Pages published successfully:', data);
+      alert(`Successfully published ${data.total_pages} pages!`);
+      
+      // Reset form and refresh pages
+      setUpdateText('');
+      setStartDate(() => {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+      });
+      setEndDate('');
+      setWebsiteInfo({} as WebsiteInfo);
+      setViewMode('update');
+      await refetchPages();
+      
+    } catch (error: any) {
+      console.error('💥 Unexpected error during publishing:', error);
+      alert(`Unexpected error: ${error.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
 
 
   const shortenUrl = (url: string) => {
@@ -268,109 +418,49 @@ const ChatDashboard: React.FC = () => {
             <Link2 size={20} className="nav-icon" />
             {isSidebarOpen && <span>Active Links</span>}
           </button>
+
+          <button 
+            className={`nav-item ${viewMode === 'settings' ? 'active' : ''}`}
+            onClick={() => {
+              setViewMode('settings');
+              setSelectedPage(null);
+            }}
+          >
+            <Settings size={20} className="nav-icon" />
+            {isSidebarOpen && <span>Settings</span>}
+          </button>
+
+          <button 
+            className={`nav-item ${viewMode === 'subscription' ? 'active' : ''}`}
+            onClick={() => {
+              setViewMode('subscription');
+              setSelectedPage(null);
+            }}
+          >
+            <CreditCard size={20} className="nav-icon" />
+            {isSidebarOpen && <span>Subscription</span>}
+          </button>
+          
         </div>
 
-        {isSidebarOpen && (
-          <div className="sidebar-sections">
-            {/* Active Links List */}
-            {activePages.length > 0 && (
-              <div className="sidebar-section">
-                <div className="section-header">
-                  <span style={{ fontSize: '12px', color: '#6e6e6e', textTransform: 'uppercase' }}>
-                    Active Links ({activePages.length})
-                  </span>
-                </div>
-                <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.1)', marginBottom: '8px' }}></div>
-                <div className="links-list">
-                  {activePages.map(page => (
-                    <div 
-                      key={page.id} 
-                      className={`link-item ${selectedPage?.id === page.id ? 'selected' : ''}`}
-                      style={{ cursor: 'pointer', padding: '8px', borderRadius: '4px', marginBottom: '4px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}
-                    >
-                      <div onClick={() => handleLinkClick(page)}>
-                        <div style={{ fontSize: '11px', color: '#6b7280', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', lineHeight: '1', margin: '0', padding: '0' }}>
-                          {shortenUrl(page.file_path)}
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', lineHeight: '1', margin: '0', padding: '0' }}>
-                          <span style={{ fontSize: '10px', color: page.expires_at ? '#f59e0b' : '#22c55e', fontWeight: '500' }}>
-                            {page.expires_at ? formatExpirationTime(page.expires_at) : 'Permanent'}
-                          </span>
-                          <a 
-                            href={page.url || `${config.env.appUrl}${page.file_path}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{ color: '#10b981', textDecoration: 'none', fontSize: '10px', flexShrink: 0 }}
-                          >
-                            View ↗
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            {activePages.length === 0 && (
-              <div className="empty-state">No active links yet</div>
-            )}
-          </div>
-        )}
 
         {/* User Profile Section */}
         <div className="sidebar-footer">
           <div className="profile-menu-container">
             <button 
               className="user-profile-btn"
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              onClick={() => signOut()}
             >
               <div className="user-avatar">
                 {user?.email?.charAt(0).toUpperCase() || 'U'}
               </div>
               {isSidebarOpen && (
-                <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span className="user-email">{user?.email || 'User'}</span>
-                  <MoreHorizontal size={16} className="menu-dots" />
-                </>
+                  <LogOut size={14} style={{ color: '#ef4444' }} />
+                </div>
               )}
             </button>
-            
-            {showProfileMenu && (
-              <div className="profile-dropdown">
-                <button 
-                  className="dropdown-item"
-                  onClick={() => {
-                    setViewMode('profile');
-                    setShowProfileMenu(false);
-                  }}
-                >
-                  <Building2 size={16} />
-                  <span>Business Profile</span>
-                </button>
-                <button 
-                  className="dropdown-item"
-                  onClick={() => {
-                    setShowSettings(true);
-                    setShowProfileMenu(false);
-                  }}
-                >
-                  <Settings size={16} />
-                  <span>Settings</span>
-                </button>
-                <div className="dropdown-divider" />
-                <button 
-                  className="dropdown-item"
-                  onClick={() => {
-                    signOut();
-                    setShowProfileMenu(false);
-                  }}
-                >
-                  <LogOut size={16} />
-                  <span>Log out</span>
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </aside>
@@ -397,6 +487,101 @@ const ChatDashboard: React.FC = () => {
             onPageClick={handleLinkClick}
             onDeletePage={deletePage}
           />
+        ) : viewMode === 'settings' ? (
+          <div className="settings-view" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+            <div className="settings-header" style={{ marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '1.875rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem' }}>Settings</h2>
+              <p style={{ color: '#9ca3af' }}>Manage your account and preferences</p>
+            </div>
+
+            {/* Account Section */}
+            <div className="settings-section" style={{ 
+              background: 'rgba(255, 255, 255, 0.05)', 
+              borderRadius: '0.5rem', 
+              padding: '1.5rem', 
+              marginBottom: '1.5rem',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ffffff', marginBottom: '1rem' }}>Account Information</h3>
+              
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Email</label>
+                <span style={{ color: '#ffffff' }}>{user?.email || 'Not logged in'}</span>
+              </div>
+              
+              {business && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Business</label>
+                  <span style={{ color: '#ffffff' }}>{business.name || 'Unnamed Business'}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Danger Zone */}
+            {business && (
+              <div className="danger-zone" style={{ 
+                background: 'rgba(239, 68, 68, 0.05)', 
+                borderRadius: '0.5rem', 
+                padding: '1.5rem',
+                border: '1px solid rgba(239, 68, 68, 0.2)'
+              }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ef4444', marginBottom: '1rem' }}>Danger Zone</h3>
+                
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'flex-start',
+                  padding: '1rem',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  borderRadius: '0.375rem',
+                  border: '1px solid rgba(239, 68, 68, 0.3)'
+                }}>
+                  <div>
+                    <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem' }}>Delete Business Profile</h4>
+                    <p style={{ fontSize: '0.875rem', color: '#d1d5db', margin: 0 }}>This will permanently delete your business profile and all associated data. You can create a new profile anytime.</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      const confirmed = window.confirm('Are you sure you want to delete your business profile? This action cannot be undone.');
+                      if (confirmed) {
+                        // Handle delete logic here
+                        alert('Delete functionality would be implemented here');
+                      }
+                    }}
+                    style={{
+                      background: '#ef4444',
+                      border: 'none',
+                      color: 'white',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      marginLeft: '1rem',
+                      flexShrink: 0
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#dc2626';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#ef4444';
+                    }}
+                  >
+                    Delete Profile
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : viewMode === 'subscription' ? (
+          <div className="subscription-view" style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+            <div className="subscription-header" style={{ marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '1.875rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem' }}>Subscription</h2>
+              <p style={{ color: '#9ca3af' }}>Manage your billing and subscription</p>
+            </div>
+            <SubscriptionManager />
+          </div>
         ) : viewMode === 'analytics' && selectedPage ? (
           <LinkAnalytics page={selectedPage} onClose={handleBackToChat} />
         ) : viewMode === 'preview' ? (
@@ -404,6 +589,9 @@ const ChatDashboard: React.FC = () => {
             <PagePreview 
               websiteInfo={websiteInfo} 
               onEdit={handlePreviewEdit}
+              onEditPage={handleEditPage}
+              onDeletePage={handleDeletePage}
+              onPublishPages={handlePublishPages}
               onConfirm={handlePreviewConfirm}
               showActions={true}
               completionStatus={completionStatus}

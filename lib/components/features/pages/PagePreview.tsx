@@ -22,6 +22,18 @@ interface WebsiteInfo {
     alternatives?: string[];
     reasoning?: string;
   };
+  multiPageData?: {
+    pages: Array<{
+      url: string;
+      title: string;
+      intent_type: 'direct' | 'local' | 'category' | 'branded-local' | 'service-urgent' | 'competitive';
+      page_variant: string;
+    }>;
+    batch_id: string;
+    total_pages: number;
+    processingTime: number;
+    updateId?: string;
+  };
 }
 // Removed Zustand store imports - using React props instead
 
@@ -29,6 +41,9 @@ interface PagePreviewProps {
   websiteInfo?: WebsiteInfo;
   onConfirm?: (adjustedInfo: WebsiteInfo) => void;
   onEdit?: (field: string, value: string) => void;
+  onEditPage?: (index: number, field: string, value: string) => void;
+  onDeletePage?: (index: number) => void;
+  onPublishPages?: (pageData: any[]) => void;
   showActions?: boolean;
   agentStatus?: {
     hasCoordinator: boolean;
@@ -50,6 +65,9 @@ const PagePreview: React.FC<PagePreviewProps> = ({
   websiteInfo, 
   onConfirm, 
   onEdit,
+  onEditPage,
+  onDeletePage,
+  onPublishPages,
   showActions = false,
   agentStatus = {
     hasCoordinator: false,
@@ -208,6 +226,266 @@ const PagePreview: React.FC<PagePreviewProps> = ({
           <p>Start chatting to create your page</p>
           <small>Tell us about your business update and we&apos;ll create an optimized page</small>
         </div>
+      </div>
+    );
+  }
+
+  // Check if we have multi-page data to display horizontally
+  if (activeWebsiteInfo.multiPageData && activeWebsiteInfo.multiPageData.pages.length > 0) {
+    return (
+      <div className="preview-panel" tabIndex={-1}>
+        <div className="preview-panel-header">
+          <h3>🎉 {activeWebsiteInfo.multiPageData.total_pages} AI-Optimized Pages Generated!</h3>
+          <div className="preview-status-container">
+            <div className="completion-indicator" style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.375rem'
+            }}>
+              <CheckCircle size={14} style={{ color: '#22c55e' }} />
+              <span style={{
+                fontSize: '0.75rem',
+                color: '#22c55e',
+                fontWeight: '500'
+              }}>
+                {activeWebsiteInfo.multiPageData.processingTime}ms processing
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Back to Form Button */}
+        {onBackToForm && (
+          <div style={{ display: 'flex', justifyContent: 'flex-start', padding: '16px 24px 0 24px' }}>
+            <button 
+              onClick={onBackToForm}
+              className="back-button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '6px 12px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '0.375rem',
+                color: '#ffffff',
+                fontSize: '13px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              ← Back to Form
+            </button>
+          </div>
+        )}
+
+        {/* 6-Page Layout (2 rows × 3 columns) */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateRows: 'repeat(2, 1fr)',
+          gap: '1rem',
+          padding: '1.5rem',
+          maxHeight: '75vh',
+          overflowY: 'auto'
+        }}>
+          {activeWebsiteInfo.multiPageData.pages.map((page, index) => {
+            const intentColors = {
+              'direct': '#3b82f6',
+              'local': '#10b981', 
+              'category': '#8b5cf6',
+              'branded-local': '#f59e0b',
+              'service-urgent': '#ef4444',
+              'competitive': '#06b6d4'
+            };
+            const intentLabels = {
+              'direct': 'Direct/Brand',
+              'local': 'Local Discovery',
+              'category': 'Category/Service',
+              'branded-local': 'Branded Local',
+              'service-urgent': 'Urgent Service',
+              'competitive': 'Competitive Edge'
+            };
+            
+            return (
+              <div 
+                key={`${page.intent_type}-${index}`}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '0.5rem',
+                  padding: '1rem',
+                  borderLeft: `4px solid ${intentColors[page.intent_type]}`,
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                {/* Intent Badge */}
+                <div style={{
+                  display: 'inline-block',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '1rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  backgroundColor: `${intentColors[page.intent_type]}20`,
+                  color: intentColors[page.intent_type],
+                  border: `1px solid ${intentColors[page.intent_type]}40`,
+                  marginBottom: '1rem'
+                }}>
+                  {intentLabels[page.intent_type]}
+                </div>
+                
+                {/* Page Title */}
+                <h4 style={{
+                  margin: '0 0 0.5rem 0',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  lineHeight: '1.3',
+                  color: '#ffffff'
+                }}>
+                  {page.title}
+                </h4>
+                
+                {/* URL */}
+                <p style={{
+                  fontFamily: 'monospace',
+                  fontSize: '0.75rem',
+                  color: '#6b7280',
+                  margin: '0.5rem 0',
+                  wordBreak: 'break-all'
+                }}>
+                  {page.url}
+                </p>
+                
+                {/* Page Variant */}
+                <p style={{
+                  fontSize: '0.75rem',
+                  color: '#9ca3af',
+                  margin: '0.5rem 0 1rem 0'
+                }}>
+                  Variant: {page.page_variant.replace(/-/g, ' ')}
+                </p>
+                
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  {/* Edit Button */}
+                  <button
+                    onClick={() => onEditPage?.(index, 'title', page.title)}
+                    style={{
+                      flex: 1,
+                      padding: '0.4rem',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '0.375rem',
+                      color: '#ffffff',
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                    }}
+                  >
+                    Edit
+                  </button>
+                  
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => onDeletePage?.(index)}
+                    style={{
+                      flex: 1,
+                      padding: '0.4rem',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '0.375rem',
+                      color: '#ef4444',
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+                
+                {/* View Button */}
+                <button
+                  onClick={() => window.open(page.url, '_blank')}
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    marginTop: '0.5rem',
+                    background: `${intentColors[page.intent_type]}15`,
+                    border: `1px solid ${intentColors[page.intent_type]}40`,
+                    borderRadius: '0.375rem',
+                    color: intentColors[page.intent_type],
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = `${intentColors[page.intent_type]}25`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = `${intentColors[page.intent_type]}15`;
+                  }}
+                >
+                  View Page ↗
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Manual Publish Button */}
+        {showActions && (
+          <div style={{ padding: '0 1.5rem 1.5rem' }}>
+            <button
+              onClick={() => onPublishPages?.(activeWebsiteInfo.multiPageData?.pages || [])}
+              className="process-btn"
+              style={{
+                width: '100%',
+                background: '#22c55e',
+                border: 'none',
+                color: 'white',
+                fontWeight: '600',
+                fontSize: '1rem',
+                padding: '0.75rem'
+              }}
+            >
+              🚀 Publish All {activeWebsiteInfo.multiPageData.total_pages} Pages
+            </button>
+            <p style={{
+              fontSize: '0.75rem',
+              color: '#9ca3af',
+              textAlign: 'center',
+              marginTop: '0.5rem',
+              marginBottom: 0
+            }}>
+              Review each page above before publishing
+            </p>
+          </div>
+        )}
       </div>
     );
   }

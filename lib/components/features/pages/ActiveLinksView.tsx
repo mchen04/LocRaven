@@ -116,7 +116,12 @@ const ActiveLinksView: React.FC<ActiveLinksViewProps> = ({ activePages, expiredP
             </div>
           ) : (
 
-      <div className="links-grid">
+      <div className="links-grid" style={{
+        maxHeight: '60vh',
+        overflowY: 'auto',
+        scrollbarWidth: 'thin',
+        scrollbarColor: 'rgba(255, 255, 255, 0.3) transparent'
+      }}>
         {activePages.map((page) => {
           const expiresAt = page.expires_at;
           const expiringSoon = expiresAt ? isExpiringSoon(expiresAt) : false;
