@@ -205,25 +205,48 @@ export async function getSubscriptionPlanByPriceId(
 
 // Handle Stripe webhook events
 export async function handleStripeWebhook(event: Stripe.Event): Promise<void> {
-  console.log(`Processing webhook event: ${event.type}`);
+  console.log(`Processing webhook event: ${event.type} [${event.id}]`);
   
   try {
     switch (event.type) {
       case 'customer.subscription.created':
+        console.log('New subscription created');
+        await handleSubscriptionUpdate(event.data.object as Stripe.Subscription);
+        break;
+        
       case 'customer.subscription.updated':
+        console.log('Subscription updated - checking for plan changes or cancellation status');
         await handleSubscriptionUpdate(event.data.object as Stripe.Subscription);
         break;
         
       case 'customer.subscription.deleted':
+        console.log('Subscription deleted/canceled');
         await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
         
+      case 'customer.subscription.trial_will_end':
+        console.log('Subscription trial ending soon');
+        await handleTrialWillEnd(event.data.object as Stripe.Subscription);
+        break;
+        
       case 'invoice.payment_succeeded':
+        console.log('Payment succeeded');
         await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
         break;
         
       case 'invoice.payment_failed':
+        console.log('Payment failed');
         await handlePaymentFailed(event.data.object as Stripe.Invoice);
+        break;
+        
+      case 'invoice.payment_action_required':
+        console.log('Payment requires customer action');
+        await handlePaymentActionRequired(event.data.object as Stripe.Invoice);
+        break;
+        
+      case 'customer.created':
+        console.log('New customer created');
+        await handleCustomerCreated(event.data.object as Stripe.Customer);
         break;
         
       default:
@@ -231,10 +254,23 @@ export async function handleStripeWebhook(event: Stripe.Event): Promise<void> {
         // Return success for all events to prevent Stripe retries
         return;
     }
+    
+    console.log(`Successfully processed webhook event: ${event.type} [${event.id}]`);
   } catch (error) {
-    console.error(`Error handling webhook event ${event.type}:`, error);
+    console.error(`Error handling webhook event ${event.type} [${event.id}]:`, error);
     // Don't throw error for unhandled events - just log and continue
-    if (!['customer.subscription.created', 'customer.subscription.updated', 'customer.subscription.deleted', 'invoice.payment_succeeded', 'invoice.payment_failed'].includes(event.type)) {
+    const handledEventTypes = [
+      'customer.subscription.created',
+      'customer.subscription.updated', 
+      'customer.subscription.deleted',
+      'customer.subscription.trial_will_end',
+      'invoice.payment_succeeded', 
+      'invoice.payment_failed',
+      'invoice.payment_action_required',
+      'customer.created'
+    ];
+    
+    if (!handledEventTypes.includes(event.type)) {
       console.log(`Continuing despite error for unhandled event: ${event.type}`);
       return;
     }
@@ -339,4 +375,51 @@ async function handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
       await updateBusinessSubscriptionStatus(userEmail, 'past_due');
     }
   }
+}
+
+// Handle trial will end
+async function handleTrialWillEnd(subscription: Stripe.Subscription): Promise<void> {
+  const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
+  const userEmail = customer.email;
+  
+  if (!userEmail) {
+    console.error('No email found for customer:', subscription.customer);
+    return;
+  }
+  
+  // Update business subscription status to indicate trial is ending
+  await updateBusinessSubscriptionStatus(userEmail, 'trial');
+  
+  // Here you could add logic to send email notifications about trial ending
+  console.log(`Trial ending soon for customer: ${userEmail}`);
+}
+
+// Handle payment action required
+async function handlePaymentActionRequired(invoice: Stripe.Invoice): Promise<void> {
+  if (invoice.subscription) {
+    const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
+    const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
+    const userEmail = customer.email;
+    
+    if (userEmail) {
+      // Update status to indicate action required
+      await updateBusinessSubscriptionStatus(userEmail, 'incomplete');
+      console.log(`Payment action required for customer: ${userEmail}`);
+    }
+  }
+}
+
+// Handle customer created
+async function handleCustomerCreated(customer: Stripe.Customer): Promise<void> {
+  const userEmail = customer.email;
+  
+  if (!userEmail) {
+    console.error('No email found for customer:', customer.id);
+    return;
+  }
+  
+  console.log(`New Stripe customer created: ${userEmail} (${customer.id})`);
+  
+  // You could add logic here to update your database with the customer information
+  // or send welcome emails, etc.
 }
