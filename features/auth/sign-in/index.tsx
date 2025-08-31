@@ -1,4 +1,6 @@
-import { useSearch } from 'next/navigation'
+'use client'
+
+import { useSearchParams } from 'next/navigation'
 import {
   Card,
   CardContent,
@@ -11,7 +13,8 @@ import { AuthLayout } from '../auth-layout'
 import { UserAuthForm } from './components/user-auth-form'
 
 export function SignIn() {
-  const { redirect } = useSearch({ from: '/(auth)/sign-in' })
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect')
 
   return (
     <AuthLayout>
