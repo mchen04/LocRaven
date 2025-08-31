@@ -155,6 +155,21 @@ serve(async (req) => {
     
     const processingTime = Date.now() - startTime
 
+    // Store generated pages as drafts (unpublished)
+    const { data: insertedPages, error: insertError } = await supabase
+      .from('generated_pages')
+      .insert(pageData.map(page => ({
+        ...page,
+        published: false,  // Store as draft
+        published_at: null
+      })))
+      .select();
+
+    if (insertError) {
+      console.error('Error inserting draft pages:', insertError);
+      throw new Error(`Failed to save draft pages: ${insertError.message}`);
+    }
+
     // Update status to ready-for-preview instead of completed
     await supabase
       .from('updates')
@@ -164,21 +179,25 @@ serve(async (req) => {
       })
       .eq('id', updateId)
 
-    // Return page data for preview (do not insert into database yet)
+    // Return page data for preview and publishing
     return successResponse({
-      pages: pageData.map(page => ({
+      pages: insertedPages?.map(page => ({
+        id: page.id,
         url: page.file_path,
         title: page.title,
         intent_type: page.intent_type,
         page_variant: page.page_variant,
         html_content: page.html_content,
         slug: page.slug,
-        expires_at: page.expires_at
-      })),
+        expires_at: page.expires_at,
+        published: page.published,
+        previewUrl: `/preview/${page.id}`
+      })) || [],
       batch_id: batchId,
-      total_pages: pageData.length,
+      total_pages: insertedPages?.length || 0,
       processingTime,
-      previewMode: true
+      previewMode: true,
+      message: 'Pages generated as drafts. Use publish-pages function to make them live.'
     })
   } catch (error) {
     console.error('Error processing update with template:', error)

@@ -19,11 +19,10 @@ export function SignIn() {
   return (
     <AuthLayout>
       <Card className='gap-4'>
-        <CardHeader>
+        <CardHeader className="text-center">
           <CardTitle className='text-lg tracking-tight'>Sign in</CardTitle>
           <CardDescription>
-            Enter your email and password below to <br />
-            log into your account
+            Sign in to your account using Google
           </CardDescription>
         </CardHeader>
         <CardContent>
