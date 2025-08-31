@@ -291,6 +291,7 @@ const BusinessDetailsInlineForm: React.FC<BusinessDetailsInlineFormProps> = ({ b
         <AccessibilityExperienceSection
           formData={formData as any}
           isEditing={isEditing}
+          onFieldChange={handleFieldChange}
           onArrayFieldChange={handleArrayFieldChange}
         />
 
@@ -305,6 +306,7 @@ const BusinessDetailsInlineForm: React.FC<BusinessDetailsInlineFormProps> = ({ b
         <RecognitionSocialSection
           formData={formData as any}
           isEditing={isEditing}
+          onFieldChange={handleFieldChange}
           onArrayFieldChange={handleArrayFieldChange}
           onSocialMediaChange={handleSocialMediaChange}
         />

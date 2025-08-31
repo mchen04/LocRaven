@@ -3,7 +3,7 @@
 import nextDynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import ProtectedPageWrapper from '../ProtectedPageWrapper';
-import LoadingScreen from '../ui/templates/LoadingScreen';
+import { Loading } from '../ui/atoms';
 
 interface ProtectedDynamicPageProps {
   importPath: () => Promise<{ default: React.ComponentType<any> }>;
@@ -20,13 +20,13 @@ const ProtectedDynamicPage: React.FC<ProtectedDynamicPageProps> = ({
 }) => {
   // Dynamically import component with code splitting
   const DynamicComponent = nextDynamic(importPath, {
-    loading: () => <LoadingScreen text={loadingText} />,
+    loading: () => <Loading text={loadingText} layout="centered" />,
     ssr
   });
 
   return (
     <ProtectedPageWrapper>
-      <Suspense fallback={<LoadingScreen text={fallbackText} />}>
+      <Suspense fallback={<Loading text={fallbackText} layout="centered" />}>
         <DynamicComponent />
       </Suspense>
     </ProtectedPageWrapper>

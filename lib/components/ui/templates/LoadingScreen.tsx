@@ -1,6 +1,5 @@
 import React from 'react';
-import LoadingSpinner from '../../LoadingSpinner';
-import CenteredLayout from '../layouts/CenteredLayout';
+import { Loading } from '../atoms';
 
 interface LoadingScreenProps {
   size?: 'sm' | 'md' | 'lg';
@@ -9,29 +8,26 @@ interface LoadingScreenProps {
   className?: string;
 }
 
+// Simplified loading screen using unified Loading component
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
   size = 'lg',
   text = 'Loading...',
   variant = 'fullscreen',
   className = ''
 }) => {
-  if (variant === 'overlay') {
-    return (
-      <div className={`fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center pointer-events-none z-50 ${className}`}>
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
-          <LoadingSpinner size={size} text={text} />
-        </div>
-      </div>
-    );
-  }
+  const layoutMap = {
+    default: 'centered',
+    fullscreen: 'fullscreen',
+    overlay: 'overlay'
+  } as const;
 
   return (
-    <CenteredLayout 
-      variant={variant === 'fullscreen' ? 'fullscreen' : 'default'} 
+    <Loading
+      size={size}
+      text={text}
+      layout={layoutMap[variant]}
       className={className}
-    >
-      <LoadingSpinner size={size} text={text} />
-    </CenteredLayout>
+    />
   );
 };
 

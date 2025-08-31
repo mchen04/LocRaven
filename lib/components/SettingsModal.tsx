@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Trash2, AlertTriangle } from 'lucide-react';
+import { Trash2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useBusiness } from '../contexts/BusinessContext';
+import { Modal, ConfirmationModal } from './ui/organisms';
+import { Button } from './ui/atoms';
 import SubscriptionManager from './SubscriptionManager';
 
 interface SettingsModalProps {
@@ -61,24 +63,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Modal Overlay */}
-      <div 
-        className="settings-modal-overlay"
-        onClick={onClose}
-      />
-      
-      {/* Modal Content */}
-      <div className="settings-modal">
-        <div className="settings-modal-header">
-          <h2>Settings</h2>
-          <button 
-            className="settings-modal-close"
-            onClick={onClose}
-          >
-            <X size={20} />
-          </button>
-        </div>
-        
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Settings"
+        size="lg"
+      >
         <div className="settings-modal-content">
           {!showDeleteConfirmation ? (
             <>
@@ -189,8 +179,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             </div>
           )}
         </div>
-
-      </div>
+      </Modal>
     </>
   );
 };

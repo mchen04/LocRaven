@@ -1,0 +1,267 @@
+/* UI Refactoring - Unified Style System Utilities */
+
+/* Layout & Positioning Utilities */
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.flex-center-col {
+  @apply flex flex-col items-center justify-center;
+}
+
+.flex-between {
+  @apply flex items-center justify-between;
+}
+
+.flex-start {
+  @apply flex items-center justify-start;
+}
+
+.flex-end {
+  @apply flex items-center justify-end;
+}
+
+.absolute-center {
+  @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
+}
+
+.fixed-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+/* Spacing Utilities */
+.space-y-section {
+  @apply space-y-6;
+}
+
+.space-y-field {
+  @apply space-y-4;
+}
+
+.space-x-action {
+  @apply space-x-3;
+}
+
+.padding-section {
+  @apply p-6;
+}
+
+.padding-field {
+  @apply p-4;
+}
+
+/* Typography Utilities */
+.text-heading {
+  @apply text-xl font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.text-subheading {
+  @apply text-lg font-medium text-gray-800 dark:text-gray-200;
+}
+
+.text-label {
+  @apply text-sm font-medium text-gray-700 dark:text-gray-300;
+}
+
+.text-body {
+  @apply text-base text-gray-900 dark:text-gray-100;
+}
+
+.text-muted {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.text-error {
+  @apply text-sm text-red-600 dark:text-red-400;
+}
+
+.text-success {
+  @apply text-sm text-green-600 dark:text-green-400;
+}
+
+.text-warning {
+  @apply text-sm text-yellow-600 dark:text-yellow-400;
+}
+
+/* Background & Border Utilities */
+.bg-surface {
+  @apply bg-white dark:bg-gray-800;
+}
+
+.bg-surface-muted {
+  @apply bg-gray-50 dark:bg-gray-900;
+}
+
+.bg-overlay {
+  @apply bg-black bg-opacity-20;
+}
+
+.border-primary {
+  @apply border border-gray-200 dark:border-gray-700;
+}
+
+.border-muted {
+  @apply border border-gray-100 dark:border-gray-800;
+}
+
+.border-error {
+  @apply border border-red-300 dark:border-red-600;
+}
+
+.border-success {
+  @apply border border-green-300 dark:border-green-600;
+}
+
+/* Form Utilities */
+.form-input-base {
+  @apply w-full px-3 py-2 bg-surface border-primary rounded-md shadow-sm 
+         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+         transition-colors duration-200;
+}
+
+.form-input-error {
+  @apply border-error focus:ring-red-500 focus:border-red-500;
+}
+
+.form-label-base {
+  @apply block text-label mb-2;
+}
+
+.form-section-base {
+  @apply bg-surface rounded-lg shadow-sm border-primary padding-section;
+}
+
+.form-field-base {
+  @apply space-y-field;
+}
+
+/* Card Utilities */
+.card-base {
+  @apply bg-surface rounded-lg shadow-sm border-primary;
+}
+
+.card-elevated {
+  @apply bg-surface rounded-lg shadow-md border-primary;
+}
+
+.card-interactive {
+  @apply card-base hover:shadow-md transition-shadow duration-200 cursor-pointer;
+}
+
+/* Button State Utilities */
+.btn-focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+}
+
+.btn-disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Loading & State Utilities */
+.loading-overlay {
+  @apply fixed-overlay pointer-events-none;
+}
+
+.loading-spinner {
+  @apply animate-spin rounded-full border-2 border-current border-t-transparent;
+}
+
+.skeleton-base {
+  @apply bg-gray-200 dark:bg-gray-700 animate-pulse rounded;
+}
+
+/* Danger Zone Utilities */
+.danger-zone {
+  @apply border border-red-200 dark:border-red-800 rounded-lg p-4 bg-red-50 dark:bg-red-900/20;
+}
+
+.danger-text {
+  @apply text-red-700 dark:text-red-300;
+}
+
+.danger-text-muted {
+  @apply text-red-600 dark:text-red-400;
+}
+
+/* Tab Utilities */
+.tab-container {
+  @apply flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg;
+}
+
+.tab-button {
+  @apply flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors;
+}
+
+.tab-active {
+  @apply bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm;
+}
+
+.tab-inactive {
+  @apply text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100;
+}
+
+/* Modal Utilities */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50;
+}
+
+.modal-content {
+  @apply bg-surface rounded-lg shadow-xl w-full transform transition-all duration-200 ease-out;
+}
+
+.modal-header {
+  @apply flex items-center justify-between padding-section border-b border-gray-200 dark:border-gray-700;
+}
+
+.modal-footer {
+  @apply border-t border-gray-200 dark:border-gray-700 padding-section bg-surface-muted rounded-b-lg;
+}
+
+/* List Utilities */
+.list-item {
+  @apply flex justify-between py-3 border-b border-gray-200 dark:border-gray-700;
+}
+
+.list-item:last-child {
+  @apply border-b-0;
+}
+
+/* Animation Utilities */
+.fade-in {
+  @apply animate-in fade-in duration-200;
+}
+
+.slide-up {
+  @apply animate-in slide-in-from-bottom duration-300;
+}
+
+.scale-in {
+  @apply animate-in zoom-in duration-200;
+}
+
+/* Responsive Utilities */
+.container-responsive {
+  @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.grid-responsive {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.grid-auto {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+/* Focus & Accessibility Utilities */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.screen-reader-only {
+  @apply sr-only;
+}
+
+.skip-link {
+  @apply absolute -top-10 left-6 z-50 bg-surface text-body px-4 py-2 rounded-md 
+         focus:top-6 transition-all duration-200;
+}

@@ -1,12 +1,12 @@
-import LoadingScreen from '@/lib/components/ui/templates/LoadingScreen';
+import { Loading } from '@/lib/components/ui/atoms';
 
 // Global loading UI for the app
-export default function Loading() {
+export default function AppLoading() {
   return (
-    <LoadingScreen 
+    <Loading 
       size="lg" 
       text="Loading LocRaven..." 
-      variant="fullscreen" 
+      layout="fullscreen" 
     />
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Spinner } from '../atoms';
+import { Card, Loading } from '../atoms';
 import type { CardProps } from '../atoms';
 
 export interface LoadingCardProps extends Omit<CardProps, 'children'> {
@@ -14,9 +14,12 @@ const LoadingCard: React.FC<LoadingCardProps> = ({
 }) => {
   return (
     <Card {...cardProps}>
-      <div className="flex flex-col items-center justify-center py-8">
-        <Spinner size={spinnerSize} className="mb-4" />
-        <p className="text-gray-600 text-sm">{message}</p>
+      <div className="py-8">
+        <Loading 
+          size={spinnerSize} 
+          text={message}
+          layout="centered"
+        />
       </div>
     </Card>
   );
