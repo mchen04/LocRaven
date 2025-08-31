@@ -1,5 +1,7 @@
 
-import { ReactNode, HTMLAttributes } from 'react';
+'use client';
+
+import { ReactNode, HTMLAttributes, useState } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../utils/cn';
 
@@ -84,7 +86,7 @@ const FormSection: React.FC<FormSectionProps> = ({
   defaultExpanded = true,
   ...props
 }) => {
-  const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
     <div 

@@ -236,29 +236,29 @@ export default function LandingPage() {
               <h4>Company</h4>
               <ul>
                 <li><a href="#about">About</a></li>
-                <li><Link href="/blog">Blog</Link></li>
-                <li><Link href="/careers">Careers</Link></li>
-                <li><Link href="/contact">Contact</Link></li>
+                <li><Link href={"/blog" as any}>Blog</Link></li>
+                <li><Link href={"/careers" as any}>Careers</Link></li>
+                <li><Link href={"/contact" as any}>Contact</Link></li>
               </ul>
             </div>
             
             <div className="footer-section">
               <h4>Support</h4>
               <ul>
-                <li><Link href="/help">Help Center</Link></li>
-                <li><Link href="/docs">Documentation</Link></li>
-                <li><Link href="/api">API</Link></li>
-                <li><Link href="/status">Status</Link></li>
+                <li><Link href={"/help" as any}>Help Center</Link></li>
+                <li><Link href={"/docs" as any}>Documentation</Link></li>
+                <li><Link href={"/api" as any}>API</Link></li>
+                <li><Link href={"/status" as any}>Status</Link></li>
               </ul>
             </div>
             
             <div className="footer-section">
               <h4>Legal</h4>
               <ul>
-                <li><Link href="/privacy">Privacy Policy</Link></li>
-                <li><Link href="/terms">Terms of Service</Link></li>
-                <li><Link href="/security">Security</Link></li>
-                <li><Link href="/compliance">Compliance</Link></li>
+                <li><Link href={"/privacy" as any}>Privacy Policy</Link></li>
+                <li><Link href={"/terms" as any}>Terms of Service</Link></li>
+                <li><Link href={"/security" as any}>Security</Link></li>
+                <li><Link href={"/compliance" as any}>Compliance</Link></li>
               </ul>
             </div>
           </div>

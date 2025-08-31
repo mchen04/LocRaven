@@ -1,5 +1,5 @@
 
-import { ReactNode, HTMLAttributes } from 'react';
+import { ReactNode, HTMLAttributes, Children, isValidElement, cloneElement } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../utils/cn';
 
@@ -70,14 +70,14 @@ const FormField: React.FC<FormFieldProps> = ({
       )}
       
       <div>
-        {React.Children.map(children, (child) => {
-          if (React.isValidElement(child)) {
+        {Children.map(children, (child) => {
+          if (isValidElement(child)) {
             const additionalProps = {
               id: fieldId,
               'aria-invalid': error ? 'true' : 'false',
               'aria-describedby': error ? `${fieldId}-error` : helpText ? `${fieldId}-help` : undefined,
             };
-            return React.cloneElement(child as React.ReactElement<any>, Object.assign({}, child.props, additionalProps));
+            return cloneElement(child as any, Object.assign({}, child.props, additionalProps));
           }
           return child;
         })}

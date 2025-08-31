@@ -98,8 +98,8 @@ const Login: React.FC = () => {
               ← Back to Home
             </button>
             <div className="auth-links">
-              <Link href="/privacy" className="footer-link">Privacy</Link>
-              <Link href="/terms" className="footer-link">Terms</Link>
+              <Link href={"/privacy" as any} className="footer-link">Privacy</Link>
+              <Link href={"/terms" as any} className="footer-link">Terms</Link>
             </div>
           </div>
         </div>

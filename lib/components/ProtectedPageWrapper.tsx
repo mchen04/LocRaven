@@ -17,7 +17,7 @@ export default function ProtectedPageWrapper({ children, redirectTo }: Protected
     if (!loading && !user) {
       const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
       const loginUrl = redirectTo || `/login?redirectedFrom=${encodeURIComponent(currentPath)}`;
-      router.push(loginUrl);
+      router.push(loginUrl as any);
     }
   }, [user, loading, router, redirectTo]);
 
