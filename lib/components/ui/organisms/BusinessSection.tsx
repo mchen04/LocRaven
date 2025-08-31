@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormField2, FormSection2 } from '../molecules';
+import { FormField, FormSection } from '../molecules';
 import { Input, FormDisplay } from '../atoms';
 import Select from '../molecules/Select';
 import TagInput from '../molecules/TagInput';
@@ -54,12 +54,12 @@ const BusinessSection = <T extends Record<string, any>>({
 }: BusinessSectionProps<T>) => {
 
   // Helper function to get nested values using dot notation
-  const getNestedValue = (obj: any, path: string) => {
+  const getNestedValue = (obj: Record<string, any>, path: string) => {
     return path.split('.').reduce((current, key) => current?.[key], obj);
   };
 
   // Helper function to set nested values using dot notation
-  const setNestedValue = (obj: any, path: string, value: any) => {
+  const setNestedValue = (obj: Record<string, any>, path: string, value: any) => {
     const keys = path.split('.');
     const lastKey = keys.pop()!;
     const target = keys.reduce((current, key) => {
@@ -80,10 +80,12 @@ const BusinessSection = <T extends Record<string, any>>({
       // Read-only mode
       const displayValue = Array.isArray(value) 
         ? value.join(', ') 
-        : value || 'Not specified';
+        : typeof value === 'object' && value !== null 
+          ? JSON.stringify(value) 
+          : String(value || 'Not specified');
         
       return (
-        <FormField2
+        <FormField
           key={field.key}
           label={field.label}
           className={field.className}
@@ -91,7 +93,7 @@ const BusinessSection = <T extends Record<string, any>>({
           <FormDisplay variant="default">
             {displayValue}
           </FormDisplay>
-        </FormField2>
+        </FormField>
       );
     }
 
@@ -108,7 +110,9 @@ const BusinessSection = <T extends Record<string, any>>({
     };
 
     const commonProps = {
-      value: value || '',
+      value: typeof value === 'string' || typeof value === 'number' 
+        ? String(value) 
+        : '',
       onChange: handleFieldChange,
       placeholder: field.placeholder,
       className: field.className,
@@ -131,7 +135,7 @@ const BusinessSection = <T extends Record<string, any>>({
         inputElement = (
           <Select
             options={field.options || []}
-            value={value}
+            value={typeof value === 'string' || typeof value === 'number' ? String(value) : ''}
             onChange={(newValue) => onFieldChange(field.key as keyof T, newValue)}
             placeholder={field.placeholder}
           />
@@ -142,7 +146,7 @@ const BusinessSection = <T extends Record<string, any>>({
         inputElement = (
           <Select
             options={field.options || []}
-            value={value}
+            value={Array.isArray(value) ? value : []}
             onChange={(newValue) => onFieldChange(field.key as keyof T, newValue)}
             placeholder={field.placeholder}
             multiple
@@ -179,7 +183,11 @@ const BusinessSection = <T extends Record<string, any>>({
       case 'display-only':
         inputElement = (
           <FormDisplay variant="minimal">
-            {Array.isArray(value) ? value.join(', ') : value || 'Not specified'}
+            {Array.isArray(value) 
+              ? value.join(', ') 
+              : typeof value === 'object' && value !== null 
+                ? JSON.stringify(value) 
+                : String(value || 'Not specified')}
           </FormDisplay>
         );
         break;
@@ -196,7 +204,7 @@ const BusinessSection = <T extends Record<string, any>>({
     }
 
     return (
-      <FormField2
+      <FormField
         key={field.key}
         label={field.label}
         required={field.required}
@@ -204,22 +212,22 @@ const BusinessSection = <T extends Record<string, any>>({
         className={field.className}
       >
         {inputElement}
-      </FormField2>
+      </FormField>
     );
   };
 
   return (
-    <FormSection2
+    <FormSection
       title={title}
       description={description}
-      variant={variant}
-      columns={columns}
       collapsible={collapsible}
-      defaultCollapsed={defaultCollapsed}
+      defaultExpanded={!defaultCollapsed}
       className={className}
     >
-      {fields.map(renderField)}
-    </FormSection2>
+      <div className={`grid ${columns === 1 ? 'grid-cols-1' : columns === 2 ? 'grid-cols-1 md:grid-cols-2' : columns === 3 ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2'} gap-6`}>
+        {fields.map(renderField)}
+      </div>
+    </FormSection>
   );
 };
 

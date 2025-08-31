@@ -142,7 +142,6 @@ export function validateTemplateVariables(
  */
 export function clearTemplateCache(): void {
   // Templates are now bundled as modules, no cache to clear
-  console.log('Templates are bundled - no cache to clear');
 }
 
 /**

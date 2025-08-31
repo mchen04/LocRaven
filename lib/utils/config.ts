@@ -37,13 +37,6 @@ const environmentConfig = {
 // Get current environment config based on runtime detection
 const currentEnvConfig = isDevelopment ? environmentConfig.development : environmentConfig.production;
 
-// DEBUG: Log simplified environment detection
-console.log('🔍 Runtime Environment Detection:', {
-  isDevelopment,
-  isProduction,
-  windowHostname: typeof window !== 'undefined' ? window.location.hostname : 'server-side',
-  selectedConfig: isDevelopment ? 'development' : 'production'
-});
 
 export const config = {
   // Environment information
@@ -304,17 +297,6 @@ export const validateEnvironment = () => {
     }
   }
 
-  // Log configuration in development (but not sensitive URLs in production)
-  if (config.env.isDevelopment && config.env.enableDebug) {
-    console.log('🔧 Environment Configuration:', {
-      isDevelopment: config.env.isDevelopment,
-      isProduction: config.env.isProduction,
-      appUrl: config.env.appUrl,
-      supabaseUrl: config.env.supabaseUrl,
-      enableDebug: config.env.enableDebug,
-      enableAnalytics: config.env.enableAnalytics
-    });
-  }
   
 };
 
@@ -362,13 +344,6 @@ export const getAppUrl = (path: string = '') => {
     const cleanPath = path.replace(/^\//, '');
     const fullUrl = cleanPath ? `${origin}/${cleanPath}` : origin;
     
-    console.log('🔍 Runtime Domain Detection:', {
-      origin,
-      path,
-      fullUrl,
-      hostname: window.location.hostname,
-      isProduction: window.location.hostname === 'locraven.com'
-    });
     
     return fullUrl;
   }
@@ -378,12 +353,6 @@ export const getAppUrl = (path: string = '') => {
   const cleanPath = path.replace(/^\//, '');
   const fullUrl = cleanPath ? `${fallbackUrl}/${cleanPath}` : fallbackUrl;
   
-  console.log('🔍 Server-side URL Fallback:', {
-    fallbackUrl,
-    path,
-    fullUrl,
-    environment: process.env.NODE_ENV || 'unknown'
-  });
   
   return fullUrl;
 };
@@ -396,8 +365,9 @@ export const clearUrlCache = () => {
 // Utility function to debug URL cache contents (development only)
 export const debugUrlCache = () => {
   if (config.env.isDevelopment) {
-    console.log('debugUrlCache: Current cache contents:', Array.from(urlCache.entries()));
+    return Array.from(urlCache.entries());
   }
+  return [];
 };
 
 // Disabled automatic validation since using hardcoded Supabase configuration

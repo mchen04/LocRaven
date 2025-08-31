@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ExternalLink, Clock, MoreHorizontal, Trash2, Calendar } from 'lucide-react';
-import { formatExpirationTime, isExpiringSoon, extendPageExpiration, expirePage } from "../../../services/data/expirationService";
+import React, { useState } from 'react';
+import { Clock } from 'lucide-react';
+import { extendPageExpiration, expirePage } from "../../../services/data/expirationService";
 import { GeneratedPage } from '../../../../types';
 import ExpiredLinksView from './ExpiredLinksView';
-import { config } from '../../../utils/config';
-import { generatePageUrl } from '../../../utils/urlHelpers';
+import LinkCard from './LinkCard';
+import { useMultipleLoadingStates } from '../../../hooks/useFormProcessing';
+import { DropdownItem } from '../../ui/molecules/Dropdown';
 
 interface ActiveLinksViewProps {
   pages: GeneratedPage[];
@@ -18,62 +19,91 @@ interface ActiveLinksViewProps {
 }
 
 const ActiveLinksView: React.FC<ActiveLinksViewProps> = ({ activePages, expiredPages, onRefresh, onPageClick, onDeletePage }) => {
-  const [showDropdown, setShowDropdown] = useState<string | null>(null);
-  const [loading, setLoading] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<'active' | 'expired'>('active');
+  const { setLoading, isLoading } = useMultipleLoadingStates();
 
   const handleExtendExpiration = async (pageId: string, hours: number = 24) => {
-    setLoading(pageId);
+    setLoading(pageId, true);
     try {
       const result = await extendPageExpiration(pageId, hours);
       if (result.success) {
         onRefresh();
-        setShowDropdown(null);
       } else {
         console.error('Failed to extend expiration:', result.message);
       }
     } catch (error) {
       console.error('Error extending expiration:', error);
     } finally {
-      setLoading(null);
+      setLoading(pageId, false);
     }
   };
 
   const handleExpireNow = async (pageId: string) => {
-    setLoading(pageId);
+    setLoading(pageId, true);
     try {
       const result = await expirePage(pageId);
       if (result.success) {
         onRefresh();
-        setShowDropdown(null);
       } else {
         console.error('Failed to expire page:', result.message);
       }
     } catch (error) {
       console.error('Error expiring page:', error);
     } finally {
-      setLoading(null);
+      setLoading(pageId, false);
     }
   };
 
-  const formatCreatedDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as Element).closest('.dropdown-container')) {
-        setShowDropdown(null);
+  const getDropdownActions = (page: GeneratedPage): DropdownItem[] => {
+    const extensionActions: DropdownItem[] = [
+      {
+        id: 'extend-24h',
+        label: '24 hours',
+        icon: Clock,
+        onClick: () => handleExtendExpiration(page.id, 24),
+        disabled: isLoading(page.id)
+      },
+      {
+        id: 'extend-72h',
+        label: '3 days',
+        icon: Clock,
+        onClick: () => handleExtendExpiration(page.id, 72),
+        disabled: isLoading(page.id)
+      },
+      {
+        id: 'extend-week',
+        label: '1 week',
+        icon: Clock,
+        onClick: () => handleExtendExpiration(page.id, 168),
+        disabled: isLoading(page.id)
+      },
+      {
+        id: 'extend-2weeks',
+        label: '2 weeks',
+        icon: Clock,
+        onClick: () => handleExtendExpiration(page.id, 336),
+        disabled: isLoading(page.id)
+      },
+      {
+        id: 'extend-month',
+        label: '1 month',
+        icon: Clock,
+        onClick: () => handleExtendExpiration(page.id, 720),
+        disabled: isLoading(page.id)
       }
+    ];
+
+    const expireAction: DropdownItem = {
+      id: 'expire-now',
+      label: 'Expire now',
+      icon: Clock,
+      onClick: () => handleExpireNow(page.id),
+      disabled: isLoading(page.id),
+      variant: 'danger'
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    return [...extensionActions, expireAction];
+  };
 
   return (
     <div className="active-links-view">
@@ -117,130 +147,18 @@ const ActiveLinksView: React.FC<ActiveLinksViewProps> = ({ activePages, expiredP
             </div>
           ) : (
 
-      <div className="links-grid">
-        {activePages.map((page) => {
-          const expiresAt = page.expires_at;
-          const expiringSoon = expiresAt ? isExpiringSoon(expiresAt) : false;
-          
-          return (
-            <div key={page.id} className={`link-card ${expiringSoon ? 'expiring-soon' : ''}`}>
-              
-              <div className="link-card-header">
-                <div className="link-info">
-                  <h3 className="link-title">{page.title}</h3>
-                  <span className="link-type">{page.page_type}</span>
-                </div>
-                
-                {page.page_type !== 'business' && (
-                  <div className="dropdown-container">
-                    <button 
-                      className="link-menu-btn"
-                      onClick={() => setShowDropdown(showDropdown === page.id ? null : page.id)}
-                      disabled={loading === page.id}
-                    >
-                      <MoreHorizontal size={16} />
-                    </button>
-                    
-                    {showDropdown === page.id && (
-                    <div className="dropdown-menu">
-                      <div className="dropdown-section">
-                        <div className="dropdown-section-title">Quick Extensions</div>
-                        <button 
-                          className="dropdown-item"
-                          onClick={() => handleExtendExpiration(page.id, 24)}
-                          disabled={loading === page.id}
-                        >
-                          <Clock size={14} />
-                          24 hours
-                        </button>
-                        <button 
-                          className="dropdown-item"
-                          onClick={() => handleExtendExpiration(page.id, 72)}
-                          disabled={loading === page.id}
-                        >
-                          <Clock size={14} />
-                          3 days
-                        </button>
-                        <button 
-                          className="dropdown-item"
-                          onClick={() => handleExtendExpiration(page.id, 168)}
-                          disabled={loading === page.id}
-                        >
-                          <Calendar size={14} />
-                          1 week
-                        </button>
-                        <button 
-                          className="dropdown-item"
-                          onClick={() => handleExtendExpiration(page.id, 336)}
-                          disabled={loading === page.id}
-                        >
-                          <Calendar size={14} />
-                          2 weeks
-                        </button>
-                        <button 
-                          className="dropdown-item"
-                          onClick={() => handleExtendExpiration(page.id, 720)}
-                          disabled={loading === page.id}
-                        >
-                          <Calendar size={14} />
-                          1 month
-                        </button>
-                      </div>
-                      <div className="dropdown-divider" />
-                      <button 
-                        className="dropdown-item danger"
-                        onClick={() => handleExpireNow(page.id)}
-                        disabled={loading === page.id}
-                      >
-                        <Trash2 size={14} />
-                        Expire now
-                      </button>
-                    </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="link-url" onClick={() => onPageClick(page)}>
-                <ExternalLink size={14} />
-                <span>{page.file_path}</span>
-              </div>
-
-              <div className="link-metadata">
-                <div className="metadata-item">
-                  <span className="metadata-label">Created:</span>
-                  <span className="metadata-value">{page.created_at ? formatCreatedDate(page.created_at) : 'Unknown'}</span>
-                </div>
-                
-                <div className="metadata-item">
-                  <span className="metadata-label">Expires:</span>
-                  <span className={`metadata-value ${expiringSoon ? 'expiring' : ''} ${!expiresAt ? 'permanent' : ''}`}>
-                    {expiresAt ? formatExpirationTime(expiresAt) : 'Never'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="link-actions">
-                <a 
-                  href={generatePageUrl(page)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="view-link-btn"
-                >
-                  <ExternalLink size={14} />
-                  View
-                </a>
-                <button 
-                  className="analytics-btn"
-                  onClick={() => onPageClick(page)}
-                >
-                  Analytics
-                </button>
-              </div>
+            <div className="links-grid">
+              {activePages.map((page) => (
+                <LinkCard
+                  key={page.id}
+                  page={page}
+                  variant="active"
+                  onPageClick={onPageClick}
+                  dropdownActions={getDropdownActions(page)}
+                  loading={isLoading(page.id)}
+                />
+              ))}
             </div>
-          );
-        })}
-      </div>
           )}
         </>
       )}

@@ -31,8 +31,8 @@ export {
 } from './atoms';
 
 export {
-  FormField2 as FormFieldRefactored,
-  FormSection2 as FormSectionRefactored
+  FormField as FormFieldRefactored,
+  FormSection as FormSectionRefactored
 } from './molecules';
 
 export {

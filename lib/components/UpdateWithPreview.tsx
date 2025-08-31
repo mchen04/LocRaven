@@ -120,21 +120,20 @@ const UpdateWithPreview: React.FC<UpdateWithPreviewProps> = ({
   const handlePreviewEdit = (field: string, value: string) => {
     if (!previewData) return;
     
-    const updatedData = { ...previewData };
+    const updatedData = { ...previewData } as Record<string, any>;
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
-      const parentObj = (updatedData as any)[parent] || {};
-      (updatedData as any)[parent] = { ...parentObj, [child]: value };
+      const parentObj = updatedData[parent] || {};
+      updatedData[parent] = { ...parentObj, [child]: value };
     } else {
-      (updatedData as any)[field] = value;
+      updatedData[field] = value;
     }
     
-    setPreviewData(updatedData);
+    setPreviewData(updatedData as WebsiteInfo);
   };
 
   const handleFinalPublish = async (finalData: WebsiteInfo) => {
     // This would trigger the actual page generation and publication
-    console.log('Publishing final data:', finalData);
     onSuccess?.();
   };
 

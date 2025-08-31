@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useUpdates } from '../hooks/useSupabase';
+import { useFormProcessing } from '../hooks/useFormProcessing';
+import ProcessingIndicator from './ui/molecules/ProcessingIndicator';
 
 interface UpdateFormProps {
   onSuccess?: () => void;
@@ -10,8 +12,15 @@ interface UpdateFormProps {
 
 const UpdateForm: React.FC<UpdateFormProps> = ({ onSuccess, onError }) => {
   const [updateText, setUpdateText] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
   const { createUpdate } = useUpdates();
+
+  const { isProcessing, submitForm } = useFormProcessing({
+    onSuccess: () => {
+      setUpdateText('');
+      onSuccess?.();
+    },
+    onError
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,23 +30,15 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onSuccess, onError }) => {
       return;
     }
 
-    setIsProcessing(true);
-
-    try {
-      const result = await createUpdate(updateText);
+    await submitForm({ updateText }, async (data) => {
+      const result = await createUpdate(data.updateText);
       
       if (result.success) {
-        setUpdateText('');
-        onSuccess?.();
+        return result;
       } else {
-        onError?.(result.error || 'Error generating pages. Please try again.');
+        throw new Error(result.error || 'Error generating pages. Please try again.');
       }
-    } catch (error) {
-      console.error('Error processing update:', error);
-      onError?.('Error generating pages. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
+    });
   };
 
   return (
@@ -77,16 +78,11 @@ const UpdateForm: React.FC<UpdateFormProps> = ({ onSuccess, onError }) => {
         </button>
       </form>
       
-      {isProcessing && (
-        <div className="processing-indicator active">
-          <div className="spinner"></div>
-          <div className="processing-text">
-            Generating AI-optimized pages...
-            <br />
-            <small>This usually takes 30-60 seconds</small>
-          </div>
-        </div>
-      )}
+      <ProcessingIndicator
+        isVisible={isProcessing}
+        message="Generating AI-optimized pages..."
+        submessage="This usually takes 30-60 seconds"
+      />
     </div>
   );
 };

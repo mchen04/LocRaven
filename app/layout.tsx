@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { AuthProvider } from '@/lib/contexts/AuthContext';
 import { BusinessProvider } from '@/lib/contexts/BusinessContext';
-import ErrorBoundary from '@/lib/components/ErrorBoundary';
+import { ErrorBoundary } from '@/lib/components/ui/organisms';
 import '@/lib/styles/globals.css';
 
 // Optimize Google Fonts for Cloudflare edge caching

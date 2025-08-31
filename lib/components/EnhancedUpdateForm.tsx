@@ -2,6 +2,10 @@
 
 import React, { useState } from 'react';
 import { Clock, Calendar, FileText } from 'lucide-react';
+import { formatDateTime } from '../utils/dateFormatters';
+import { useFormProcessing } from '../hooks/useFormProcessing';
+import ProcessingIndicator from './ui/molecules/ProcessingIndicator';
+import FormError from './ui/molecules/FormError';
 
 interface EnhancedUpdateFormProps {
   onSubmit?: (data: UpdateFormData) => void;
@@ -25,7 +29,11 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
     new Date().toISOString().slice(0, 16) // Default to now
   );
   const [expiresAt, setExpiresAt] = useState<string>('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const { error: formError, setError } = useFormProcessing({
+    onError,
+    resetOnSuccess: false
+  });
 
   // Smart expiration suggestions based on content
   const getExpirationSuggestions = (content: string) => {
@@ -61,6 +69,8 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
     return '';
   };
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     
@@ -79,7 +89,7 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
       }
     }
     
-    setErrors(newErrors);
+    setFieldErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -87,7 +97,7 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
     e.preventDefault();
     
     if (!validateForm()) {
-      onError?.('Please fix the errors above');
+      setError('Please fix the errors above');
       return;
     }
     
@@ -112,22 +122,11 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
     }
   };
 
-  const formatDateTime = (dateTimeString: string) => {
-    if (!dateTimeString) return '';
-    const date = new Date(dateTimeString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
 
   return (
     <div className="enhanced-update-form">
       <div className="form-header">
-        <h2>What's your business update?</h2>
+        <h2>What&apos;s your business update?</h2>
         <p>Describe your update in detail - the more information you provide, the better our AI can optimize it for discovery.</p>
       </div>
       
@@ -143,13 +142,11 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
             value={description}
             onChange={(e) => handleDescriptionChange(e.target.value)}
             placeholder="Example: We're offering 20% off all professional consulting services this weekend! Perfect for small businesses looking to improve their operations. Call 555-123-4567 to schedule or email info@example.com. Limited time offer - book by Sunday!"
-            className={`form-textarea ${errors.description ? 'error' : ''}`}
+            className={`form-textarea ${fieldErrors.description ? 'error' : ''}`}
             rows={6}
             disabled={isProcessing}
           />
-          {errors.description && (
-            <span className="error-message">{errors.description}</span>
-          )}
+          <FormError error={fieldErrors.description} />
           <div className="form-helper">
             <span className="char-count">{description.length} characters</span>
             <small>Include details like pricing, contact info, timing, and what makes this special</small>
@@ -186,12 +183,10 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
               id="expiresAt"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
-              className={`form-input ${errors.expiresAt ? 'error' : ''}`}
+              className={`form-input ${fieldErrors.expiresAt ? 'error' : ''}`}
               disabled={isProcessing}
             />
-            {errors.expiresAt && (
-              <span className="error-message">{errors.expiresAt}</span>
-            )}
+            <FormError error={fieldErrors.expiresAt} />
             <small className="form-helper">
               When should this update expire? (Leave empty for permanent)
               {expiresAt && ` • Expires ${formatDateTime(expiresAt)}`}
@@ -218,15 +213,15 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
         </button>
 
         {/* Processing Indicator */}
-        {isProcessing && (
-          <div className="processing-status">
-            <div className="processing-message">
-              🤖 AI is analyzing your update and creating optimized content...
-              <br />
-              <small>This usually takes 30-60 seconds</small>
-            </div>
-          </div>
-        )}
+        <ProcessingIndicator
+          isVisible={isProcessing}
+          message="🤖 AI is analyzing your update and creating optimized content..."
+          submessage="This usually takes 30-60 seconds"
+          variant="card"
+        />
+        
+        {/* Form Error */}
+        <FormError error={formError} variant="card" />
       </form>
     </div>
   );

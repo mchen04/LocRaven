@@ -70,11 +70,9 @@ const AuthCallback: React.FC = () => {
           
           if (subscriptionStatus?.has_active_subscription) {
             // User has active subscription, redirect to chat
-            console.log('🔍 AuthCallback Debug - User has active subscription, redirecting to chat');
             router.push('/chat');
           } else {
             // User needs subscription, show paywall
-            console.log('🔍 AuthCallback Debug - User needs subscription, showing paywall');
             setUserEmail(immediateSession.user.email!);
             setShowPaywall(true);
             setIsProcessing(false);
@@ -96,12 +94,10 @@ const AuthCallback: React.FC = () => {
             
             if (subscriptionStatus?.has_active_subscription) {
               // User has active subscription, redirect to chat
-              console.log('🔍 AuthCallback Debug - User has active subscription, redirecting to chat');
-              router.push('/chat');
+                router.push('/chat');
             } else {
               // User needs subscription, show paywall
-              console.log('🔍 AuthCallback Debug - User needs subscription, showing paywall');
-              setUserEmail(session.user.email!);
+                setUserEmail(session.user.email!);
               setShowPaywall(true);
               setIsProcessing(false);
             }

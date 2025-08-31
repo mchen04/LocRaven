@@ -120,8 +120,6 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       url: typeof window !== 'undefined' ? window.location.href : 'Unknown',
     };
 
-    // Log for debugging
-    console.log('Error Report:', errorReport);
     
     // Here you would typically send the error report to your error tracking service
     // For now, we'll copy it to clipboard if available

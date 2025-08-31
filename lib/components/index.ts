@@ -1,8 +1,7 @@
 // Shared components barrel export
 export { default as Alert, type AlertType } from './Alert';
-export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as Header } from './Header';
-export { default as SettingsModal } from './SettingsModal2';
+export { default as SettingsModal } from './SettingsModal';
 export { default as StatsCards } from './StatsCards';
 export { default as UpdateForm } from './UpdateForm';
 

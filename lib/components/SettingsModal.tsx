@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useBusiness } from '../contexts/BusinessContext';
-import { Modal, ConfirmationModal } from './ui/organisms';
-import { Button } from './ui/atoms';
+import { Modal } from './ui/organisms';
 import SubscriptionManager from './SubscriptionManager';
 
 interface SettingsModalProps {

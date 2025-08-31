@@ -72,7 +72,7 @@ const ChatDashboard: React.FC = () => {
   const [showProfileTip, setShowProfileTip] = useState(false);
   const [websiteInfo, setWebsiteInfo] = useState<WebsiteInfo>({} as WebsiteInfo);
   
-  const updateFromPreview = (field: string, value: any) => {
+  const updateFromPreview = (field: string, value: string | number | boolean) => {
     setWebsiteInfo(prev => ({ ...prev, [field]: value }));
   };
   
@@ -89,7 +89,6 @@ const ChatDashboard: React.FC = () => {
       return;
     }
     
-    console.log('🚀 Processing update:', { updateText, startDate, endDate, business: business?.name });
     setIsProcessing(true);
     
     try {
@@ -120,7 +119,6 @@ const ChatDashboard: React.FC = () => {
         }
       });
       
-      console.log('📥 Edge Function Response:', { data, error });
       
       if (error) {
         console.error('❌ Error processing update:', error);
@@ -136,7 +134,6 @@ const ChatDashboard: React.FC = () => {
       
       // Handle new multi-page response format
       if (data.pages && Array.isArray(data.pages) && data.pages.length > 0) {
-        console.log('✅ Multi-page generation successful:', data.pages.length, 'pages');
         
         // Convert to websiteInfo format for existing PagePreview component
         const websiteInfo = {
@@ -167,14 +164,13 @@ const ChatDashboard: React.FC = () => {
         setWebsiteInfo(websiteInfo);
       } else if (data.websiteInfo) {
         // Fallback to single page format
-        console.log('✅ Setting website info and switching to preview:', data.websiteInfo);
         setWebsiteInfo(data.websiteInfo);
       }
       
       setViewMode('preview');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('💥 Unexpected error:', error);
-      alert(`Unexpected error: ${error.message}`);
+      alert(`Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsProcessing(false);
     }
@@ -216,7 +212,6 @@ const ChatDashboard: React.FC = () => {
     try {
       const generatedPages = await generateWebsite(websiteInfo as any);
       await refetchPages();
-      console.log(`Perfect! Created ${generatedPages.length} pages. Live at: ${generatedPages[0]?.url}`);
     } catch (error) {
       console.error('Error generating website:', error);
     }
@@ -292,7 +287,7 @@ const ChatDashboard: React.FC = () => {
     });
   };
 
-  const handlePublishPages = async (pageData: any[]) => {
+  const handlePublishPages = async (pageData: Array<Record<string, unknown>>) => {
     if (!business?.id || !websiteInfo.multiPageData?.updateId || !websiteInfo.multiPageData?.batch_id) {
       alert('Missing required data for publishing');
       return;
@@ -316,7 +311,6 @@ const ChatDashboard: React.FC = () => {
         return;
       }
 
-      console.log('✅ Pages published successfully:', data);
       alert(`Successfully published ${data.total_pages} pages!`);
       
       // Reset form and refresh pages
@@ -330,9 +324,9 @@ const ChatDashboard: React.FC = () => {
       setViewMode('update');
       await refetchPages();
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('💥 Unexpected error during publishing:', error);
-      alert(`Unexpected error: ${error.message}`);
+      alert(`Unexpected error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsProcessing(false);
     }

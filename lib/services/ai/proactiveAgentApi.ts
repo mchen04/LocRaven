@@ -23,7 +23,6 @@ export async function callProactiveAgent(
   sessionId: string
 ): Promise<ProactiveAgentResponse> {
   try {
-    console.log('🚀 ProactiveAgentAPI: Calling production-business-agent...');
     
     // Use new Production-Grade Business Agent with enterprise features
     const { data, error } = await supabase.functions.invoke('production-business-agent', {
@@ -44,7 +43,6 @@ export async function callProactiveAgent(
       throw new Error('No response from proactive agent coordinator');
     }
 
-    console.log('✅ ProactiveAgentAPI: Success:', data);
     return data;
 
   } catch (error) {

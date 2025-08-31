@@ -43,7 +43,7 @@ interface PagePreviewProps {
   onEdit?: (field: string, value: string) => void;
   onEditPage?: (index: number, field: string, value: string) => void;
   onDeletePage?: (index: number) => void;
-  onPublishPages?: (pageData: any[]) => void;
+  onPublishPages?: (pageData: Array<Record<string, unknown>>) => void;
   showActions?: boolean;
   agentStatus?: {
     hasCoordinator: boolean;
@@ -182,7 +182,6 @@ const PagePreview: React.FC<PagePreviewProps> = ({
 
             <button
               onClick={() => {
-                console.log('User requested preview');
                 if (onForceShowPreview) {
                   onForceShowPreview();
                 }

@@ -81,13 +81,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log the revalidation for monitoring
-    console.log('Geographic route cache revalidation:', {
-      user: user.email,
-      paths: revalidationPaths,
-      type: type,
-      timestamp: new Date().toISOString()
-    });
 
     return NextResponse.json({ 
       success: true, 

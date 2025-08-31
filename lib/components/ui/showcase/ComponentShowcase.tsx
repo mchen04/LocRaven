@@ -171,8 +171,8 @@ const ComponentShowcase: React.FC = () => {
             <div className="max-w-md">
               <SearchInput
                 placeholder="Search components..."
-                onSearch={(query) => console.log('Search:', query)}
-                onClear={() => console.log('Clear')}
+                onSearch={(query) => {}}
+                onClear={() => {}}
               />
             </div>
           </div>
@@ -198,7 +198,7 @@ const ComponentShowcase: React.FC = () => {
                 message="Your operation was completed successfully."
                 action={{
                   label: 'View Details',
-                  onClick: () => console.log('View details clicked')
+                  onClick: () => {}
                 }}
               />
               <AlertCard
