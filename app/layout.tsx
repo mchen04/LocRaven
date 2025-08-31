@@ -82,8 +82,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`scroll-smooth ${inter.variable} ${jetbrainsMono.variable}`}>
       <body 
-        data-theme="dark" 
-        className={`${inter.className} antialiased min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100`}
+        className={`${inter.className} antialiased min-h-screen bg-background text-foreground`}
         suppressHydrationWarning={true}
       >
         <AuthProvider>
