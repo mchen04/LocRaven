@@ -178,6 +178,8 @@ const ChatDashboard: React.FC = () => {
 
   // Handle onboarding and UI state
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const tipDismissed = localStorage.getItem('profileTipDismissed');
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
     
@@ -194,6 +196,8 @@ const ChatDashboard: React.FC = () => {
 
   // Handle click outside for profile menu
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest('.profile-menu-container')) {
@@ -625,6 +629,7 @@ const ChatDashboard: React.FC = () => {
                   </div>
                   <button 
                     onClick={() => {
+                      if (typeof window === 'undefined') return;
                       const confirmed = window.confirm('Are you sure you want to delete your business profile? This action cannot be undone.');
                       if (confirmed) {
                         // Handle delete logic here
@@ -961,7 +966,9 @@ const ChatDashboard: React.FC = () => {
                       className="profile-tip-dismiss"
                       onClick={() => {
                         setShowProfileTip(false);
-                        localStorage.setItem('profileTipDismissed', 'true');
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('profileTipDismissed', 'true');
+                        }
                       }}
                       title="Dismiss"
                     >

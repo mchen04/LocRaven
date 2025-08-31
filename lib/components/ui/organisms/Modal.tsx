@@ -1,20 +1,66 @@
 'use client';
 
 import React, { useEffect, useCallback } from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../../../utils/cn';
 import { X } from 'lucide-react';
 import { Button } from '../atoms';
 
-export interface ModalProps {
+const modalOverlayVariants = cva(
+  'fixed inset-0 flex items-center justify-center z-50 transition-all duration-200',
+  {
+    variants: {
+      variant: {
+        default: 'bg-black/50 p-4',
+        overlay: 'bg-black/20 p-4',
+        drawer: 'bg-black/50 items-end justify-center',
+        centered: 'bg-black/60 p-8',
+        confirmation: 'bg-black/50 p-4',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+);
+
+const modalContentVariants = cva(
+  'bg-white dark:bg-gray-800 shadow-xl w-full transform transition-all duration-200 ease-out',
+  {
+    variants: {
+      variant: {
+        default: 'rounded-lg',
+        overlay: 'rounded-lg shadow-2xl',
+        drawer: 'rounded-t-lg translate-y-0',
+        centered: 'rounded-xl shadow-2xl max-h-[90vh] overflow-hidden',
+        confirmation: 'rounded-lg text-center',
+      },
+      size: {
+        sm: 'max-w-md',
+        md: 'max-w-lg',
+        lg: 'max-w-2xl',
+        xl: 'max-w-4xl',
+        full: 'max-w-full mx-4',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'md',
+    },
+  }
+);
+
+export interface ModalProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof modalOverlayVariants> {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
-  variant?: 'default' | 'overlay' | 'drawer' | 'centered';
   closeOnOverlay?: boolean;
   closeOnEscape?: boolean;
   showCloseButton?: boolean;
-  className?: string;
   overlayClassName?: string;
   footer?: React.ReactNode;
   preventBodyScroll?: boolean;
@@ -30,10 +76,11 @@ const Modal: React.FC<ModalProps> = ({
   closeOnOverlay = true,
   closeOnEscape = true,
   showCloseButton = true,
-  className = '',
-  overlayClassName = '',
+  className,
+  overlayClassName,
   footer,
-  preventBodyScroll = true
+  preventBodyScroll = true,
+  ...props
 }) => {
   // Handle escape key
   const handleEscape = useCallback((e: KeyboardEvent) => {
@@ -62,33 +109,6 @@ const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-    full: 'max-w-full mx-4'
-  };
-
-  const variantStyles = {
-    default: {
-      overlay: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50',
-      modal: 'bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full transform transition-all duration-200 ease-out'
-    },
-    overlay: {
-      overlay: 'fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center p-4 z-50',
-      modal: 'bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full transform transition-all duration-200 ease-out'
-    },
-    drawer: {
-      overlay: 'fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-50',
-      modal: 'bg-white dark:bg-gray-800 rounded-t-lg shadow-xl w-full transform transition-all duration-300 ease-out translate-y-0'
-    },
-    centered: {
-      overlay: 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-8 z-50',
-      modal: 'bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full transform transition-all duration-200 ease-out max-h-[90vh] overflow-hidden'
-    }
-  };
-
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget && closeOnOverlay) {
       onClose();
@@ -97,14 +117,15 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <div 
-      className={`${variantStyles[variant].overlay} ${overlayClassName}`}
+      className={cn(modalOverlayVariants({ variant }), overlayClassName)}
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
+      {...props}
     >
       <div 
-        className={`${variantStyles[variant].modal} ${sizeClasses[size]} ${className}`}
+        className={cn(modalContentVariants({ variant, size }), className)}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -133,7 +154,10 @@ const Modal: React.FC<ModalProps> = ({
         )}
 
         {/* Content */}
-        <div className={`${variant === 'centered' ? 'overflow-y-auto' : ''} ${title || showCloseButton ? 'p-6' : 'p-6'}`}>
+        <div className={cn(
+          'p-6',
+          variant === 'centered' && 'overflow-y-auto'
+        )}>
           {children}
         </div>
 

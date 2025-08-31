@@ -18,6 +18,8 @@ const SubscriptionPaywall: React.FC<SubscriptionPaywallProps> = ({
 }) => {
   // Load Stripe pricing table script
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const script = document.createElement('script');
     script.src = 'https://js.stripe.com/v3/pricing-table.js';
     script.async = true;
@@ -25,7 +27,7 @@ const SubscriptionPaywall: React.FC<SubscriptionPaywallProps> = ({
 
     return () => {
       // Cleanup script when component unmounts
-      if (document.head.contains(script)) {
+      if (typeof window !== 'undefined' && document.head.contains(script)) {
         document.head.removeChild(script);
       }
     };
@@ -33,6 +35,8 @@ const SubscriptionPaywall: React.FC<SubscriptionPaywallProps> = ({
 
   // Handle successful checkout completion (called by Stripe)
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = urlParams.get('session_id');
     if (sessionId) {

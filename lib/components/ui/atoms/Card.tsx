@@ -6,15 +6,20 @@ import { cn } from '../../../utils/cn';
 const cardVariants = cva(
   // Base classes - common styles for all cards
   [
-    'rounded-lg bg-white dark:bg-gray-800 transition-colors duration-200'
+    'rounded-lg transition-colors duration-200'
   ],
   {
     variants: {
       variant: {
-        default: 'shadow-sm border border-gray-200 dark:border-gray-700',
-        outlined: 'border border-gray-200 dark:border-gray-700',
-        elevated: 'shadow-md border border-gray-200 dark:border-gray-700',
+        default: 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700',
+        outlined: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
+        elevated: 'bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700',
         ghost: 'bg-transparent dark:bg-transparent border-0',
+        // Alert variants
+        info: 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700',
+        success: 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700',
+        warning: 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700',
+        error: 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700',
       },
       padding: {
         none: '',

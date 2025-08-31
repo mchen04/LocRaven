@@ -1,49 +1,48 @@
 import React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../../../utils/cn';
 
-interface FormFieldDisplayProps {
-  children: React.ReactNode;
-  className?: string;
-  minHeight?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'compact';
+const formFieldDisplayVariants = cva(
+  'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md',
+  {
+    variants: {
+      variant: {
+        default: 'p-3',
+        compact: 'p-2 text-sm',
+      },
+      minHeight: {
+        sm: 'min-h-8',
+        md: 'min-h-12',
+        lg: 'min-h-16',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+);
+
+interface FormFieldDisplayProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof formFieldDisplayVariants> {
+  children?: React.ReactNode;
 }
-
-const minHeightClasses = {
-  sm: { minHeight: '2rem' },
-  md: { minHeight: '3rem' },
-  lg: { minHeight: '4rem' }
-};
 
 const FormFieldDisplay: React.FC<FormFieldDisplayProps> = ({
   children,
-  className = '',
+  className,
+  variant = 'default',
   minHeight,
-  variant = 'default'
+  ...props
 }) => {
-  const baseStyles = {
-    padding: '0.75rem',
-    backgroundColor: 'var(--gray-50)',
-    borderRadius: '0.375rem',
-    border: '1px solid var(--border-primary)',
-    ...minHeight ? minHeightClasses[minHeight] : {}
-  };
-
-  const compactStyles = {
-    padding: '0.5rem',
-    backgroundColor: 'var(--gray-50)',
-    borderRadius: '0.375rem',
-    border: '1px solid var(--border-primary)',
-    fontSize: '0.875rem',
-    ...minHeight ? minHeightClasses[minHeight] : {}
-  };
-
-  const styles = variant === 'compact' ? compactStyles : baseStyles;
-
   return (
     <div 
-      style={styles}
-      className={className}
+      className={cn(formFieldDisplayVariants({ variant, minHeight }), className)}
+      {...props}
     >
-      {children || 'Not specified'}
+      {children || (
+        <span className="text-gray-500 dark:text-gray-400">Not specified</span>
+      )}
     </div>
   );
 };

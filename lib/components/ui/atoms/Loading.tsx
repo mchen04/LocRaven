@@ -1,12 +1,95 @@
 import React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../../../utils/cn';
 
-export interface LoadingProps {
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  variant?: 'spinner' | 'dots' | 'pulse' | 'skeleton';
-  layout?: 'inline' | 'centered' | 'overlay' | 'fullscreen';
+const loadingVariants = cva(
+  '',
+  {
+    variants: {
+      layout: {
+        inline: 'inline-flex items-center',
+        centered: 'flex flex-col items-center justify-center',
+        overlay: 'fixed inset-0 bg-black/20 dark:bg-black/40 flex items-center justify-center z-50',
+        fullscreen: 'min-h-screen flex items-center justify-center',
+      },
+      size: {
+        xs: '',
+        sm: '',
+        md: '',
+        lg: '',
+        xl: '',
+      },
+      color: {
+        primary: 'text-blue-600 dark:text-blue-400',
+        secondary: 'text-gray-600 dark:text-gray-400',
+        white: 'text-white',
+        gray: 'text-gray-400 dark:text-gray-500',
+      },
+    },
+    compoundVariants: [
+      // Layout spacing
+      {
+        layout: ['centered', 'fullscreen'],
+        class: 'space-y-2',
+      },
+    ],
+    defaultVariants: {
+      layout: 'centered',
+      size: 'md',
+      color: 'primary',
+    },
+  }
+);
+
+const spinnerVariants = cva(
+  'animate-spin rounded-full border-2 border-current border-t-transparent',
+  {
+    variants: {
+      size: {
+        xs: 'h-3 w-3',
+        sm: 'h-4 w-4', 
+        md: 'h-6 w-6',
+        lg: 'h-8 w-8',
+        xl: 'h-12 w-12',
+      },
+    },
+    defaultVariants: {
+      size: 'md',
+    },
+  }
+);
+
+const textVariants = cva(
+  'text-gray-600 dark:text-gray-400 font-medium',
+  {
+    variants: {
+      size: {
+        xs: 'text-xs',
+        sm: 'text-sm',
+        md: 'text-base',
+        lg: 'text-lg', 
+        xl: 'text-xl',
+      },
+      layout: {
+        inline: 'ml-2',
+        centered: 'mt-2',
+        overlay: 'mt-2',
+        fullscreen: 'mt-2',
+      },
+    },
+    defaultVariants: {
+      size: 'md',
+      layout: 'centered',
+    },
+  }
+);
+
+export interface LoadingProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'color'>,
+    VariantProps<typeof loadingVariants> {
+  variant?: 'spinner' | 'dots' | 'pulse' | 'skeleton' | 'processing';
   text?: string;
-  color?: 'primary' | 'secondary' | 'white' | 'gray';
-  className?: string;
+  submessage?: string;
   'data-testid'?: string;
 }
 
@@ -15,35 +98,16 @@ const Loading: React.FC<LoadingProps> = ({
   variant = 'spinner',
   layout = 'centered',
   text,
+  submessage,
   color = 'primary',
-  className = '',
+  className,
   'data-testid': testId,
+  ...props
 }) => {
-  const sizeClasses = {
-    xs: { spinner: 'h-3 w-3', text: 'text-xs' },
-    sm: { spinner: 'h-4 w-4', text: 'text-sm' },
-    md: { spinner: 'h-6 w-6', text: 'text-base' },
-    lg: { spinner: 'h-8 w-8', text: 'text-lg' },
-    xl: { spinner: 'h-12 w-12', text: 'text-xl' }
-  };
-
-  const colorClasses = {
-    primary: 'text-blue-600',
-    secondary: 'text-gray-600',
-    white: 'text-white',
-    gray: 'text-gray-400'
-  };
-
-  const layoutClasses = {
-    inline: 'inline-flex items-center',
-    centered: 'flex flex-col items-center justify-center',
-    overlay: 'fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50',
-    fullscreen: 'min-h-screen flex items-center justify-center'
-  };
 
   const renderSpinner = () => (
     <div
-      className={`animate-spin rounded-full border-2 border-current border-t-transparent ${sizeClasses[size].spinner} ${colorClasses[color]}`}
+      className={cn(spinnerVariants({ size }), loadingVariants({ color }))}
       role="status"
       aria-label="Loading"
     >
@@ -52,11 +116,14 @@ const Loading: React.FC<LoadingProps> = ({
   );
 
   const renderDots = () => (
-    <div className={`flex space-x-1 ${colorClasses[color]}`}>
+    <div className={cn('flex space-x-1', loadingVariants({ color }))}>
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className={`${sizeClasses[size].spinner.replace('h-', 'h-').replace('w-', 'w-')} bg-current rounded-full animate-bounce`}
+          className={cn(
+            spinnerVariants({ size }),
+            'bg-current rounded-full animate-bounce border-0'
+          )}
           style={{ animationDelay: `${i * 0.1}s` }}
         />
       ))}
@@ -64,14 +131,31 @@ const Loading: React.FC<LoadingProps> = ({
   );
 
   const renderPulse = () => (
-    <div className={`${sizeClasses[size].spinner} bg-current rounded animate-pulse ${colorClasses[color]}`} />
+    <div 
+      className={cn(
+        spinnerVariants({ size }),
+        loadingVariants({ color }),
+        'bg-current rounded animate-pulse border-0'
+      )} 
+    />
   );
 
   const renderSkeleton = () => (
-    <div className={`space-y-3 ${sizeClasses[size].text}`}>
-      <div className={`h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse`} />
-      <div className={`h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse`} />
-      <div className={`h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse`} />
+    <div className={cn('space-y-3', textVariants({ size }))}>
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse" />
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse" />
+    </div>
+  );
+
+  const renderProcessing = () => (
+    <div className="flex flex-col items-center space-y-2">
+      {renderSpinner()}
+      {submessage && (
+        <p className={cn(textVariants({ size, layout }), 'text-sm opacity-75')}>
+          {submessage}
+        </p>
+      )}
     </div>
   );
 
@@ -83,6 +167,8 @@ const Loading: React.FC<LoadingProps> = ({
         return renderPulse();
       case 'skeleton':
         return renderSkeleton();
+      case 'processing':
+        return renderProcessing();
       default:
         return renderSpinner();
     }
@@ -90,19 +176,19 @@ const Loading: React.FC<LoadingProps> = ({
 
   const content = (
     <>
-      {variant !== 'skeleton' && renderVariant()}
-      {text && variant !== 'skeleton' && (
-        <p className={`${sizeClasses[size].text} text-gray-600 dark:text-gray-400 font-medium ${layout === 'inline' ? 'ml-2' : 'mt-2'}`}>
+      {variant !== 'skeleton' && variant !== 'processing' && renderVariant()}
+      {text && variant !== 'skeleton' && variant !== 'processing' && (
+        <p className={textVariants({ size, layout })}>
           {text}
         </p>
       )}
-      {variant === 'skeleton' && renderVariant()}
+      {(variant === 'skeleton' || variant === 'processing') && renderVariant()}
     </>
   );
 
   if (layout === 'overlay') {
     return (
-      <div className={layoutClasses[layout]} data-testid={testId}>
+      <div className={cn(loadingVariants({ layout }))} data-testid={testId} {...props}>
         <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
           <div className="flex flex-col items-center space-y-2">
             {content}
@@ -114,8 +200,9 @@ const Loading: React.FC<LoadingProps> = ({
 
   return (
     <div 
-      className={`${layoutClasses[layout]} ${layout === 'inline' ? '' : 'space-y-2'} ${className}`}
+      className={cn(loadingVariants({ layout, size, color }), className)}
       data-testid={testId}
+      {...props}
     >
       {content}
     </div>

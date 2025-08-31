@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { Loading } from '../atoms';
+import type { LoadingProps } from '../atoms/Loading';
 
 export interface ProcessingIndicatorProps {
   isVisible?: boolean;
@@ -17,68 +19,27 @@ const ProcessingIndicator: React.FC<ProcessingIndicatorProps> = ({
   submessage,
   variant = 'default',
   size = 'md',
-  className = ''
+  className
 }) => {
   if (!isVisible) return null;
 
-  const getSpinnerSize = () => {
-    switch (size) {
-      case 'sm': return '16px';
-      case 'md': return '24px';
-      case 'lg': return '32px';
-      default: return '24px';
-    }
-  };
+  const layoutMap = {
+    default: 'centered',
+    card: 'centered',
+    inline: 'inline'
+  } as const;
 
-  const Spinner = () => (
-    <div 
-      className="spinner"
-      style={{
-        width: getSpinnerSize(),
-        height: getSpinnerSize(),
-        minWidth: getSpinnerSize(),
-        minHeight: getSpinnerSize()
-      }}
-    />
-  );
+  const loadingVariant: LoadingProps['variant'] = submessage ? 'processing' : 'spinner';
 
-  if (variant === 'inline') {
-    return (
-      <div className={`processing-indicator-inline ${className}`}>
-        <Spinner />
-        <span className="processing-message">{message}</span>
-      </div>
-    );
-  }
-
-  if (variant === 'card') {
-    return (
-      <div className={`processing-card ${className}`}>
-        <Spinner />
-        <div className="processing-content">
-          <div className="processing-message">{message}</div>
-          {submessage && (
-            <div className="processing-submessage">{submessage}</div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Default variant
   return (
-    <div className={`processing-indicator active ${className}`}>
-      <Spinner />
-      <div className="processing-text">
-        {message}
-        {submessage && (
-          <>
-            <br />
-            <small>{submessage}</small>
-          </>
-        )}
-      </div>
-    </div>
+    <Loading
+      variant={loadingVariant}
+      size={size}
+      layout={layoutMap[variant]}
+      text={message}
+      submessage={submessage}
+      className={className}
+    />
   );
 };
 

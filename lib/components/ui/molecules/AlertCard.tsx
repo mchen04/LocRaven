@@ -1,6 +1,8 @@
 import React from 'react';
+import { cn } from '../../../utils/cn';
 import { Card } from '../atoms';
 import type { CardProps } from '../atoms';
+
 
 export interface AlertCardProps extends Omit<CardProps, 'children' | 'variant'> {
   variant?: 'info' | 'success' | 'warning' | 'error';
@@ -23,38 +25,30 @@ const AlertCard: React.FC<AlertCardProps> = ({
   action,
   ...cardProps
 }) => {
-  const variantStyles = {
+  const contentStyles = {
     info: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
-      icon: 'text-blue-500',
-      title: 'text-blue-800',
-      message: 'text-blue-700',
+      icon: 'text-blue-500 dark:text-blue-400',
+      title: 'text-blue-800 dark:text-blue-200',
+      message: 'text-blue-700 dark:text-blue-300',
     },
     success: {
-      bg: 'bg-green-50',
-      border: 'border-green-200', 
-      icon: 'text-green-500',
-      title: 'text-green-800',
-      message: 'text-green-700',
+      icon: 'text-green-500 dark:text-green-400',
+      title: 'text-green-800 dark:text-green-200',
+      message: 'text-green-700 dark:text-green-300',
     },
     warning: {
-      bg: 'bg-yellow-50',
-      border: 'border-yellow-200',
-      icon: 'text-yellow-500', 
-      title: 'text-yellow-800',
-      message: 'text-yellow-700',
+      icon: 'text-yellow-500 dark:text-yellow-400',
+      title: 'text-yellow-800 dark:text-yellow-200',
+      message: 'text-yellow-700 dark:text-yellow-300',
     },
     error: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      icon: 'text-red-500',
-      title: 'text-red-800',
-      message: 'text-red-700',
+      icon: 'text-red-500 dark:text-red-400',
+      title: 'text-red-800 dark:text-red-200',
+      message: 'text-red-700 dark:text-red-300',
     },
   };
 
-  const styles = variantStyles[variant];
+  const styles = contentStyles[variant];
 
   const iconPaths = {
     info: "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
@@ -66,7 +60,8 @@ const AlertCard: React.FC<AlertCardProps> = ({
   return (
     <Card 
       {...cardProps}
-      className={`${styles.bg} ${styles.border} border ${cardProps.className || ''}`}
+      variant={variant}
+      className={cn(cardProps.className)}
     >
       <div className="flex">
         <div className="flex-shrink-0">
@@ -113,7 +108,10 @@ const AlertCard: React.FC<AlertCardProps> = ({
             <button
               type="button"
               onClick={onDismiss}
-              className={`inline-flex rounded-md ${styles.bg} p-1.5 ${styles.icon} hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-offset-2`}
+              className={cn(
+                'inline-flex rounded-md p-1.5 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2',
+                styles.icon
+              )}
             >
               <span className="sr-only">Dismiss</span>
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
