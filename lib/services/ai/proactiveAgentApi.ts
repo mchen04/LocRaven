@@ -1,4 +1,4 @@
-import { supabase } from '../../utils';
+import { supabase } from '../../utils/supabase';
 import type { ConversationContext, WebsiteInfo } from './geminiApi';
 
 export interface ProactiveAgentResponse {

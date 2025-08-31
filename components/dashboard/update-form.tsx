@@ -39,8 +39,6 @@ export function UpdateForm() {
       setIsSubmitting(true);
       
       // TODO: Implement actual API call to create update
-      console.log('Creating update:', data);
-      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -48,7 +46,6 @@ export function UpdateForm() {
       form.reset();
       
     } catch (error) {
-      console.error('Error creating update:', error);
       showError('Failed to create update. Please try again.');
     } finally {
       setIsSubmitting(false);

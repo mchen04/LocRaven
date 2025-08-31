@@ -1,7 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +17,13 @@ import {
   Plus
 } from 'lucide-react';
 
-const navigation = [
+const navigation: Array<{
+  name: string;
+  href: string;
+  icon: any;
+  badge?: string;
+  description?: string;
+}> = [
   {
     name: 'Update',
     href: '/dashboard',
@@ -59,6 +64,7 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { signOut } = useAuth();
   const { showSuccess, showError } = useNotification();
 
@@ -80,24 +86,24 @@ export function Sidebar() {
           const isActive = pathname === item.href;
           
           return (
-            <Link
+            <button
               key={item.name}
-              href={item.href as string}
+              onClick={() => router.push(item.href as any)}
               className={cn(
-                'flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                'w-full flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors',
                 isActive 
                   ? 'bg-primary text-primary-foreground' 
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               )}
             >
               <item.icon className="mr-3 h-4 w-4" />
-              <span className="flex-1">{item.name}</span>
+              <span className="flex-1 text-left">{item.name}</span>
               {item.badge && (
                 <Badge variant="secondary" className="ml-auto text-xs">
                   {item.badge}
                 </Badge>
               )}
-            </Link>
+            </button>
           );
         })}
       </nav>

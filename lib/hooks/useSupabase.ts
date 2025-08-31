@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../utils/supabase';
 import { GeneratedPage, Update } from '../../types';
-import { useAuth } from '../contexts/AuthContext';
-import { useBusiness } from '../contexts/BusinessContext';
+import { useAuth } from '../../components/providers/auth-provider';
+import { useBusiness } from '../../components/providers/business-provider';
 import { isPageExpired } from "../services/data/expirationService";
 import { config } from '../utils/config';
 import { generatePageUrl } from '../utils/urlHelpers';

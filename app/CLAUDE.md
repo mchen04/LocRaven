@@ -26,7 +26,7 @@ app/
 ### Landing Page (`/`)
 - **Server Component**: Default server rendering for SEO with simplified big tech design patterns
 - **Metadata**: Comprehensive SEO metadata in layout.tsx
-- **Styling**: Completely redesigned LandingPage.css following Apple/Linear/Notion minimalist patterns
+- **Styling**: Modern shadcn/ui components with Tailwind CSS 4.0
 - **Navigation**: Simplified navigation with only essential links (Pricing, Get Started)
 - **Professional Design**: Clean layout with 4 focused sections (Hero, How It Works, Pricing, CTA)
 
@@ -54,7 +54,7 @@ app/
 - **Global Imports**: CSS and context providers at root level
 
 ### Component Integration
-- **Library Imports**: Components from `/lib/components/`
+- **Library Imports**: Components from `/components/`
 - **Path Aliases**: `@/lib/*` for clean import paths
 - **Feature Organization**: Import from feature directories
 

@@ -1,4 +1,4 @@
-import { supabase } from '../../utils';
+import { supabase } from '../../utils/supabase';
 
 export interface TemporalInfo {
   startTime?: string;      // "4:00 PM"
