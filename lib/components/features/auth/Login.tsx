@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getLandingUrl } from '../../../utils/config';
-import './Login.css';
 
 const Login: React.FC = () => {
   const router = useRouter();

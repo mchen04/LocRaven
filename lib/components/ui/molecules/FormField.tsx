@@ -1,13 +1,36 @@
 import React from 'react';
-import { colors, spacing, typography } from '../../../theme/tokens';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../../../utils/cn';
 
-export interface FormFieldProps {
+// Form field variants using class-variance-authority
+const formFieldVariants = cva(
+  'mb-6'
+);
+
+const labelVariants = cva(
+  'block font-semibold text-slate-700 mb-2 text-sm'
+);
+
+const requiredVariants = cva(
+  'text-red-500 ml-1'
+);
+
+const errorVariants = cva(
+  'text-red-500 text-xs mt-1 flex items-start gap-1'
+);
+
+const helpTextVariants = cva(
+  'text-slate-500 text-xs mt-1'
+);
+
+export interface FormFieldProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof formFieldVariants> {
   label?: string;
   required?: boolean;
   error?: string;
   helpText?: string;
   children: React.ReactNode;
-  className?: string;
   id?: string;
 }
 
@@ -17,50 +40,28 @@ const FormField: React.FC<FormFieldProps> = ({
   error,
   helpText,
   children,
-  className = '',
+  className,
   id,
+  ...props
 }) => {
   const fieldId = id || `field-${Math.random().toString(36).substr(2, 9)}`;
 
-  const containerStyles: React.CSSProperties = {
-    marginBottom: spacing[6],
-  };
-
-  const labelStyles: React.CSSProperties = {
-    display: 'block',
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text.secondary,
-    marginBottom: spacing[2],
-    fontSize: typography.fontSize.sm,
-  };
-
-  const requiredStyles: React.CSSProperties = {
-    color: colors.danger.DEFAULT,
-    marginLeft: spacing[1],
-  };
-
-  const errorStyles: React.CSSProperties = {
-    color: colors.danger.DEFAULT,
-    fontSize: typography.fontSize.xs,
-    marginTop: spacing[1],
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: spacing[1],
-  };
-
-  const helpTextStyles: React.CSSProperties = {
-    color: colors.text.muted,
-    fontSize: typography.fontSize.xs,
-    marginTop: spacing[1],
-  };
-
   return (
-    <div style={containerStyles} className={className}>
+    <div 
+      className={cn(formFieldVariants(), className)}
+      {...props}
+    >
       {label && (
-        <label htmlFor={fieldId} style={labelStyles}>
+        <label 
+          htmlFor={fieldId} 
+          className={cn(labelVariants())}
+        >
           {label}
           {required && (
-            <span style={requiredStyles} aria-label="Required">
+            <span 
+              className={cn(requiredVariants())} 
+              aria-label="Required"
+            >
               *
             </span>
           )}
@@ -84,7 +85,7 @@ const FormField: React.FC<FormFieldProps> = ({
       {error && (
         <div
           id={`${fieldId}-error`}
-          style={errorStyles}
+          className={cn(errorVariants())}
           role="alert"
           aria-live="polite"
         >
@@ -95,7 +96,7 @@ const FormField: React.FC<FormFieldProps> = ({
       {helpText && !error && (
         <div
           id={`${fieldId}-help`}
-          style={helpTextStyles}
+          className={cn(helpTextVariants())}
         >
           {helpText}
         </div>

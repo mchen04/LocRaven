@@ -1,10 +1,83 @@
 import React, { forwardRef } from 'react';
-import { colors, spacing, radius, typography } from '../../../theme/tokens';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../../../utils/cn';
 
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  variant?: 'default' | 'error' | 'success';
-  size?: 'sm' | 'md' | 'lg';
-  fullWidth?: boolean;
+// Input variants using class-variance-authority
+const inputVariants = cva(
+  // Base classes - common styles for all inputs
+  [
+    'flex w-full rounded-md border bg-white px-3 py-2',
+    'text-sm ring-offset-white file:border-0 file:bg-transparent',
+    'file:text-sm file:font-medium placeholder:text-gray-500',
+    'focus:outline-none focus:ring-2 focus:ring-offset-2',
+    'disabled:cursor-not-allowed disabled:opacity-50',
+    'transition-colors duration-200'
+  ],
+  {
+    variants: {
+      variant: {
+        default: [
+          'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+        ],
+        error: [
+          'border-red-500 focus:border-red-500 focus:ring-red-500',
+          'bg-red-50 dark:bg-red-950/10'
+        ],
+        success: [
+          'border-green-500 focus:border-green-500 focus:ring-green-500',
+          'bg-green-50 dark:bg-green-950/10'
+        ],
+      },
+      size: {
+        sm: 'h-9 px-3 py-1 text-xs',
+        md: 'h-10 px-3 py-2 text-sm',
+        lg: 'h-11 px-4 py-2 text-base',
+      },
+      fullWidth: {
+        true: 'w-full',
+        false: 'w-auto',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'md',
+      fullWidth: true,
+    },
+  }
+);
+
+// Container variants for icon positioning
+const containerVariants = cva(
+  'relative',
+  {
+    variants: {
+      fullWidth: {
+        true: 'w-full',
+        false: 'inline-block',
+      },
+    },
+    defaultVariants: {
+      fullWidth: true,
+    },
+  }
+);
+
+// Icon wrapper variants
+const iconVariants = cva(
+  'absolute top-1/2 -translate-y-1/2 flex items-center text-gray-400 pointer-events-none',
+  {
+    variants: {
+      position: {
+        start: 'left-3',
+        end: 'right-3',
+      },
+    },
+  }
+);
+
+export interface InputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
+    VariantProps<typeof inputVariants> {
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
   error?: boolean;
@@ -13,137 +86,48 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 const Input = forwardRef<HTMLInputElement, InputProps>(
   (
     {
+      className,
       variant = 'default',
       size = 'md',
       fullWidth = true,
       startIcon,
       endIcon,
       error = false,
-      className = '',
       disabled = false,
       ...props
     },
     ref
   ) => {
-    // Base input styles using design tokens
-    const baseStyles: React.CSSProperties = {
-      width: fullWidth ? '100%' : 'auto',
-      fontFamily: typography.fontFamily,
-      fontSize: typography.fontSize.base,
-      lineHeight: typography.lineHeight.normal,
-      borderRadius: radius.md,
-      border: `1px solid ${colors.border.primary}`,
-      backgroundColor: disabled ? colors.gray[100] : colors.white,
-      color: disabled ? colors.text.muted : colors.text.primary,
-      cursor: disabled ? 'not-allowed' : 'text',
-      transition: 'all 0.2s ease',
-      outline: 'none',
-    };
+    // Determine final variant based on error state
+    const finalVariant = error ? 'error' : variant;
 
-    // Size-specific styles
-    const sizeStyles: Record<string, React.CSSProperties> = {
-      sm: {
-        padding: `${spacing[2]} ${spacing[3]}`,
-        fontSize: typography.fontSize.sm,
-      },
-      md: {
-        padding: `${spacing[3]} ${spacing[4]}`,
-        fontSize: typography.fontSize.base,
-      },
-      lg: {
-        padding: `${spacing[4]} ${spacing[5]}`,
-        fontSize: typography.fontSize.lg,
-      },
-    };
-
-    // Variant-specific styles
-    const variantStyles: Record<string, React.CSSProperties> = {
-      default: {
-        borderColor: colors.border.primary,
-      },
-      error: {
-        borderColor: colors.danger.DEFAULT,
-        backgroundColor: `${colors.danger.DEFAULT}05`, // 5% opacity
-      },
-      success: {
-        borderColor: colors.success.DEFAULT,
-        backgroundColor: `${colors.success.DEFAULT}05`, // 5% opacity
-      },
-    };
-
-    // Focus styles
-    const focusStyles: React.CSSProperties = {
-      borderColor: error ? colors.danger.DEFAULT : colors.primary.DEFAULT,
-      boxShadow: `0 0 0 3px ${error ? colors.danger.DEFAULT : colors.primary.DEFAULT}1A`, // 10% opacity
-    };
-
-    // Icon wrapper styles
-    const iconWrapperStyles: React.CSSProperties = {
-      position: 'absolute',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      display: 'flex',
-      alignItems: 'center',
-      color: colors.text.muted,
-      pointerEvents: 'none',
-    };
-
-    const startIconStyles: React.CSSProperties = {
-      ...iconWrapperStyles,
-      left: spacing[3],
-    };
-
-    const endIconStyles: React.CSSProperties = {
-      ...iconWrapperStyles,
-      right: spacing[3],
-    };
-
-    // Adjust padding for icons
-    const inputWithIconsStyles: React.CSSProperties = {
-      paddingLeft: startIcon ? spacing[10] : undefined,
-      paddingRight: endIcon ? spacing[10] : undefined,
-    };
-
-    // Combine all styles
-    const combinedStyles: React.CSSProperties = {
-      ...baseStyles,
-      ...sizeStyles[size],
-      ...variantStyles[error ? 'error' : variant],
-      ...inputWithIconsStyles,
-    };
-
-    const containerStyles: React.CSSProperties = {
-      position: 'relative',
-      display: 'inline-block',
-      width: fullWidth ? '100%' : 'auto',
-    };
+    // Calculate padding adjustments for icons
+    const paddingClass = cn(
+      startIcon && (size === 'sm' ? 'pl-8' : size === 'lg' ? 'pl-12' : 'pl-10'),
+      endIcon && (size === 'sm' ? 'pr-8' : size === 'lg' ? 'pr-12' : 'pr-10')
+    );
 
     return (
-      <div style={containerStyles}>
+      <div className={containerVariants({ fullWidth })}>
         {startIcon && (
-          <div style={startIconStyles}>
+          <div className={iconVariants({ position: 'start' })}>
             {startIcon}
           </div>
         )}
         
         <input
           ref={ref}
-          style={combinedStyles}
-          className={className}
+          className={cn(
+            inputVariants({ variant: finalVariant, size, fullWidth }),
+            paddingClass,
+            className
+          )}
           disabled={disabled}
-          onFocus={(e) => {
-            Object.assign(e.currentTarget.style, focusStyles);
-            props.onFocus?.(e);
-          }}
-          onBlur={(e) => {
-            Object.assign(e.currentTarget.style, variantStyles[error ? 'error' : variant]);
-            props.onBlur?.(e);
-          }}
           {...props}
         />
         
         {endIcon && (
-          <div style={endIconStyles}>
+          <div className={iconVariants({ position: 'end' })}>
             {endIcon}
           </div>
         )}
@@ -155,3 +139,4 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = 'Input';
 
 export default Input;
+export { inputVariants };

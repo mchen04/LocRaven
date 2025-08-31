@@ -1,11 +1,75 @@
 import React from 'react';
-import { colors, spacing, typography, radius } from '../../../theme/tokens';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../../../utils/cn';
 
-export interface FormSectionProps {
+// Form section variants using class-variance-authority
+const formSectionVariants = cva(
+  'mb-8'
+);
+
+const headerVariants = cva(
+  'mb-6'
+);
+
+const titleVariants = cva(
+  'text-lg font-semibold text-slate-900 m-0 flex items-center justify-between',
+  {
+    variants: {
+      collapsible: {
+        true: 'cursor-pointer',
+        false: 'cursor-default',
+      },
+    },
+    defaultVariants: {
+      collapsible: false,
+    },
+  }
+);
+
+const descriptionVariants = cva(
+  'text-sm text-slate-500 mt-2 leading-relaxed'
+);
+
+const contentVariants = cva(
+  'transition-all duration-200',
+  {
+    variants: {
+      expanded: {
+        true: 'block',
+        false: 'hidden',
+      },
+    },
+    defaultVariants: {
+      expanded: true,
+    },
+  }
+);
+
+const toggleButtonVariants = cva(
+  'bg-transparent border-none text-slate-500 cursor-pointer p-1 rounded flex items-center justify-center text-lg transition-all duration-200 hover:bg-gray-100',
+  {
+    variants: {
+      expanded: {
+        true: 'rotate-180',
+        false: 'rotate-0',
+      },
+    },
+    defaultVariants: {
+      expanded: false,
+    },
+  }
+);
+
+const dividerVariants = cva(
+  'w-full h-px bg-gray-200 border-none my-6'
+);
+
+export interface FormSectionProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof formSectionVariants> {
   title: string;
   description?: string;
   children: React.ReactNode;
-  className?: string;
   collapsible?: boolean;
   defaultExpanded?: boolean;
 }
@@ -14,99 +78,42 @@ const FormSection: React.FC<FormSectionProps> = ({
   title,
   description,
   children,
-  className = '',
+  className,
   collapsible = false,
   defaultExpanded = true,
+  ...props
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
 
-  const containerStyles: React.CSSProperties = {
-    marginBottom: spacing[8],
-  };
-
-  const headerStyles: React.CSSProperties = {
-    marginBottom: spacing[6],
-  };
-
-  const titleStyles: React.CSSProperties = {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text.primary,
-    margin: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    cursor: collapsible ? 'pointer' : 'default',
-  };
-
-  const descriptionStyles: React.CSSProperties = {
-    fontSize: typography.fontSize.sm,
-    color: colors.text.muted,
-    marginTop: spacing[2],
-    lineHeight: typography.lineHeight.relaxed,
-  };
-
-  const contentStyles: React.CSSProperties = {
-    display: isExpanded ? 'block' : 'none',
-  };
-
-  const toggleButtonStyles: React.CSSProperties = {
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: colors.text.muted,
-    cursor: 'pointer',
-    padding: spacing[1],
-    borderRadius: radius.base,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: typography.fontSize.lg,
-    transition: 'all 0.2s ease',
-  };
-
-  const dividerStyles: React.CSSProperties = {
-    width: '100%',
-    height: '1px',
-    backgroundColor: colors.border.primary,
-    border: 'none',
-    margin: `${spacing[6]} 0`,
-  };
-
   return (
-    <div style={containerStyles} className={className}>
-      <div style={headerStyles}>
+    <div 
+      className={cn(formSectionVariants(), className)}
+      {...props}
+    >
+      <div className={cn(headerVariants())}>
         {collapsible ? (
           <button
             type="button"
-            style={titleStyles}
+            className={cn(titleVariants({ collapsible: true }))}
             onClick={() => setIsExpanded(!isExpanded)}
             aria-expanded={isExpanded}
             aria-controls={`section-content-${title.replace(/\s+/g, '-').toLowerCase()}`}
           >
             <span>{title}</span>
             <span
-              style={{
-                ...toggleButtonStyles,
-                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colors.gray[100];
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
+              className={cn(toggleButtonVariants({ expanded: isExpanded }))}
             >
               ▼
             </span>
           </button>
         ) : (
-          <h3 style={titleStyles}>
+          <h3 className={cn(titleVariants({ collapsible: false }))}>
             {title}
           </h3>
         )}
         
         {description && (
-          <p style={descriptionStyles}>
+          <p className={cn(descriptionVariants())}>
             {description}
           </p>
         )}
@@ -114,12 +121,12 @@ const FormSection: React.FC<FormSectionProps> = ({
 
       <div
         id={`section-content-${title.replace(/\s+/g, '-').toLowerCase()}`}
-        style={contentStyles}
+        className={cn(contentVariants({ expanded: isExpanded }))}
       >
         {children}
       </div>
 
-      <hr style={dividerStyles} />
+      <hr className={cn(dividerVariants())} />
     </div>
   );
 };

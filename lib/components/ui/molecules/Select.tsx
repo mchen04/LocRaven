@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
-import { colors, spacing, radius, typography } from '../../../theme/tokens';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../../../utils/cn';
 
 export interface SelectOption {
   value: string;
@@ -7,7 +8,44 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
+// Select variants using class-variance-authority
+const selectVariants = cva(
+  [
+    'font-sans leading-normal rounded-md border outline-none transition-all duration-200',
+    'appearance-none cursor-pointer',
+    'bg-[length:1.5em_1.5em] bg-no-repeat bg-[position:right_0.5rem_center]',
+    'bg-[image:url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")]',
+    'focus:ring-3 focus:ring-opacity-10',
+    'disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500',
+  ],
+  {
+    variants: {
+      variant: {
+        default: 'border-gray-300 bg-white text-slate-900 focus:border-primary focus:ring-primary',
+        error: 'border-red-500 bg-red-50 text-slate-900 focus:border-red-500 focus:ring-red-500',
+        success: 'border-green-500 bg-green-50 text-slate-900 focus:border-green-500 focus:ring-green-500',
+      },
+      size: {
+        sm: 'py-2 pl-3 pr-8 text-sm',
+        md: 'py-3 pl-4 pr-8 text-base',
+        lg: 'py-4 pl-5 pr-10 text-lg',
+      },
+      fullWidth: {
+        true: 'w-full',
+        false: 'w-auto',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'md',
+      fullWidth: true,
+    },
+  }
+);
+
+export interface SelectProps
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'>,
+    VariantProps<typeof selectVariants> {
   options: SelectOption[];
   placeholder?: string;
   variant?: 'default' | 'error' | 'success';
@@ -25,90 +63,27 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
       size = 'md',
       fullWidth = true,
       error = false,
-      className = '',
+      className,
       disabled = false,
       ...props
     },
     ref
   ) => {
-    // Base select styles using design tokens
-    const baseStyles: React.CSSProperties = {
-      width: fullWidth ? '100%' : 'auto',
-      fontFamily: typography.fontFamily,
-      fontSize: typography.fontSize.base,
-      lineHeight: typography.lineHeight.normal,
-      borderRadius: radius.md,
-      border: `1px solid ${colors.border.primary}`,
-      backgroundColor: disabled ? colors.gray[100] : colors.white,
-      color: disabled ? colors.text.muted : colors.text.primary,
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      transition: 'all 0.2s ease',
-      outline: 'none',
-      appearance: 'none',
-      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
-      backgroundPosition: 'right 0.5rem center',
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: '1.5em 1.5em',
-    };
-
-    // Size-specific styles
-    const sizeStyles: Record<string, React.CSSProperties> = {
-      sm: {
-        padding: `${spacing[2]} ${spacing[8]} ${spacing[2]} ${spacing[3]}`,
-        fontSize: typography.fontSize.sm,
-      },
-      md: {
-        padding: `${spacing[3]} ${spacing[8]} ${spacing[3]} ${spacing[4]}`,
-        fontSize: typography.fontSize.base,
-      },
-      lg: {
-        padding: `${spacing[4]} ${spacing[10]} ${spacing[4]} ${spacing[5]}`,
-        fontSize: typography.fontSize.lg,
-      },
-    };
-
-    // Variant-specific styles
-    const variantStyles: Record<string, React.CSSProperties> = {
-      default: {
-        borderColor: colors.border.primary,
-      },
-      error: {
-        borderColor: colors.danger.DEFAULT,
-        backgroundColor: disabled ? colors.gray[100] : `${colors.danger.DEFAULT}05`,
-      },
-      success: {
-        borderColor: colors.success.DEFAULT,
-        backgroundColor: disabled ? colors.gray[100] : `${colors.success.DEFAULT}05`,
-      },
-    };
-
-    // Focus styles
-    const focusStyles: React.CSSProperties = {
-      borderColor: error ? colors.danger.DEFAULT : colors.primary.DEFAULT,
-      boxShadow: `0 0 0 3px ${error ? colors.danger.DEFAULT : colors.primary.DEFAULT}1A`, // 10% opacity
-    };
-
-    // Combine all styles
-    const combinedStyles: React.CSSProperties = {
-      ...baseStyles,
-      ...sizeStyles[size],
-      ...variantStyles[error ? 'error' : variant],
-    };
+    // Determine the actual variant to use (error prop overrides variant prop)
+    const actualVariant = error ? 'error' : variant;
 
     return (
       <select
         ref={ref}
-        style={combinedStyles}
-        className={className}
+        className={cn(
+          selectVariants({ 
+            variant: actualVariant, 
+            size, 
+            fullWidth 
+          }), 
+          className
+        )}
         disabled={disabled}
-        onFocus={(e) => {
-          Object.assign(e.currentTarget.style, focusStyles);
-          props.onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          Object.assign(e.currentTarget.style, variantStyles[error ? 'error' : variant]);
-          props.onBlur?.(e);
-        }}
         {...props}
       >
         {placeholder && (

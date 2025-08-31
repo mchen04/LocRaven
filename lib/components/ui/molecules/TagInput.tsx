@@ -1,11 +1,39 @@
 'use client';
 
 import React, { useState, KeyboardEvent } from 'react';
-import { colors, spacing, radius, typography } from '../../../theme/tokens';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '../../../utils/cn';
 import { messages } from '../../../constants/messages';
 import { Button, Input } from '../atoms';
 
-export interface TagInputProps {
+// Tag input variants using class-variance-authority
+const tagInputVariants = cva(
+  'w-full'
+);
+
+const inputContainerVariants = cva(
+  'flex gap-2 items-center mb-3'
+);
+
+const tagsContainerVariants = cva(
+  'flex flex-wrap gap-2 min-h-8'
+);
+
+const tagVariants = cva(
+  'inline-flex items-center gap-1 bg-indigo-400 text-white px-3 py-1 rounded-full text-sm font-medium'
+);
+
+const removeButtonVariants = cva(
+  'bg-transparent border-none text-white cursor-pointer p-0 m-0 flex items-center justify-center w-4 h-4 rounded-full text-sm leading-none transition-colors duration-200 hover:bg-white hover:bg-opacity-20'
+);
+
+const helpTextVariants = cva(
+  'text-slate-500 text-xs mt-1'
+);
+
+export interface TagInputProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>,
+    VariantProps<typeof tagInputVariants> {
   value: string[];
   onChange: (tags: string[]) => void;
   placeholder?: string;
@@ -13,7 +41,6 @@ export interface TagInputProps {
   maxItems?: number;
   allowDuplicates?: boolean;
   disabled?: boolean;
-  className?: string;
 }
 
 const TagInput: React.FC<TagInputProps> = ({
@@ -24,62 +51,10 @@ const TagInput: React.FC<TagInputProps> = ({
   maxItems,
   allowDuplicates = false,
   disabled = false,
-  className = '',
+  className,
+  ...props
 }) => {
   const [inputValue, setInputValue] = useState('');
-
-  const containerStyles: React.CSSProperties = {
-    width: '100%',
-  };
-
-  const inputContainerStyles: React.CSSProperties = {
-    display: 'flex',
-    gap: spacing[2],
-    alignItems: 'center',
-    marginBottom: spacing[3],
-  };
-
-  const tagsContainerStyles: React.CSSProperties = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: spacing[2],
-    minHeight: spacing[8], // Ensure space even when empty
-  };
-
-  const tagStyles: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: spacing[1],
-    backgroundColor: colors.primary.light,
-    color: colors.white,
-    padding: `${spacing[1]} ${spacing[3]}`,
-    borderRadius: radius.full,
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-  };
-
-  const removeButtonStyles: React.CSSProperties = {
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: colors.white,
-    cursor: 'pointer',
-    padding: '0',
-    margin: '0',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: spacing[4],
-    height: spacing[4],
-    borderRadius: radius.full,
-    fontSize: typography.fontSize.sm,
-    lineHeight: '1',
-  };
-
-  const helpTextStyles: React.CSSProperties = {
-    color: colors.text.muted,
-    fontSize: typography.fontSize.xs,
-    marginTop: spacing[1],
-  };
 
   const addTag = () => {
     const trimmedValue = inputValue.trim();
@@ -124,8 +99,11 @@ const TagInput: React.FC<TagInputProps> = ({
   };
 
   return (
-    <div style={containerStyles} className={className}>
-      <div style={inputContainerStyles}>
+    <div 
+      className={cn(tagInputVariants(), className)}
+      {...props}
+    >
+      <div className={cn(inputContainerVariants())}>
         <Input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -144,21 +122,15 @@ const TagInput: React.FC<TagInputProps> = ({
         </Button>
       </div>
       
-      <div style={tagsContainerStyles}>
+      <div className={cn(tagsContainerVariants())}>
         {value.map((tag, index) => (
-          <div key={index} style={tagStyles}>
+          <div key={index} className={cn(tagVariants())}>
             <span>{tag}</span>
             {!disabled && (
               <button
                 type="button"
-                style={removeButtonStyles}
+                className={cn(removeButtonVariants())}
                 onClick={() => removeTag(index)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
                 aria-label={`Remove ${tag}`}
               >
                 ×
@@ -169,7 +141,7 @@ const TagInput: React.FC<TagInputProps> = ({
       </div>
       
       {(maxItems || maxTags) && (
-        <div style={helpTextStyles}>
+        <div className={cn(helpTextVariants())}>
           {value.length}/{maxItems || maxTags} tags used
           {!allowDuplicates && ' • No duplicates allowed'}
         </div>

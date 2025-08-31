@@ -6,8 +6,6 @@ import { PagePreview } from './features/pages';
 import { useBusiness } from '../contexts/BusinessContext';
 import { supabase } from '../utils/supabase';
 import type { WebsiteInfo } from '../services';
-import '../styles/EnhancedUpdateForm.css';
-import '../styles/UpdateWithPreview.css';
 
 
 interface UpdateWithPreviewProps {

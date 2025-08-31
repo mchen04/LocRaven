@@ -1,4 +1,6 @@
+// === COMMON COMPONENT TYPES ===
 // Standardized component interface patterns for consistent props across all components
+// For advanced patterns, see ./advanced.ts and ./strict.ts
 
 export interface BaseComponentProps {
   className?: string;

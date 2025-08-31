@@ -1,13 +1,47 @@
-// Shared components barrel export
-export { default as Alert, type AlertType } from './Alert';
-export { default as Header } from './Header';
-export { default as SettingsModal } from './SettingsModal';
-export { default as StatsCards } from './StatsCards';
-export { default as UpdateForm } from './UpdateForm';
+// === MAIN COMPONENT LIBRARY INDEX ===
+// Primary entry point for all components
 
-// Responsive UI components  
-export { default as ResponsiveCard } from './ResponsiveCard';
+// === UI DESIGN SYSTEM (ATOMIC DESIGN) ===
+// Complete UI component library with atoms, molecules, organisms
+export * from './ui';
 
-// Re-export new UI system for backward compatibility
-export { Loading as LoadingSpinner } from './ui/atoms';
+// === FEATURE COMPONENTS ===  
+// Business logic and app-specific components
+export * from './features';
+
+// === LAYOUT COMPONENTS ===
+// Page-level and structural components
+export * from './layouts';
+
+// === ALL LEGACY COMPONENTS REMOVED ===
+// Successfully migrated to modern UI system components
+
+// === CONVENIENCE RE-EXPORTS ===
+// Most commonly used components for easy importing
+export {
+  // Core UI Components
+  Button,
+  Input,
+  Card,
+  Loading,
+  Modal,
+  FormField,
+  FormSection,
+  Select,
+  CheckboxGroup,
+  TagInput,
+  
+  // Common Types
+  type ButtonProps,
+  type InputProps,
+  type CardProps,
+  type FormFieldProps,
+  type SelectProps,
+  type CheckboxOption,
+  type SelectOption,
+  type BaseComponentProps,
+  type StandardComponentProps,
+  type FormComponentProps,
+  type InteractiveComponentProps
+} from './ui';
 

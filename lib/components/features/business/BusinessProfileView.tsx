@@ -3,7 +3,6 @@
 import { Business } from '../../../../types';
 import { useBusiness } from '../../../contexts/BusinessContext';
 import BusinessDetailsInlineForm from './BusinessDetailsInlineForm';
-import './BusinessDetailsInlineForm.css';
 
 interface BusinessProfileViewProps {
   business?: Business | null;

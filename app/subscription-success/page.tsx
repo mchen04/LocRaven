@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import '../../lib/components/features/auth/Login.css';
 
 export default function SubscriptionSuccessPage() {
   const router = useRouter();

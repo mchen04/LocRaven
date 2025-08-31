@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import '@/lib/styles/LandingPage.css';
 
 export default function LandingPage() {
   return (

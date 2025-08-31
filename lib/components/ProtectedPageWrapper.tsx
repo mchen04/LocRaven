@@ -3,7 +3,6 @@
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import './ProtectedPageWrapper.css';
 
 interface ProtectedPageWrapperProps {
   children: React.ReactNode;
@@ -24,31 +23,31 @@ export default function ProtectedPageWrapper({ children, redirectTo }: Protected
 
   if (loading) {
     return (
-      <div className="loading-screen">
-        <div className="loading-container">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+        <div className="max-w-md text-center space-y-8">
           {/* Branded Loading Animation */}
-          <div className="loading-brand">
-            <div className="loading-logo">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <div className="relative">
+            <div className="w-16 h-16 mx-auto text-indigo-600 animate-pulse">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
               </svg>
             </div>
-            <div className="loading-pulse"></div>
+            <div className="absolute inset-0 w-20 h-20 mx-auto border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
           </div>
           
           {/* Loading Content */}
-          <div className="loading-content">
-            <h2>Preparing your AI discovery dashboard</h2>
-            <p>Setting up your business profile and AI optimization tools...</p>
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold text-gray-900">Preparing your AI discovery dashboard</h2>
+            <p className="text-gray-600">Setting up your business profile and AI optimization tools...</p>
           </div>
           
           {/* Progress Indication */}
-          <div className="loading-progress">
-            <div className="progress-bar">
-              <div className="progress-fill"></div>
+          <div className="space-y-4">
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-indigo-600 h-2 rounded-full animate-pulse w-3/4"></div>
             </div>
-            <div className="loading-tips">
-              <div className="tip active">💡 Your business will be discoverable by AI in under 60 seconds</div>
+            <div className="text-sm text-indigo-600 font-medium animate-pulse">
+              💡 Your business will be discoverable by AI in under 60 seconds
             </div>
           </div>
         </div>

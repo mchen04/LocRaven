@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Input, Card, Spinner } from '../atoms';
+import { Button, Input, Card, Loading } from '../atoms';
 import { SearchInput, AlertCard, LoadingCard, FormField } from '../molecules';
 import { ErrorBoundary } from '../organisms';
 
@@ -126,27 +126,43 @@ const ComponentShowcase: React.FC = () => {
             </div>
           </div>
 
-          {/* Spinners */}
+          {/* Loading Spinners */}
           <div>
             <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-              Spinners
+              Loading Spinners
             </h3>
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <Spinner size="sm" />
+                <Loading variant="spinner" size="sm" layout="inline" />
                 <p className="text-sm text-gray-600 mt-2">Small</p>
               </div>
               <div className="text-center">
-                <Spinner size="md" />
+                <Loading variant="spinner" size="md" layout="inline" />
                 <p className="text-sm text-gray-600 mt-2">Medium</p>
               </div>
               <div className="text-center">
-                <Spinner size="lg" />
+                <Loading variant="spinner" size="lg" layout="inline" />
                 <p className="text-sm text-gray-600 mt-2">Large</p>
               </div>
               <div className="text-center">
-                <Spinner size="md" color="secondary" />
+                <Loading variant="spinner" size="md" layout="inline" color="secondary" />
                 <p className="text-sm text-gray-600 mt-2">Secondary</p>
+              </div>
+            </div>
+            
+            {/* Loading Variants */}
+            <div className="flex items-center gap-6 mt-6">
+              <div className="text-center">
+                <Loading variant="dots" size="md" layout="inline" />
+                <p className="text-sm text-gray-600 mt-2">Dots</p>
+              </div>
+              <div className="text-center">
+                <Loading variant="pulse" size="md" layout="inline" />
+                <p className="text-sm text-gray-600 mt-2">Pulse</p>
+              </div>
+              <div className="text-center">
+                <Loading variant="spinner" size="md" layout="inline" text="Loading..." />
+                <p className="text-sm text-gray-600 mt-2">With Text</p>
               </div>
             </div>
           </div>

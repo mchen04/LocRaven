@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Edit3, X } from 'lucide-react';
 import { Business, ParkingInfo, ServiceAreaDetails, AvailabilityPolicy } from '../../../../types';
-import { Alert } from '../../../components';
+import { AlertCard } from '../../ui/molecules';
 import { useAsync } from '../../../hooks';
 import { supabase } from '../../../utils/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -230,10 +230,12 @@ const BusinessDetailsInlineForm: React.FC<BusinessDetailsInlineFormProps> = ({ b
   return (
     <div className="business-details-inline-form">
       {alert && (
-        <Alert
-          type={alert.type}
+        <AlertCard
+          variant={alert.type}
+          title={alert.type === 'success' ? 'Success' : 'Error'}
           message={alert.message}
-          onClose={() => setAlert(null)}
+          onDismiss={() => setAlert(null)}
+          className="mb-6"
         />
       )}
 
