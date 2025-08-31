@@ -209,6 +209,9 @@ const ChatDashboard: React.FC = () => {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
+    
+    // Return empty cleanup function when not adding event listener
+    return () => {};
   }, [showProfileMenu]);
 
 

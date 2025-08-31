@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AlertCircle, RefreshCw, Trash2, Calendar, Clock } from 'lucide-react';
+import { RefreshCw, Trash2, Calendar, Clock } from 'lucide-react';
 import Modal from '../organisms/Modal';
-import { Button } from '../atoms';
+import { Button, Icon } from '../atoms';
 import { getExpiryDateByPeriod } from '../../../utils/dateFormatters';
 
 export interface ConfirmationModalProps {
@@ -36,14 +36,22 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   };
 
   const getIcon = () => {
-    switch (variant) {
-      case 'danger':
-        return <AlertCircle size={48} className="text-red-500" />;
-      case 'warning':
-        return <AlertCircle size={48} className="text-yellow-500" />;
-      default:
-        return <AlertCircle size={48} className="text-blue-500" />;
-    }
+    const iconMap = {
+      danger: { name: 'error' as const, className: 'text-red-500' },
+      warning: { name: 'warning' as const, className: 'text-yellow-500' },
+      default: { name: 'info' as const, className: 'text-blue-500' }
+    };
+
+    const config = iconMap[variant as keyof typeof iconMap] || iconMap.default;
+    
+    return (
+      <Icon
+        name={config.name}
+        size={48}
+        className={config.className}
+        variant="outline"
+      />
+    );
   };
 
   const getButtonVariant = () => {

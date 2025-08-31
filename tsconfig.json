@@ -1,39 +1,52 @@
 {
   "compilerOptions": {
+    // TypeScript 5.9 compatible with Next.js
+    "target": "esnext",
+    "module": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
-      "ES2022"
+      "esnext"
     ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "esnext",
+    "jsx": "preserve",
+    
+    // Module resolution
     "moduleResolution": "bundler",
+    "allowJs": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    
+    // Type checking
+    "strict": true,
+    "noUnusedLocals": false, // Disable for now to avoid build breaks
+    "noUnusedParameters": false, // Disable for now to avoid build breaks
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    
+    // Performance
+    "skipLibCheck": true,
+    "noEmit": true,
     "incremental": true,
+    
+    // Next.js
     "plugins": [
       {
         "name": "next"
       }
     ],
+    
+    // Path mapping
+    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./app/*"
-      ],
-      "@/lib/*": [
-        "./lib/*"
-      ],
-      "@/types/*": [
-        "./types/*"
-      ]
-    },
-    "target": "ES2022"
+      "@/*": ["./app/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/types/*": ["./types/*"],
+      "~/*": ["./*"]
+    }
   },
   "include": [
     "next-env.d.ts",

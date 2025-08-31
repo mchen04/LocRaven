@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Loading } from '../atoms';
+import { Card, LoadingState } from '../atoms';
 import type { CardProps } from '../atoms';
 
 export interface LoadingCardProps extends Omit<CardProps, 'children'> {
@@ -14,13 +14,12 @@ const LoadingCard: React.FC<LoadingCardProps> = ({
 }) => {
   return (
     <Card {...cardProps}>
-      <div className="py-8">
-        <Loading 
-          size={spinnerSize} 
-          text={message}
-          layout="centered"
-        />
-      </div>
+      <LoadingState 
+        variant="spinner"
+        size={spinnerSize} 
+        text={message}
+        layout="card"
+      />
     </Card>
   );
 };

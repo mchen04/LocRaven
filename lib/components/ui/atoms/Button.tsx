@@ -74,24 +74,22 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   loading?: boolean;
+  ref?: React.Ref<HTMLButtonElement>;
   'data-testid'?: string;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant = 'primary',
-      size = 'md',
-      fullWidth = false,
-      loading = false,
-      disabled = false,
-      children,
-      'data-testid': testId,
-      ...props
-    },
-    ref
-  ) => {
+const Button: React.FC<ButtonProps> = ({
+  className,
+  variant = 'primary',
+  size = 'md',
+  fullWidth = false,
+  loading = false,
+  disabled = false,
+  children,
+  ref,
+  'data-testid': testId,
+  ...props
+}) => {
     const isDisabled = disabled || loading;
 
     return (
@@ -108,10 +106,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
-);
-
-Button.displayName = 'Button';
+};
 
 export default Button;
 export { buttonVariants };

@@ -97,6 +97,8 @@ const Modal: React.FC<ModalProps> = ({
         document.body.style.overflow = 'unset';
       };
     }
+    // Return empty cleanup function when not modifying scroll
+    return () => {};
   }, [isOpen, preventBodyScroll]);
 
   // Add escape key listener
@@ -105,6 +107,8 @@ const Modal: React.FC<ModalProps> = ({
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
     }
+    // Return empty cleanup function when not adding event listener
+    return () => {};
   }, [isOpen, handleEscape, closeOnEscape]);
 
   if (!isOpen) return null;

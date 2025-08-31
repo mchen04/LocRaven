@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Loading } from '../atoms';
-import type { LoadingProps } from '../atoms/Loading';
+import { LoadingState } from '../atoms';
 
 export interface ProcessingIndicatorProps {
   isVisible?: boolean;
@@ -21,23 +20,20 @@ const ProcessingIndicator: React.FC<ProcessingIndicatorProps> = ({
   size = 'md',
   className
 }) => {
-  if (!isVisible) return null;
-
   const layoutMap = {
     default: 'centered',
-    card: 'centered',
+    card: 'card',
     inline: 'inline'
   } as const;
 
-  const loadingVariant: LoadingProps['variant'] = submessage ? 'processing' : 'spinner';
-
   return (
-    <Loading
-      variant={loadingVariant}
+    <LoadingState
+      variant={submessage ? 'processing' : 'spinner'}
       size={size}
       layout={layoutMap[variant]}
       text={message}
       submessage={submessage}
+      isVisible={isVisible}
       className={className}
     />
   );

@@ -44,23 +44,21 @@ export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof cardVariants> {
   title?: string;
+  ref?: React.Ref<HTMLDivElement>;
   'data-testid'?: string;
 }
 
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  (
-    {
-      className,
-      variant = 'default',
-      padding = 'md',
-      hover = false,
-      title,
-      children,
-      'data-testid': testId,
-      ...props
-    },
-    ref
-  ) => {
+const Card: React.FC<CardProps> = ({
+  className,
+  variant = 'default',
+  padding = 'md',
+  hover = false,
+  title,
+  children,
+  ref,
+  'data-testid': testId,
+  ...props
+}) => {
     return (
       <div
         ref={ref}
@@ -78,10 +76,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         {children}
       </div>
     );
-  }
-);
-
-Card.displayName = 'Card';
+};
 
 export default Card;
 export { cardVariants };

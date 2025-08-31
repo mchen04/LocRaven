@@ -173,7 +173,7 @@ const UpdateWithPreview: React.FC<UpdateWithPreviewProps> = ({
             <div className="placeholder-content">
               <div className="placeholder-icon">🚀</div>
               <h3>AI Multi-Page Preview</h3>
-              <p>Fill out your update details and click "Generate Preview" to see your AI-optimized pages.</p>
+              <p>Fill out your update details and click &quot;Generate Preview&quot; to see your AI-optimized pages.</p>
               <div className="preview-features">
                 <div className="feature-item">
                   <span className="feature-icon">🎯</span>
