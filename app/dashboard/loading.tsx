@@ -1,58 +1,60 @@
-import { Loading } from '@/lib/components/ui/atoms';
-import { Card } from '@/lib/components/ui/atoms';
-import { Container, Section } from '@/lib/components/ui/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Dashboard-specific loading UI
 export default function DashboardLoading() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark">
+    <div className="min-h-screen bg-background">
       {/* Loading header skeleton */}
-      <div className="bg-white dark:bg-dark-card shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <Container>
+      <div className="border-b">
+        <div className="container mx-auto px-4">
           <div className="h-16 flex items-center justify-between">
-            <Loading variant="skeleton" layout="inline" className="h-6 w-32" />
+            <Skeleton className="h-6 w-32" />
             <div className="flex space-x-2">
-              <Loading variant="skeleton" layout="inline" className="h-8 w-20" />
-              <Loading variant="skeleton" layout="inline" className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-20" />
+              <Skeleton className="h-8 w-8 rounded-full" />
             </div>
           </div>
-        </Container>
+        </div>
       </div>
 
       {/* Loading content */}
-      <Container className="py-8">
-        <Section spacing="lg">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left column skeleton */}
-            <div className="lg:col-span-1">
-              <Card padding="lg">
-                <Loading variant="skeleton" layout="inline" className="h-6 w-24 mb-4" />
-                <Loading variant="skeleton" layout="inline" className="h-4 w-full mb-2" />
-                <Loading variant="skeleton" layout="inline" className="h-8 w-20 mt-4" />
-              </Card>
-            </div>
-
-            {/* Right column skeleton */}
-            <div className="lg:col-span-2">
-              <Card padding="lg">
-                <Loading variant="skeleton" layout="inline" className="h-6 w-32 mb-4" />
-                <div className="space-y-3">
-                  <Loading variant="skeleton" layout="inline" className="h-4 w-full" />
-                  <Loading variant="skeleton" layout="inline" className="h-4 w-3/4" />
-                  <Loading variant="skeleton" layout="inline" className="h-4 w-1/2" />
-                </div>
-              </Card>
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left column skeleton */}
+          <div className="lg:col-span-1">
+            <Card>
+              <CardContent className="p-6">
+                <Skeleton className="h-6 w-24 mb-4" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-8 w-20 mt-4" />
+              </CardContent>
+            </Card>
           </div>
-        </Section>
+
+          {/* Right column skeleton */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardContent className="p-6">
+                <Skeleton className="h-6 w-32 mb-4" />
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Loading spinner overlay */}
-        <Loading 
-          size="md" 
-          text="Loading your dashboard..." 
-          layout="overlay" 
-        />
-      </Container>
+        <div className="fixed inset-0 bg-background/80 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading your dashboard...</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

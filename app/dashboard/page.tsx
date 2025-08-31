@@ -1,17 +1,24 @@
 'use client';
 
-import ProtectedDynamicPage from '@/lib/components/layouts/ProtectedDynamicPage';
-
-// Force dynamic rendering for this page since it requires authentication
-export const dynamic = 'force-dynamic';
+import { UpdateForm } from '@/components/dashboard/update-form';
+import { StatsCards } from '@/components/dashboard/stats-cards';
 
 export default function DashboardPage() {
   return (
-    <ProtectedDynamicPage
-      importPath={() => import('@/lib/components/Dashboard')}
-      loadingText="Loading dashboard..."
-      fallbackText="Loading..."
-      ssr={false}
-    />
+    <div className="space-y-6">
+      {/* Page header */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Create Update</h1>
+        <p className="text-muted-foreground">
+          Share what&apos;s new with your business and get discovered by AI assistants.
+        </p>
+      </div>
+
+      {/* Stats cards */}
+      <StatsCards />
+
+      {/* Update form */}
+      <UpdateForm />
+    </div>
   );
 }

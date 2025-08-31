@@ -1,12 +1,13 @@
-import { Loading } from '@/lib/components/ui/atoms';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Global loading UI for the app
 export default function AppLoading() {
   return (
-    <Loading 
-      size="lg" 
-      text="Loading LocRaven..." 
-      layout="fullscreen" 
-    />
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Loading LocRaven...</p>
+      </div>
+    </div>
   );
 }

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import { AuthProvider } from '@/lib/contexts/AuthContext';
-import { BusinessProvider } from '@/lib/contexts/BusinessContext';
-import { ErrorBoundary } from '@/lib/components/ui/organisms';
+import { AuthProvider } from '@/components/providers/auth-provider';
+import { BusinessProvider } from '@/components/providers/business-provider';
+import { NotificationProvider } from '@/components/providers/notification-provider';
+import { Toaster } from '@/components/ui/sonner';
 import '@/lib/styles/globals.css';
 
 // Optimize Google Fonts for Cloudflare edge caching
@@ -85,13 +86,14 @@ export default function RootLayout({
         className={`${inter.className} antialiased min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100`}
         suppressHydrationWarning={true}
       >
-        <ErrorBoundary>
-          <AuthProvider>
-            <BusinessProvider>
+        <AuthProvider>
+          <BusinessProvider>
+            <NotificationProvider>
               {children}
-            </BusinessProvider>
-          </AuthProvider>
-        </ErrorBoundary>
+              <Toaster />
+            </NotificationProvider>
+          </BusinessProvider>
+        </AuthProvider>
       </body>
     </html>
   );

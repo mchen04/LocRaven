@@ -1,10 +1,45 @@
 'use client';
 
-import AuthCallback from '@/lib/components/features/auth/AuthCallback';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/utils/supabase/client';
 
 // Force dynamic rendering for this page since it requires runtime data
 export const dynamic = 'force-dynamic';
 
 export default function AuthCallbackPage() {
-  return <AuthCallback />;
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      const supabase = createClient();
+      
+      try {
+        const { error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Auth callback error:', error);
+          router.push('/login?error=auth_callback_failed');
+          return;
+        }
+
+        // Redirect to dashboard on successful authentication
+        router.push('/dashboard');
+      } catch (error) {
+        console.error('Auth callback error:', error);
+        router.push('/login?error=auth_callback_failed');
+      }
+    };
+
+    handleAuthCallback();
+  }, [router]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Completing sign in...</p>
+      </div>
+    </div>
+  );
 }

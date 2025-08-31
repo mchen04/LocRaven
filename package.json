@@ -37,7 +37,11 @@
   },
   "dependencies": {
     "@eslint/js": "^9.34.0",
+    "@hookform/resolvers": "^5.2.1",
     "@opennextjs/cloudflare": "^1.6.5",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.54.0",
     "@types/react": "^19.1.9",
@@ -45,12 +49,16 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.539.0",
     "next": "^15.5.0",
+    "next-themes": "^0.4.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.62.0",
+    "sonner": "^2.0.7",
     "stripe": "^17.4.0",
     "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.9.2",
-    "zod": "^4.1.1"
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
