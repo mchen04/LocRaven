@@ -1,4 +1,3 @@
-import React, { forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../utils/cn';
 
@@ -81,23 +80,21 @@ export interface InputProps
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
   error?: boolean;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    {
-      className,
-      variant = 'default',
-      size = 'md',
-      fullWidth = true,
-      startIcon,
-      endIcon,
-      error = false,
-      disabled = false,
-      ...props
-    },
-    ref
-  ) => {
+const Input = ({
+  className,
+  variant = 'default',
+  size = 'md',
+  fullWidth = true,
+  startIcon,
+  endIcon,
+  error = false,
+  disabled = false,
+  ref,
+  ...props
+}: InputProps) => {
     // Determine final variant based on error state
     const finalVariant = error ? 'error' : variant;
 
@@ -133,8 +130,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
       </div>
     );
-  }
-);
+};
 
 Input.displayName = 'Input';
 

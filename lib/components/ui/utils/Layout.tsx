@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 // Common layout patterns extracted as reusable components
 

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Card, Loading } from '../atoms';
 
 interface PageLoadingTemplateProps {

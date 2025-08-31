@@ -1,4 +1,4 @@
-import React from 'react';
+
 import Skeleton from '../atoms/Skeleton';
 
 interface SkeletonHeaderProps {

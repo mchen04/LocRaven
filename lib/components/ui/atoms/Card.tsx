@@ -1,4 +1,5 @@
-import React from 'react';
+
+import { memo } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../utils/cn';
 
@@ -78,5 +79,5 @@ const Card: React.FC<CardProps> = ({
     );
 };
 
-export default Card;
+export default memo(Card);
 export { cardVariants };

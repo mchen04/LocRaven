@@ -1,4 +1,3 @@
-import React, { forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../utils/cn';
 
@@ -52,23 +51,21 @@ export interface SelectProps
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
   error?: boolean;
+  ref?: React.Ref<HTMLSelectElement>;
 }
 
-const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  (
-    {
-      options,
-      placeholder,
-      variant = 'default',
-      size = 'md',
-      fullWidth = true,
-      error = false,
-      className,
-      disabled = false,
-      ...props
-    },
-    ref
-  ) => {
+const Select = ({
+  options,
+  placeholder,
+  variant = 'default',
+  size = 'md',
+  fullWidth = true,
+  error = false,
+  className,
+  disabled = false,
+  ref,
+  ...props
+}: SelectProps) => {
     // Determine the actual variant to use (error prop overrides variant prop)
     const actualVariant = error ? 'error' : variant;
 
@@ -103,8 +100,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         ))}
       </select>
     );
-  }
-);
+};
 
 Select.displayName = 'Select';
 

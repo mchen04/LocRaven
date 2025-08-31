@@ -1,4 +1,7 @@
-import React from 'react';
+
+'use client';
+
+import { useState, useCallback, ChangeEvent } from 'react';
 import { Input } from '../atoms';
 import type { InputProps } from '../atoms';
 
@@ -8,17 +11,17 @@ export interface SearchInputProps extends Omit<InputProps, 'type'> {
   loading?: boolean;
 }
 
-const SearchInput: React.FC<SearchInputProps> = ({
+const SearchInput = ({
   onSearch,
   onClear,
   loading = false,
   placeholder = 'Search...',
   className = '',
   ...inputProps
-}) => {
-  const [query, setQuery] = React.useState(String(inputProps.value || ''));
+}: SearchInputProps) => {
+  const [query, setQuery] = useState(String(inputProps.value || ''));
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setQuery(value);
     inputProps.onChange?.(event);

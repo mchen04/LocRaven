@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Card, LoadingState } from '../atoms';
 
 interface SkeletonCardProps {

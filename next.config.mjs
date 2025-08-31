@@ -89,6 +89,14 @@ const nextConfig = withBundleAnalyzer({
     scrollRestoration: true,
   },
   
+  // Turbopack configuration (Next.js 15.5)
+  turbopack: {
+    resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
+  },
+  
+  // Enable typed routes for compile-time route safety
+  typedRoutes: true,
+  
   // Ensure environment variables are available during build for client-side inlining
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,

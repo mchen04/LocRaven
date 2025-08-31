@@ -3,7 +3,7 @@
  * Provides a unified, composable API for form creation with consistent styling and behavior
  */
 
-import React, { createContext, useContext, forwardRef } from 'react';
+import { createContext, useContext } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../utils/cn';
 import FormField from '../molecules/FormField';
@@ -56,17 +56,18 @@ export interface FormProps
     VariantProps<typeof formVariants> {
   children: React.ReactNode;
   disabled?: boolean;
+  ref?: React.Ref<HTMLFormElement>;
 }
 
-const FormRoot = forwardRef<HTMLFormElement, FormProps>(
-  ({ 
-    children, 
-    className, 
-    variant = 'default', 
-    size = 'md', 
-    disabled = false,
-    ...props 
-  }, ref) => {
+const FormRoot = ({ 
+  children, 
+  className, 
+  variant = 'default', 
+  size = 'md', 
+  disabled = false,
+  ref,
+  ...props 
+}: FormProps) => {
     const contextValue: FormContextValue = {
       size: size || 'md',
       variant: variant || 'default', 
@@ -84,8 +85,7 @@ const FormRoot = forwardRef<HTMLFormElement, FormProps>(
         </form>
       </FormContext.Provider>
     );
-  }
-);
+};
 
 FormRoot.displayName = 'Form';
 
@@ -152,10 +152,10 @@ interface FormActionsProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof formActionsVariants> {
   children: React.ReactNode;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
-const FormActions = forwardRef<HTMLDivElement, FormActionsProps>(
-  ({ children, className, align, direction, ...props }, ref) => {
+const FormActions = ({ children, className, align, direction, ref, ...props }: FormActionsProps) => {
     return (
       <div
         ref={ref}
@@ -165,8 +165,7 @@ const FormActions = forwardRef<HTMLDivElement, FormActionsProps>(
         {children}
       </div>
     );
-  }
-);
+};
 
 FormActions.displayName = 'Form.Actions';
 
@@ -193,10 +192,10 @@ interface FormGroupProps
   title?: string;
   description?: string;
   children: React.ReactNode;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
-const FormGroup = forwardRef<HTMLDivElement, FormGroupProps>(
-  ({ children, className, variant, title, description, ...props }, ref) => {
+const FormGroup = ({ children, className, variant, title, description, ref, ...props }: FormGroupProps) => {
     return (
       <div
         ref={ref}
@@ -218,8 +217,7 @@ const FormGroup = forwardRef<HTMLDivElement, FormGroupProps>(
         <div className="space-y-4">{children}</div>
       </div>
     );
-  }
-);
+};
 
 FormGroup.displayName = 'Form.Group';
 

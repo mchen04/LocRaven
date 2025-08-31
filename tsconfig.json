@@ -10,7 +10,7 @@
     ],
     "jsx": "preserve",
     
-    // Module resolution
+    // Module resolution (TypeScript 5.9 optimizations)
     "moduleResolution": "bundler",
     "allowJs": true,
     "resolveJsonModule": true,
@@ -27,10 +27,12 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     
-    // Performance
+    // Performance (TypeScript 5.9 optimizations)
     "skipLibCheck": true,
     "noEmit": true,
     "incremental": true,
+    // Enable faster incremental builds and caching
+    "assumeChangesOnlyAffectDirectDependencies": true,
     
     // Next.js
     "plugins": [

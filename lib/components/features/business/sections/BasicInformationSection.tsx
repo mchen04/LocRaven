@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { BusinessSection } from '../../../ui/organisms';
 import { basicInformationFields } from '../sectionConfigs';
 import { Business } from '../../../../../types';

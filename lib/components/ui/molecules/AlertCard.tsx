@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { cn } from '../../../utils/cn';
 import { Card, Icon } from '../atoms';
 import type { CardProps } from '../atoms';

@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../../utils/cn';
 
@@ -78,7 +78,7 @@ export interface ButtonProps
   'data-testid'?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({
+const Button = ({
   className,
   variant = 'primary',
   size = 'md',
@@ -89,7 +89,7 @@ const Button: React.FC<ButtonProps> = ({
   ref,
   'data-testid': testId,
   ...props
-}) => {
+}: ButtonProps) => {
     const isDisabled = disabled || loading;
 
     return (
@@ -108,5 +108,5 @@ const Button: React.FC<ButtonProps> = ({
     );
 };
 
-export default Button;
+export default memo(Button);
 export { buttonVariants };

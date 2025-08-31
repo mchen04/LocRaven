@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+
 import { LoadingState } from '../atoms';
 
 export interface ProcessingIndicatorProps {

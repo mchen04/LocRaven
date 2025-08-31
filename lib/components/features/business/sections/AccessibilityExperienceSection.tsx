@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+
 import { BusinessSection } from '../../../ui/organisms';
 import { accessibilityExperienceFields } from '../sectionConfigs';
 import { Business } from '../../../../../types';

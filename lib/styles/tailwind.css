@@ -215,6 +215,43 @@
   .focus-ring {
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
+
+  /* Modern CSS features using CSS Custom Properties and color-mix() */
+  .gradient-animated {
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-primary) 90%, white),
+      color-mix(in srgb, var(--color-secondary) 90%, white)
+    );
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease-in-out infinite;
+  }
+  
+  @keyframes gradient-shift {
+    0%, 100% { 
+      background-position: 0% 50%; 
+    }
+    50% { 
+      background-position: 100% 50%; 
+    }
+  }
+
+  /* Advanced color mixing utilities */
+  .bg-primary-blend {
+    background: color-mix(in oklch, var(--color-primary) 80%, transparent);
+  }
+  
+  .text-primary-blend {
+    color: color-mix(in oklch, var(--color-primary) 90%, currentColor);
+  }
+
+  /* Container queries for responsive design */
+  @container (min-width: 768px) {
+    .container-md\:text-lg {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+  }
 }
 
 @layer components {
