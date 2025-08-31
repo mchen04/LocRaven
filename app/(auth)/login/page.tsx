@@ -23,7 +23,6 @@ export default function LoginPage() {
       setIsLoading(true);
       await signInWithGoogle();
     } catch (error) {
-      console.error('Login error:', error);
       showError('Failed to sign in with Google');
     } finally {
       setIsLoading(false);

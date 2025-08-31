@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // OAuth redirect URL construction for development debugging
       if (process.env.NODE_ENV === 'development') {
-        console.debug('OAuth redirect URL:', redirectUrl);
+        // Debug logging only in development
       }
       
       const { error } = await supabase.auth.signInWithOAuth({
@@ -92,13 +92,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (error) {
-        console.error('AuthProvider: OAuth error:', error);
         setError(error.message);
         throw new Error(`OAuth authentication failed: ${error.message}`);
       }
     } catch (urlError) {
       const errorMessage = urlError instanceof Error ? urlError.message : 'Authentication failed';
-      console.error('AuthProvider: Error during Google sign in:', urlError);
       setError(errorMessage);
       throw new Error(errorMessage);
     }
@@ -110,7 +108,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error('AuthProvider: Sign out error:', error);
         setError(error.message);
         throw new Error(`Sign out failed: ${error.message}`);
       }
@@ -118,7 +115,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
     } catch (signOutError) {
       const errorMessage = signOutError instanceof Error ? signOutError.message : 'Sign out failed';
-      console.error('AuthProvider: Error during sign out:', signOutError);
       setError(errorMessage);
       throw new Error(errorMessage);
     }

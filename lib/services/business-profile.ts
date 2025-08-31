@@ -1,5 +1,9 @@
 import { Business, AvailabilityPolicy } from '../../types';
-import { TemplateVariables } from './templates';
+
+// Template variables interface
+export interface TemplateVariables {
+  [key: string]: any;
+}
 
 /**
  * Transform business data into template-ready variables

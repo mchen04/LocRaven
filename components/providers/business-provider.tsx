@@ -62,7 +62,6 @@ export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) 
       setBusiness(data);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load business profile';
-      console.error('BusinessProvider: Error loading business profile:', error);
       setError(errorMessage);
       setBusiness(null);
     } finally {
@@ -104,11 +103,10 @@ export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) 
       try {
         await generateInitialBusinessPage(result);
       } catch (pageError) {
-        console.warn('BusinessProvider: Page regeneration failed:', pageError);
+        // Page regeneration is non-critical for updates
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to update business profile';
-      console.error('BusinessProvider: Error updating business:', error);
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -135,13 +133,12 @@ export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) 
       try {
         await generateInitialBusinessPage(result);
       } catch (pageError) {
-        console.warn('BusinessProvider: Page generation failed:', pageError);
+        // Page generation is non-critical for profile creation
       }
 
       return { success: true, data: result };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to create business profile';
-      console.error('BusinessProvider: Error creating business:', error);
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
@@ -175,7 +172,6 @@ export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) 
       return { success: true };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete business profile';
-      console.error('BusinessProvider: Error deleting business:', error);
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {

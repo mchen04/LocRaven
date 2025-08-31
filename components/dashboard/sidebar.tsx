@@ -74,7 +74,6 @@ export function Sidebar() {
       showSuccess('Successfully signed out');
     } catch (error) {
       showError('Failed to sign out');
-      console.error('Sign out error:', error);
     }
   };
 
