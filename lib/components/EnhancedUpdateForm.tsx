@@ -6,6 +6,9 @@ import { formatDateTime } from '../utils/dateFormatters';
 import { useFormProcessing } from '../hooks/useFormProcessing';
 import ProcessingIndicator from './ui/molecules/ProcessingIndicator';
 import FormError from './ui/molecules/FormError';
+import Button from './ui/atoms/Button';
+import { cn } from '../utils/cn';
+import { themeClasses, themeClass } from '../theme/utils';
 
 interface EnhancedUpdateFormProps {
   onSubmit?: (data: UpdateFormData) => void;
@@ -195,14 +198,17 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
         </div>
 
         {/* Submit Button */}
-        <button 
+        <Button 
           type="submit" 
-          className="btn-generate"
+          variant="primary"
+          size="lg"
           disabled={isProcessing || !description.trim()}
+          fullWidth
+          className="gap-2"
         >
           {isProcessing ? (
             <>
-              <div className="spinner" />
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
               Processing...
             </>
           ) : (
@@ -210,7 +216,7 @@ const EnhancedUpdateForm: React.FC<EnhancedUpdateFormProps> = ({
               ⚡ Generate AI-Optimized Preview
             </>
           )}
-        </button>
+        </Button>
 
         {/* Processing Indicator */}
         <ProcessingIndicator

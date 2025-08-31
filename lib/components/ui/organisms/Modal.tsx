@@ -25,7 +25,7 @@ const modalOverlayVariants = cva(
 );
 
 const modalContentVariants = cva(
-  'bg-white dark:bg-gray-800 shadow-xl w-full transform transition-all duration-200 ease-out',
+  'bg-white dark:bg-dark-card shadow-xl w-full transform transition-all duration-200 ease-out',
   {
     variants: {
       variant: {

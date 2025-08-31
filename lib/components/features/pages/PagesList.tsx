@@ -2,6 +2,10 @@
 
 import { GeneratedPage } from '../../../../types';
 import { config } from '../../../utils/config';
+import Button from '../../ui/atoms/Button';
+import Card from '../../ui/atoms/Card';
+import { cn } from '../../../utils/cn';
+import { themeClasses, themeClass } from '../../../theme/utils';
 
 interface PagesListProps {
   pages: GeneratedPage[];
@@ -35,20 +39,20 @@ const PagesList: React.FC<PagesListProps> = ({ pages, onDeletePage }) => {
   };
 
   return (
-    <div className="card">
-      <div className="pages-header">
-        <h2 className="card-title">🌐 Your Generated Pages</h2>
-        <span className="page-count">
+    <Card variant="elevated" padding="lg">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className={cn(themeClasses.heading(), 'text-2xl')}>🌐 Your Generated Pages</h2>
+        <span className={cn('px-3 py-1 rounded-full text-sm font-medium', themeClass('bg-primary-light'), themeClass('text-primary'))}>
           <span>{pages.length}</span> pages
         </span>
       </div>
       
-      <div className="pages-list">
+      <div className="space-y-4">
         {pages.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">📄</div>
-            <div className="empty-title">No pages yet</div>
-            <div className="empty-text">
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📄</div>
+            <div className={cn(themeClasses.heading(), 'text-xl mb-2')}>No pages yet</div>
+            <div className={themeClass('text-muted')}>
               Create your first update to generate AI-discoverable pages
             </div>
           </div>
@@ -58,42 +62,46 @@ const PagesList: React.FC<PagesListProps> = ({ pages, onDeletePage }) => {
             const readableTitle = page.title || extractReadableTitle(page.file_path);
             
             return (
-              <div key={page.id} className="page-item">
-                <div className="page-header">
-                  <div className="page-title">{readableTitle}</div>
-                  <span className="page-badge">LIVE</span>
+              <Card key={page.id} variant="outlined" padding="md" className="border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-3">
+                  <div className={cn(themeClasses.heading(), 'text-lg')}>{readableTitle}</div>
+                  <span className="px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+                    LIVE
+                  </span>
                 </div>
                 <a 
                   href={`${config.env.appUrl}${pageUrl}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="page-url"
+                  className={cn('block mb-3 text-sm hover:underline', themeClass('text-primary'))}
                 >
                   {config.env.appUrl.replace(/^https?:\/\//, '')}{pageUrl}
                 </a>
-                <div className="page-meta">
-                  <span>Created {getTimeAgo(page.created_at || '')}</span>
-                  <div className="page-actions">
-                    <button 
-                      className="btn-view" 
+                <div className="flex items-center justify-between">
+                  <span className={cn('text-sm', themeClass('text-muted'))}>Created {getTimeAgo(page.created_at || '')}</span>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline"
+                      size="sm"
                       onClick={() => window.open(`${config.env.appUrl}${pageUrl}`, '_blank')}
                     >
                       View Page
-                    </button>
-                    <button 
-                      className="btn-delete" 
+                    </Button>
+                    <Button 
+                      variant="danger"
+                      size="sm"
                       onClick={() => handleDelete(page.id)}
                     >
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })
         )}
       </div>
-    </div>
+    </Card>
   );
 };
 

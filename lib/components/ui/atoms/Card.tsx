@@ -12,15 +12,15 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700',
-        outlined: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
-        elevated: 'bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700',
+        default: 'bg-white dark:bg-dark-card shadow-sm border border-gray-200 dark:border-gray-700',
+        outlined: 'bg-white dark:bg-dark-card border border-gray-200 dark:border-gray-700',
+        elevated: 'bg-white dark:bg-dark-card shadow-md border border-gray-200 dark:border-gray-700',
         ghost: 'bg-transparent dark:bg-transparent border-0',
         // Alert variants
-        info: 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700',
-        success: 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700',
-        warning: 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700',
-        error: 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700',
+        info: 'bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700',
+        success: 'bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-700',
+        warning: 'bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-700',
+        error: 'bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-700',
       },
       padding: {
         none: '',

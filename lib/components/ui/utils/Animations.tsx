@@ -153,7 +153,7 @@ export const LoadingDots: React.FC<LoadingDotsProps> = ({
   };
 
   const colorClasses = {
-    primary: 'bg-blue-600',
+    primary: 'bg-primary',
     gray: 'bg-gray-400',
     white: 'bg-white'
   };

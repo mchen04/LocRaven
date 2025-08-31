@@ -56,9 +56,9 @@ export const Heading: React.FC<HeadingProps> = ({
     primary: 'text-gray-900 dark:text-gray-100',
     secondary: 'text-gray-700 dark:text-gray-300',
     muted: 'text-gray-600 dark:text-gray-400',
-    error: 'text-red-600 dark:text-red-400',
-    success: 'text-green-600 dark:text-green-400',
-    warning: 'text-yellow-600 dark:text-yellow-400'
+    error: 'text-danger dark:text-danger-400',
+    success: 'text-success dark:text-success-400',
+    warning: 'text-warning dark:text-warning-400'
   };
 
   return (
@@ -114,9 +114,9 @@ export const Text: React.FC<TextProps> = ({
     primary: 'text-gray-900 dark:text-gray-100',
     secondary: 'text-gray-700 dark:text-gray-300',
     muted: 'text-gray-600 dark:text-gray-400',
-    error: 'text-red-600 dark:text-red-400',
-    success: 'text-green-600 dark:text-green-400',
-    warning: 'text-yellow-600 dark:text-yellow-400'
+    error: 'text-danger dark:text-danger-400',
+    success: 'text-success dark:text-success-400',
+    warning: 'text-warning dark:text-warning-400'
   };
 
   const alignClasses = {
@@ -176,7 +176,7 @@ export const Label: React.FC<LabelProps> = ({
     >
       {children}
       {required && (
-        <span className="text-red-500 ml-1" aria-label="Required">
+        <span className="text-danger ml-1" aria-label="Required">
           *
         </span>
       )}
@@ -236,7 +236,7 @@ export const Link: React.FC<LinkProps> = ({
   onClick
 }) => {
   const colorClasses = {
-    primary: 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300',
+    primary: 'text-primary dark:text-primary-400 hover:text-primary-dark dark:hover:text-primary-300',
     secondary: 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200',
     muted: 'text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
   };

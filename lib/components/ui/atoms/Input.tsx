@@ -16,15 +16,15 @@ const inputVariants = cva(
     variants: {
       variant: {
         default: [
-          'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+          'border-gray-300 focus:border-primary focus:ring-primary'
         ],
         error: [
-          'border-red-500 focus:border-red-500 focus:ring-red-500',
-          'bg-red-50 dark:bg-red-950/10'
+          'border-danger focus:border-danger focus:ring-danger',
+          'bg-danger-50 dark:bg-danger-950/10'
         ],
         success: [
-          'border-green-500 focus:border-green-500 focus:ring-green-500',
-          'bg-green-50 dark:bg-green-950/10'
+          'border-success focus:border-success focus:ring-success',
+          'bg-success-50 dark:bg-success-950/10'
         ],
       },
       size: {

@@ -1,9 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-
-import '../../../styles/ChatDashboard.css';
-import { Calendar, Settings, LogOut, Building2, Link2, Menu, X, MoreHorizontal, CreditCard } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
+import Sidebar, { type ViewMode } from '../../ui/organisms/Sidebar';
+import Card from '../../ui/atoms/Card';
+import Button from '../../ui/atoms/Button';
+import Input from '../../ui/atoms/Input';
+import { cn } from '../../../utils/cn';
+import { themeClasses, themeClass } from '../../../theme/utils';
 import { BusinessProfileView } from '../business';
 import LinkAnalytics from './LinkAnalytics';
 import { ActiveLinksView, PagePreview } from '../pages';
@@ -65,7 +69,7 @@ const ChatDashboard: React.FC = () => {
   const todaysDate = new Date().toISOString().split('T')[0];
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedPage, setSelectedPage] = useState<GeneratedPage | null>(null);
-  const [viewMode, setViewMode] = useState<'update' | 'preview' | 'analytics' | 'profile' | 'links' | 'settings' | 'subscription'>('update');
+  const [viewMode, setViewMode] = useState<ViewMode>('update');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [hasAutoSelectedProfile, setHasAutoSelectedProfile] = useState(false);
@@ -353,141 +357,45 @@ const ChatDashboard: React.FC = () => {
   };
 
 
+  const handleViewChange = (view: ViewMode) => {
+    setViewMode(view);
+    setSelectedPage(null);
+  };
+
   return (
-    <div className="chat-dashboard">
-      {/* Integrated Sidebar */}
-      <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
-        <div className="sidebar-header">
-          <button 
-            className="sidebar-toggle"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            aria-label="Toggle sidebar"
-            title="Toggle sidebar"
-          >
-            <Menu size={20} />
-          </button>
-          {isSidebarOpen && (
-            <div className="sidebar-title">LocRaven</div>
-          )}
-        </div>
-
-        <div className="sidebar-nav">
-          <button 
-            className={`nav-item ${viewMode === 'update' ? 'active' : ''}`}
-            onClick={() => {
-              setViewMode('update');
-              setSelectedPage(null);
-            }}
-          >
-            <Calendar size={20} className="nav-icon" />
-            {isSidebarOpen && <span>Create Update</span>}
-          </button>
-          
-          <button 
-            className={`nav-item ${viewMode === 'profile' ? 'active' : ''}`}
-            onClick={handleBusinessDetailsClick}
-          >
-            <Building2 size={20} className="nav-icon" />
-            {isSidebarOpen && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                Business Details
-                {!business && (
-                  <span 
-                    style={{ 
-                      width: '6px', 
-                      height: '6px', 
-                      borderRadius: '50%', 
-                      backgroundColor: '#ff8c00',
-                      display: 'inline-block'
-                    }} 
-                    title="Profile not set up"
-                  />
-                )}
-              </span>
-            )}
-          </button>
-          
-          <button 
-            className={`nav-item ${viewMode === 'links' ? 'active' : ''}`}
-            onClick={() => {
-              setViewMode('links');
-              setSelectedPage(null);
-            }}
-          >
-            <Link2 size={20} className="nav-icon" />
-            {isSidebarOpen && <span>Links</span>}
-          </button>
-
-          <button 
-            className={`nav-item ${viewMode === 'settings' ? 'active' : ''}`}
-            onClick={() => {
-              setViewMode('settings');
-              setSelectedPage(null);
-            }}
-          >
-            <Settings size={20} className="nav-icon" />
-            {isSidebarOpen && <span>Settings</span>}
-          </button>
-
-          <button 
-            className={`nav-item ${viewMode === 'subscription' ? 'active' : ''}`}
-            onClick={() => {
-              setViewMode('subscription');
-              setSelectedPage(null);
-            }}
-          >
-            <CreditCard size={20} className="nav-icon" />
-            {isSidebarOpen && <span>Subscription</span>}
-          </button>
-          
-        </div>
-
-
-        {/* User Profile Section */}
-        <div className="sidebar-footer">
-          <div className="profile-menu-container">
-            <button 
-              className="user-profile-btn"
-              onClick={() => signOut()}
-            >
-              <div className="user-avatar">
-                {user?.email?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              {isSidebarOpen && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="user-email">{user?.email || 'User'}</span>
-                  <LogOut size={14} style={{ color: '#ef4444' }} />
-                </div>
-              )}
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Mobile Sidebar Toggle */}
-      <button 
-        className="mobile-sidebar-toggle"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+    <div className={cn(
+      'grid min-h-screen max-h-screen overflow-hidden',
+      'bg-white dark:bg-dark',
+      'text-gray-900 dark:text-gray-100',
+      'font-sans',
+      isSidebarOpen ? 'grid-cols-[16rem,1fr]' : 'grid-cols-[4.375rem,1fr]'
+    )}>
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        currentView={viewMode}
+        onViewChange={handleViewChange}
+        user={user}
+        business={business}
+        onSignOut={signOut}
+      />
 
       {/* Main Content Area */}
-      <main className="chat-main">
+      <main className="overflow-hidden">
 
         {viewMode === 'profile' ? (
-          <div style={{ padding: '2rem' }}>
-            <div className="business-details-header" style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Business Details</h2>
-              <p style={{ color: '#9ca3af', textAlign: 'center', margin: '0' }}>Manage your business profile and information</p>
+          <div className="p-8">
+            <div className="mb-8 text-center">
+              <h2 className={cn(themeClasses.heading(), 'text-3xl mb-2')}>Business Details</h2>
+              <p className={themeClass('text-muted')}>Manage your business profile and information</p>
             </div>
             <BusinessProfileView />
           </div>
         ) : viewMode === 'links' ? (
-          <div style={{ padding: '2rem' }}>
-            <div className="links-header" style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Links</h2>
-              <p style={{ color: '#9ca3af', textAlign: 'center', margin: '0' }}>Manage your active and expired pages</p>
+          <div className="p-8">
+            <div className="mb-8 text-center">
+              <h2 className={cn(themeClasses.heading(), 'text-3xl mb-2')}>Links</h2>
+              <p className={themeClass('text-muted')}>Manage your active and expired pages</p>
             </div>
             <ActiveLinksView 
               pages={pages} 
@@ -499,39 +407,33 @@ const ChatDashboard: React.FC = () => {
             />
           </div>
         ) : viewMode === 'settings' ? (
-          <div className="settings-view" style={{ padding: '2rem' }}>
-            <div className="settings-header" style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Settings</h2>
-              <p style={{ color: '#9ca3af', textAlign: 'center' }}>Manage your account and preferences</p>
+          <div className="p-8">
+            <div className="mb-8 text-center">
+              <h2 className={cn(themeClasses.heading(), 'text-3xl mb-2')}>Settings</h2>
+              <p className={themeClass('text-muted')}>Manage your account and preferences</p>
             </div>
 
             {/* Account Section - All in One */}
-            <div className="settings-section" style={{ 
-              background: 'rgba(255, 255, 255, 0.05)', 
-              borderRadius: '0.5rem', 
-              padding: '1.5rem', 
-              marginBottom: '1.5rem',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ffffff', marginBottom: '1rem' }}>Account Information</h3>
+            <Card variant="elevated" padding="lg" className="mb-6">
+              <h3 className={cn(themeClasses.heading(), 'text-xl mb-4')}>Account Information</h3>
               
               {/* Account Info Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Email</label>
-                  <span style={{ color: '#ffffff' }}>{user?.email || 'Not logged in'}</span>
+                  <label className={cn('block text-sm font-medium', themeClass('text-muted'), 'mb-1')}>Email</label>
+                  <span className={themeClasses.body()}>{user?.email || 'Not logged in'}</span>
                 </div>
                 
                 {business && (
                   <>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Business</label>
-                      <span style={{ color: '#ffffff' }}>{business.name || 'Unnamed Business'}</span>
+                      <label className={cn('block text-sm font-medium', themeClass('text-muted'), 'mb-1')}>Business</label>
+                      <span className={themeClasses.body()}>{business.name || 'Unnamed Business'}</span>
                     </div>
                     
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Location</label>
-                      <span style={{ color: '#ffffff' }}>
+                      <label className={cn('block text-sm font-medium', themeClass('text-muted'), 'mb-1')}>Location</label>
+                      <span className={themeClasses.body()}>
                         {business.address_city && business.address_state 
                           ? `${business.address_city}, ${business.address_state}` 
                           : 'Not specified'
@@ -540,97 +442,44 @@ const ChatDashboard: React.FC = () => {
                     </div>
                     
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Primary Category</label>
-                      <span style={{ color: '#ffffff' }}>{business.primary_category || 'Not specified'}</span>
+                      <label className={cn('block text-sm font-medium', themeClass('text-muted'), 'mb-1')}>Primary Category</label>
+                      <span className={themeClasses.body()}>{business.primary_category || 'Not specified'}</span>
                     </div>
                   </>
                 )}
               </div>
 
               {/* Action Buttons Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
-                <button style={{
-                  background: '#6366f1',
-                  border: 'none',
-                  color: 'white',
-                  padding: '0.75rem',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Button variant="primary" size="sm" fullWidth>
                   Export Data
-                </button>
+                </Button>
                 
-                <button style={{
-                  background: '#f59e0b',
-                  border: 'none',
-                  color: 'white',
-                  padding: '0.75rem',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}>
+                <Button variant="warning" size="sm" fullWidth>
                   Clear Pages
-                </button>
+                </Button>
                 
-                <button style={{
-                  background: '#10b981',
-                  border: 'none',
-                  color: 'white',
-                  padding: '0.75rem',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}>
+                <Button variant="success" size="sm" fullWidth>
                   Help
-                </button>
+                </Button>
                 
-                <button style={{
-                  background: '#8b5cf6',
-                  border: 'none',
-                  color: 'white',
-                  padding: '0.75rem',
-                  borderRadius: '0.375rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-                }}>
+                <Button variant="secondary" size="sm" fullWidth>
                   Support
-                </button>
+                </Button>
               </div>
-            </div>
+            </Card>
 
             {/* Danger Zone */}
             {business && (
-              <div className="danger-zone" style={{ 
-                background: 'rgba(239, 68, 68, 0.05)', 
-                borderRadius: '0.5rem', 
-                padding: '1.5rem',
-                border: '1px solid rgba(239, 68, 68, 0.2)'
-              }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ef4444', marginBottom: '1rem' }}>Danger Zone</h3>
+              <Card variant="error" padding="lg" className="mt-6">
+                <h3 className={cn('text-xl font-semibold mb-4 text-red-600 dark:text-red-400')}>Danger Zone</h3>
                 
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'flex-start',
-                  padding: '1rem',
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  borderRadius: '0.375rem',
-                  border: '1px solid rgba(239, 68, 68, 0.3)'
-                }}>
+                <div className="flex justify-between items-start p-4 bg-red-500/10 rounded-md border border-red-500/30">
                   <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem' }}>Delete Business Profile</h4>
-                    <p style={{ fontSize: '0.875rem', color: '#d1d5db', margin: 0 }}>This will permanently delete your business profile and all associated data. You can create a new profile anytime.</p>
+                    <h4 className="text-base font-semibold text-white mb-2">Delete Business Profile</h4>
+                    <p className="text-sm text-gray-300 m-0">This will permanently delete your business profile and all associated data. You can create a new profile anytime.</p>
                   </div>
-                  <button 
+                  <Button 
                     onClick={() => {
                       if (typeof window === 'undefined') return;
                       const confirmed = window.confirm('Are you sure you want to delete your business profile? This action cannot be undone.');
@@ -639,158 +488,107 @@ const ChatDashboard: React.FC = () => {
                         alert('Delete functionality would be implemented here');
                       }
                     }}
-                    style={{
-                      background: '#ef4444',
-                      border: 'none',
-                      color: 'white',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '0.375rem',
-                      fontSize: '0.875rem',
-                      fontWeight: '500',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      marginLeft: '1rem',
-                      flexShrink: 0
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#dc2626';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#ef4444';
-                    }}
+                    variant="danger"
+                    size="sm"
+                    className="ml-4 flex-shrink-0"
                   >
                     Delete Profile
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             )}
           </div>
         ) : viewMode === 'subscription' ? (
-          <div className="subscription-view" style={{ padding: '2rem' }}>
-            <div className="subscription-header" style={{ marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: 'var(--text-3xl)', fontWeight: '600', color: '#ffffff', marginBottom: '0.5rem', textAlign: 'center' }}>Subscription</h2>
-              <p style={{ color: '#9ca3af', textAlign: 'center' }}>Manage your billing and subscription</p>
+          <div className="subscription-view p-8">
+            <div className="subscription-header mb-8">
+              <h2 className="text-3xl font-semibold text-white mb-2 text-center">Subscription</h2>
+              <p className="text-gray-400 text-center">Manage your billing and subscription</p>
             </div>
             
             {/* Enhanced Subscription Layout */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
               
               {/* Main Subscription Status */}
-              <div style={{ 
-                background: 'rgba(255, 255, 255, 0.05)', 
-                borderRadius: '0.5rem', 
-                padding: '1.5rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ffffff', margin: 0 }}>Current Status</h3>
-                  <button style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.375rem 0.75rem',
-                    background: 'transparent',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '0.375rem',
-                    color: '#d1d5db',
-                    fontSize: '0.875rem',
-                    cursor: 'pointer'
-                  }}>
+              <Card variant="default" padding="lg" className="lg:col-span-2 bg-white/5 border-white/10">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-white m-0">Current Status</h3>
+                  <Button variant="ghost" size="sm" className="border border-white/20 text-gray-300">
                     Refresh
-                  </button>
+                  </Button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Plan</label>
-                    <span style={{ color: '#ffffff', fontWeight: '500' }}>Professional</span>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Plan</label>
+                    <span className="text-white font-medium">Professional</span>
                   </div>
                   
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Status</label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }}></span>
-                      <span style={{ color: '#10b981', fontWeight: '500' }}>Active</span>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Status</label>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span className="text-emerald-500 font-medium">Active</span>
                     </div>
                   </div>
                   
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Next Billing</label>
-                    <span style={{ color: '#ffffff' }}>September 28, 2025</span>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Next Billing</label>
+                    <span className="text-white">September 28, 2025</span>
                   </div>
                   
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Amount</label>
-                    <span style={{ color: '#ffffff', fontWeight: '500' }}>$79.00</span>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Amount</label>
+                    <span className="text-white font-medium">$79.00</span>
                   </div>
                   
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Started</label>
-                    <span style={{ color: '#ffffff' }}>August 28, 2025</span>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Started</label>
+                    <span className="text-white">August 28, 2025</span>
                   </div>
                   
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#d1d5db', marginBottom: '0.25rem' }}>Billing Method</label>
-                    <span style={{ color: '#ffffff' }}>Credit Card</span>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Billing Method</label>
+                    <span className="text-white">Credit Card</span>
                   </div>
                 </div>
 
                 {/* Billing Management */}
-                <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff', marginBottom: '1rem' }}>Billing Management</h4>
+                <div className="mt-6 pt-6 border-t border-white/10">
+                  <h4 className="text-base font-semibold text-white mb-4">Billing Management</h4>
                   
-                  <button style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    width: 'fit-content',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    cursor: 'pointer'
-                  }}>
+                  <Button variant="primary" size="sm" className="w-fit">
                     Manage Subscription & Billing
-                  </button>
+                  </Button>
                   
-                  <p style={{ fontSize: '0.875rem', color: '#9ca3af', margin: '0.75rem 0 0 0', textAlign: 'left' }}>
-                    <strong style={{ color: '#ffffff' }}>Stripe Customer Portal</strong> handles all subscription management including plan changes, cancellations, payment methods, and billing history.
+                  <p className="text-sm text-gray-400 mt-3 mb-0 text-left">
+                    <strong className="text-white">Stripe Customer Portal</strong> handles all subscription management including plan changes, cancellations, payment methods, and billing history.
                   </p>
                 </div>
-              </div>
+              </Card>
               
               {/* Account Overview Sidebar */}
-              <div className="subscription-sidebar" style={{ 
-                background: 'rgba(255, 255, 255, 0.05)', 
-                borderRadius: '0.5rem', 
-                padding: '1.5rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
-              }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#ffffff', marginBottom: '1rem' }}>Account Overview</h3>
+              <Card variant="default" padding="lg" className="bg-white/5 border-white/10">
+                <h3 className="text-xl font-semibold text-white mb-4">Account Overview</h3>
                 
                 {/* Plan Features */}
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#ffffff', marginBottom: '0.75rem' }}>Plan Features</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
-                      <span style={{ color: '#10b981' }}>✓</span>
-                      <span style={{ color: '#d1d5db' }}>Unlimited business updates</span>
+                <div className="mb-6">
+                  <h4 className="text-base font-semibold text-white mb-3">Plan Features</h4>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-emerald-500">✓</span>
+                      <span className="text-gray-300">Unlimited business updates</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
-                      <span style={{ color: '#10b981' }}>✓</span>
-                      <span style={{ color: '#d1d5db' }}>Advanced AI optimization</span>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-emerald-500">✓</span>
+                      <span className="text-gray-300">Advanced AI optimization</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
-                      <span style={{ color: '#10b981' }}>✓</span>
-                      <span style={{ color: '#d1d5db' }}>Priority support</span>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-emerald-500">✓</span>
+                      <span className="text-gray-300">Priority support</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
-                      <span style={{ color: '#10b981' }}>✓</span>
-                      <span style={{ color: '#d1d5db' }}>Custom business pages</span>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-emerald-500">✓</span>
+                      <span className="text-gray-300">Custom business pages</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
                       <span style={{ color: '#10b981' }}>✓</span>
@@ -847,7 +645,7 @@ const ChatDashboard: React.FC = () => {
                   </div>
                 </div>
                 
-              </div>
+              </Card>
               
             </div>
             
@@ -938,113 +736,122 @@ const ChatDashboard: React.FC = () => {
             />
           </div>
         ) : (
-          <div className="update-form-layout">
+          <div className="p-8">
             {/* Main Update Form */}
-            <div className="update-form-container">
-              <div className="form-header">
-                <div className="title-section">
-                  <h1>Create Business Update</h1>
-                  <p>Share news, promotions, or updates about your business</p>
+            <div className="max-w-2xl mx-auto">
+              <div className="mb-8 text-center">
+                <div>
+                  <h1 className={cn(themeClasses.heading(), 'text-3xl mb-2')}>Create Business Update</h1>
+                  <p className={themeClass('text-muted')}>Share news, promotions, or updates about your business</p>
                 </div>
               </div>
               
               {/* Profile Tip for New Users */}
               {showProfileTip && (
-                <div className="profile-tip">
-                  <div className="profile-tip-content">
-                    <span className="profile-tip-icon">💡</span>
-                    <span className="profile-tip-text">
-                      Adding your business details helps create better pages
-                    </span>
-                    <button
-                      className="profile-tip-action"
-                      onClick={() => {
-                        setViewMode('profile');
-                        setShowProfileTip(false);
-                      }}
-                    >
-                      Add details
-                    </button>
-                    <button
-                      className="profile-tip-dismiss"
-                      onClick={() => {
-                        setShowProfileTip(false);
-                        if (typeof window !== 'undefined') {
-                          localStorage.setItem('profileTipDismissed', 'true');
-                        }
-                      }}
-                      title="Dismiss"
-                    >
-                      ✕
-                    </button>
+                <Card variant="info" padding="md" className="mb-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">💡</span>
+                      <span className={themeClass('text-default')}>
+                        Adding your business details helps create better pages
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setViewMode('profile');
+                          setShowProfileTip(false);
+                        }}
+                      >
+                        Add details
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowProfileTip(false);
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem('profileTipDismissed', 'true');
+                          }
+                        }}
+                        title="Dismiss"
+                      >
+                        ✕
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </Card>
               )}
               
-              <div className="update-form">
+              <Card variant="default" padding="lg">
                 {/* Update Content */}
-                <div className="form-group">
-                  <label htmlFor="update-text">Update Details</label>
+                <div className="mb-6">
+                  <label htmlFor="update-text" className={cn('block text-sm font-medium', themeClass('text-default'), 'mb-2')}>
+                    Update Details
+                  </label>
                   <textarea
                     id="update-text"
                     value={updateText}
                     onChange={(e) => setUpdateText(e.target.value)}
                     placeholder="Share news, promotions, or updates about your business"
                     rows={6}
-                    className="update-textarea"
+                    className={cn(
+                      'w-full px-3 py-2 border rounded-md resize-y',
+                      'border-gray-300 dark:border-gray-600',
+                      'bg-white dark:bg-dark-card',
+                      'text-gray-900 dark:text-gray-100',
+                      'placeholder-gray-500 dark:placeholder-gray-400',
+                      'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                      'transition-colors duration-200'
+                    )}
                   />
                 </div>
                 
                 {/* Date Selection */}
-                <div className="date-group">
-                  <div className="form-group">
-                    <label htmlFor="start-date">Start Date (Defaults to Today)</label>
-                    <input
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label htmlFor="start-date" className={cn('block text-sm font-medium', themeClass('text-default'), 'mb-2')}>
+                      Start Date (Defaults to Today)
+                    </label>
+                    <Input
                       id="start-date"
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="date-input"
                       min={todaysDate}
                     />
                   </div>
                   
-                  <div className="form-group">
-                    <label htmlFor="end-date">End Date (Optional)</label>
-                    <input
+                  <div>
+                    <label htmlFor="end-date" className={cn('block text-sm font-medium', themeClass('text-default'), 'mb-2')}>
+                      End Date (Optional)
+                    </label>
+                    <Input
                       id="end-date"
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="date-input"
                       min={startDate || todaysDate}
                     />
                   </div>
                 </div>
                 
                 {/* Process Button */}
-                <button
+                <Button
                   onClick={handleProcessUpdate}
                   disabled={!updateText.trim() || isProcessing}
-                  className="process-btn"
+                  loading={isProcessing}
+                  size="lg"
+                  fullWidth
                 >
-                  <span className={`button-text ${isProcessing ? 'processing' : ''}`}>
-                    Process Update
-                  </span>
-                  {isProcessing && (
-                    <div className="button-loading-overlay">
-                      <div className="loading-spinner" />
-                      Processing...
-                    </div>
-                  )}
-                </button>
-              </div>
+                  Process Update
+                </Button>
+              </Card>
             </div>
           </div>
         )}
       </main>
-
-
     </div>
   );
 };

@@ -18,10 +18,10 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <Card className="max-w-md w-full text-center" padding="lg">
         <div className="mb-6">
-          <AlertTriangle className="mx-auto h-16 w-16 text-red-500" />
+          <AlertTriangle className="mx-auto h-16 w-16 text-danger" />
         </div>
         
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -37,7 +37,7 @@ export default function Error({
             <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
               Error Details
             </summary>
-            <pre className="mt-2 text-xs text-red-600 dark:text-red-400 bg-gray-100 dark:bg-gray-700 p-3 rounded overflow-auto">
+            <pre className="mt-2 text-xs text-danger dark:text-danger-400 bg-gray-100 dark:bg-gray-700 p-3 rounded overflow-auto">
               {error.message}
             </pre>
           </details>

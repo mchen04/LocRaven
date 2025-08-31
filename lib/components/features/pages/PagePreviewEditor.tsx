@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { Edit2, Check, X, AlertCircle } from 'lucide-react';
 import type { WebsiteInfo } from "../../../services/ai/geminiApi";
+import Button from '../../ui/atoms/Button';
+import { cn } from '../../../utils/cn';
+import { themeClasses, themeClass } from '../../../theme/utils';
 // Simplified validation interface (no Zustand store needed)
 interface FieldValidation {
   field: string;
@@ -126,12 +129,12 @@ const PagePreviewEditor: React.FC<PagePreviewEditorProps> = ({
               color: '#e5e7eb'
             }}
           />
-          <button onClick={handleSaveEdit} className="btn-save">
+          <Button variant="success" size="sm" onClick={handleSaveEdit}>
             <Check size={14} />
-          </button>
-          <button onClick={handleCancelEdit} className="btn-cancel">
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleCancelEdit}>
             <X size={14} />
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="view-mode">
@@ -142,9 +145,9 @@ const PagePreviewEditor: React.FC<PagePreviewEditorProps> = ({
           }}>
             {value || 'Not set'}
           </span>
-          <button onClick={() => handleStartEdit(field, value)} className="btn-edit">
+          <Button variant="ghost" size="sm" onClick={() => handleStartEdit(field, value)}>
             <Edit2 size={14} />
-          </button>
+          </Button>
         </div>
       )}
       

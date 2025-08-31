@@ -4,6 +4,10 @@ import { BarChart3, TrendingUp, Clock, ExternalLink, Eye, MousePointer, Calendar
 import { config } from '../../../utils/config';
 import { GeneratedPage } from '../../../../types';
 import { generatePageUrl, generateDisplayUrl } from '../../../utils/urlHelpers';
+import Button from '../../ui/atoms/Button';
+import Card from '../../ui/atoms/Card';
+import { cn } from '../../../utils/cn';
+import { themeClasses, themeClass } from '../../../theme/utils';
 
 interface LinkAnalyticsProps {
   page: GeneratedPage;
@@ -39,9 +43,9 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ page, onClose }) => {
           <span className="page-type-badge">{page.page_type}</span>
           {page.active && <span className="active-badge">Active</span>}
         </div>
-        <button className="close-analytics" onClick={onClose}>
+        <Button variant="outline" onClick={onClose}>
           Back to Chat
-        </button>
+        </Button>
       </div>
 
       <div className="analytics-url">
@@ -52,49 +56,57 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ page, onClose }) => {
       </div>
 
       <div className="analytics-grid">
-        <div className="stat-card">
-          <div className="stat-icon">
-            <Eye size={20} />
+        <Card variant="default" padding="lg">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <Eye size={20} className={themeClass('text-info')} />
+            </div>
+            <div className="flex-1">
+              <span className={cn('block text-sm', themeClass('text-muted'))}>Total Views</span>
+              <span className={cn('block text-2xl font-semibold', themeClasses.heading())}>{analytics.views.toLocaleString()}</span>
+              <span className="text-sm text-green-600 dark:text-green-400">+12.5%</span>
+            </div>
           </div>
-          <div className="stat-content">
-            <span className="stat-label">Total Views</span>
-            <span className="stat-value">{analytics.views.toLocaleString()}</span>
-            <span className="stat-change positive">+12.5%</span>
-          </div>
-        </div>
+        </Card>
 
-        <div className="stat-card">
-          <div className="stat-icon">
-            <MousePointer size={20} />
+        <Card variant="default" padding="lg">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <MousePointer size={20} className={themeClass('text-secondary')} />
+            </div>
+            <div className="flex-1">
+              <span className={cn('block text-sm', themeClass('text-muted'))}>Total Clicks</span>
+              <span className={cn('block text-2xl font-semibold', themeClasses.heading())}>{analytics.clicks.toLocaleString()}</span>
+              <span className="text-sm text-green-600 dark:text-green-400">+8.3%</span>
+            </div>
           </div>
-          <div className="stat-content">
-            <span className="stat-label">Total Clicks</span>
-            <span className="stat-value">{analytics.clicks.toLocaleString()}</span>
-            <span className="stat-change positive">+8.3%</span>
-          </div>
-        </div>
+        </Card>
 
-        <div className="stat-card">
-          <div className="stat-icon">
-            <TrendingUp size={20} />
+        <Card variant="default" padding="lg">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <TrendingUp size={20} className={themeClass('text-success')} />
+            </div>
+            <div className="flex-1">
+              <span className={cn('block text-sm', themeClass('text-muted'))}>Conversion Rate</span>
+              <span className={cn('block text-2xl font-semibold', themeClasses.heading())}>{analytics.conversionRate}%</span>
+              <span className="text-sm text-red-600 dark:text-red-400">-2.1%</span>
+            </div>
           </div>
-          <div className="stat-content">
-            <span className="stat-label">Conversion Rate</span>
-            <span className="stat-value">{analytics.conversionRate}%</span>
-            <span className="stat-change negative">-2.1%</span>
-          </div>
-        </div>
+        </Card>
 
-        <div className="stat-card">
-          <div className="stat-icon">
-            <Clock size={20} />
+        <Card variant="default" padding="lg">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+              <Clock size={20} className={themeClass('text-warning')} />
+            </div>
+            <div className="flex-1">
+              <span className={cn('block text-sm', themeClass('text-muted'))}>Avg. Time on Page</span>
+              <span className={cn('block text-2xl font-semibold', themeClasses.heading())}>{analytics.avgTimeOnPage}</span>
+              <span className="text-sm text-green-600 dark:text-green-400">+0:30</span>
+            </div>
           </div>
-          <div className="stat-content">
-            <span className="stat-label">Avg. Time on Page</span>
-            <span className="stat-value">{analytics.avgTimeOnPage}</span>
-            <span className="stat-change positive">+0:30</span>
-          </div>
-        </div>
+        </Card>
       </div>
 
       <div className="analytics-sections-grid">
@@ -143,10 +155,10 @@ const LinkAnalytics: React.FC<LinkAnalyticsProps> = ({ page, onClose }) => {
           <Calendar size={14} />
           <span>Last updated: {analytics.lastUpdated}</span>
         </div>
-        <button className="export-btn">
+        <Button variant="primary" size="md">
           <BarChart3 size={16} />
           Export Report
-        </button>
+        </Button>
       </div>
     </div>
   );

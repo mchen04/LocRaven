@@ -5,9 +5,9 @@ import { Container, Section } from '@/lib/components/ui/utils';
 // Dashboard-specific loading UI
 export default function DashboardLoading() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark">
       {/* Loading header skeleton */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark-card shadow-sm border-b border-gray-200 dark:border-gray-700">
         <Container>
           <div className="h-16 flex items-center justify-between">
             <Loading variant="skeleton" layout="inline" className="h-6 w-32" />

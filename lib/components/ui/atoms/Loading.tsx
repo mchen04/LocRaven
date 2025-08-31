@@ -20,8 +20,8 @@ const loadingVariants = cva(
         xl: '',
       },
       color: {
-        primary: 'text-blue-600 dark:text-blue-400',
-        secondary: 'text-gray-600 dark:text-gray-400',
+        primary: 'text-primary dark:text-primary-400',
+        secondary: 'text-secondary dark:text-secondary-400',
         white: 'text-white',
         gray: 'text-gray-400 dark:text-gray-500',
       },
@@ -142,9 +142,9 @@ const Loading: React.FC<LoadingProps> = ({
 
   const renderSkeleton = () => (
     <div className={cn('space-y-3', textVariants({ size }))}>
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse" />
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse" />
+      <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+      <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4 animate-pulse" />
+      <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2 animate-pulse" />
     </div>
   );
 
@@ -189,7 +189,7 @@ const Loading: React.FC<LoadingProps> = ({
   if (layout === 'overlay') {
     return (
       <div className={cn(loadingVariants({ layout }))} data-testid={testId} {...props}>
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
+        <div className="bg-white dark:bg-dark-card rounded-lg p-6 shadow-xl">
           <div className="flex flex-col items-center space-y-2">
             {content}
           </div>
