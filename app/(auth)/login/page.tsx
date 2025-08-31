@@ -46,6 +46,7 @@ export default function LoginPage() {
           <Button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
+            variant="outline"
             className="w-full"
             size="lg"
           >
