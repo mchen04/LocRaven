@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Building2, MapPin, Phone, Mail } from 'lucide-react';
+import { Building2, MapPin, Phone } from 'lucide-react';
 
 export function BusinessProfileForm() {
   return (

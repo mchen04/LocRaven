@@ -1,5 +1,3 @@
-import { Skeleton } from '@/components/ui/skeleton';
-
 // Global loading UI for the app
 export default function AppLoading() {
   return (

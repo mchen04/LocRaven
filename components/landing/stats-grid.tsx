@@ -36,7 +36,7 @@ export function StatsGrid() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">The AI Search Revolution</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Traditional SEO is too slow for the AI-powered search era. Here's why businesses need AI discovery now.
+            Traditional SEO is too slow for the AI-powered search era. Here&apos;s why businesses need AI discovery now.
           </p>
         </div>
         

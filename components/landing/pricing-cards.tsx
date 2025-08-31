@@ -50,7 +50,7 @@ export function PricingCards() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Simple pricing</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Choose the plan that's right for your business. Start free and upgrade as you grow.
+            Choose the plan that&apos;s right for your business. Start free and upgrade as you grow.
           </p>
         </div>
         

@@ -34,7 +34,7 @@ export function UpdateForm() {
     },
   });
 
-  const onSubmit = async (data: UpdateFormData) => {
+  const onSubmit = async (_data: UpdateFormData) => {
     try {
       setIsSubmitting(true);
       
@@ -45,7 +45,7 @@ export function UpdateForm() {
       showSuccess('Update created successfully! Your business is now more discoverable by AI.');
       form.reset();
       
-    } catch (error) {
+    } catch {
       showError('Failed to create update. Please try again.');
     } finally {
       setIsSubmitting(false);
