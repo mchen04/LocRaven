@@ -197,6 +197,37 @@ serve(async (req) => {
       })
       .eq('id', updateId)
 
+    // Increment usage tracking for this business (using same direct query pattern)
+    try {
+      // Calculate current month boundaries
+      const currentMonthStart = new Date();
+      currentMonthStart.setDate(1);
+      currentMonthStart.setHours(0, 0, 0, 0);
+      
+      // Get current usage and increment (direct query pattern)
+      const { data: currentUsage } = await supabase
+        .from('business_usage_tracking')
+        .select('updates_used')
+        .eq('business_id', businessId)
+        .eq('usage_period_start', currentMonthStart.toISOString())
+        .single();
+
+      if (currentUsage) {
+        // Increment usage count
+        await supabase
+          .from('business_usage_tracking')
+          .update({ 
+            updates_used: currentUsage.updates_used + 1,
+            updated_at: new Date().toISOString()
+          })
+          .eq('business_id', businessId)
+          .eq('usage_period_start', currentMonthStart.toISOString());
+      }
+    } catch (error) {
+      console.error('Error updating usage tracking:', error);
+      // Don't fail the entire operation if usage tracking fails
+    }
+
     // Return page data for preview and publishing
     return successResponse({
       pages: insertedPages?.map(page => ({
