@@ -1,29 +1,117 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
+import { createSupabaseServerClient } from '@/libs/supabase/supabase-server-client';
 
-interface SettingsTabProps {}
+interface SettingsTabProps {
+  userEmail?: string;
+  userName?: string;
+}
 
-export function SettingsTab({}: SettingsTabProps) {
+export function SettingsTab({ userEmail, userName }: SettingsTabProps) {
+  const { toast } = useToast();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    setEmail(userEmail || '');
+    setName(userName || '');
+  }, [userEmail, userName]);
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
-    // TODO: Implement save profile API call
-    setTimeout(() => {
+    try {
+      // Update user display name in auth.users metadata
+      const supabase = await createSupabaseServerClient();
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: name }
+      });
+
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to update profile',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Profile updated successfully',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+      });
+    } finally {
       setIsSaving(false);
-      // TODO: Show success toast
-    }, 1000);
+    }
   };
 
   const handleDeleteAccount = async () => {
-    // TODO: Show confirmation dialog
-    // TODO: Implement delete account API call
+    const confirmed = window.confirm(
+      'Are you absolutely sure you want to delete your account? This action cannot be undone and will permanently delete all your business data.'
+    );
+    
+    if (!confirmed) return;
+
+    const doubleConfirm = window.confirm(
+      'This will permanently delete your account and all associated business data. Type "DELETE" in the next prompt to confirm.'
+    );
+    
+    if (!doubleConfirm) return;
+
+    const finalConfirm = window.prompt('Type "DELETE" to permanently delete your account:');
+    
+    if (finalConfirm !== 'DELETE') {
+      toast({
+        title: 'Deletion Cancelled',
+        description: 'Account deletion was cancelled',
+      });
+      return;
+    }
+
+    setIsDeleting(true);
+    
+    try {
+      // Delete user account and all associated data
+      const supabase = await createSupabaseServerClient();
+      
+      // First delete business data
+      await supabase.from('businesses').delete().eq('email', email);
+      
+      // Then delete the auth user
+      const { error } = await supabase.auth.admin.deleteUser(
+        (await supabase.auth.getUser()).data.user?.id || ''
+      );
+
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to delete account',
+          variant: 'destructive',
+        });
+      } else {
+        // Redirect to home page after deletion
+        window.location.href = '/';
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete account',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -51,10 +139,9 @@ export function SettingsTab({}: SettingsTabProps) {
               id='email'
               type='email'
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className='bg-zinc-800 border-zinc-700 text-white focus:border-zinc-600'
-              placeholder='Enter your email address'
+              className='bg-zinc-700 border-zinc-600 text-zinc-300 cursor-not-allowed'
               disabled
+              readOnly
             />
             <p className='mt-1 text-sm text-zinc-400'>Email is managed by Google</p>
           </div>
@@ -77,9 +164,10 @@ export function SettingsTab({}: SettingsTabProps) {
             <Button
               variant='destructive'
               onClick={handleDeleteAccount}
+              disabled={isDeleting}
               className='bg-red-600 hover:bg-red-700'
             >
-              Delete Account
+              {isDeleting ? 'Deleting...' : 'Delete Account'}
             </Button>
           </div>
         </div>

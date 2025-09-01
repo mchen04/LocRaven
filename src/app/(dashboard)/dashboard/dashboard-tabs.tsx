@@ -13,9 +13,11 @@ import { UpdatesTab } from './tabs/updates-tab';
 interface DashboardTabsProps {
   subscription: any; // TODO: Type this properly
   businessProfile?: BusinessProfile | null;
+  userEmail?: string;
+  userName?: string;
 }
 
-export function DashboardTabs({ subscription, businessProfile }: DashboardTabsProps) {
+export function DashboardTabs({ subscription, businessProfile, userEmail, userName }: DashboardTabsProps) {
   return (
     <div className='mx-auto max-w-6xl'>
       <Tabs defaultValue='updates' className='space-y-6'>
@@ -56,7 +58,7 @@ export function DashboardTabs({ subscription, businessProfile }: DashboardTabsPr
         </TabsContent>
 
         <TabsContent value='settings' className='mt-6'>
-          <SettingsTab />
+          <SettingsTab userEmail={userEmail} userName={userName} />
         </TabsContent>
       </Tabs>
     </div>

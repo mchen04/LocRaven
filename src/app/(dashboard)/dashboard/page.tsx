@@ -20,7 +20,12 @@ export default async function DashboardPage() {
   return (
     <section className='rounded-lg bg-black px-4 py-16'>
       <h1 className='mb-8 text-center'>Dashboard</h1>
-      <DashboardTabs subscription={subscription} businessProfile={businessProfile} />
+      <DashboardTabs 
+        subscription={subscription} 
+        businessProfile={businessProfile}
+        userEmail={session.user?.email}
+        userName={session.user?.user_metadata?.full_name || session.user?.user_metadata?.name}
+      />
     </section>
   );
 }
