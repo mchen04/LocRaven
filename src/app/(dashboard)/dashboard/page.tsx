@@ -4,16 +4,18 @@ import { getSession } from '@/features/account/controllers/get-session';
 import { getSubscription } from '@/features/account/controllers/get-subscription';
 import { getUserUsageStats } from '@/features/account/controllers/get-usage-stats';
 import { getCurrentBusiness } from '@/features/business/controllers/get-current-business';
+import { getUserLinks } from '@/features/links/controllers/get-user-links';
 import { getUserCurrentProduct } from '@/features/pricing/controllers/get-user-product';
 
 import { DashboardTabs } from './dashboard-tabs';
 
 export default async function DashboardPage() {
-  const [session, subscription, businessProfile, usageStats] = await Promise.all([
+  const [session, subscription, businessProfile, usageStats, userLinks] = await Promise.all([
     getSession(), 
     getSubscription(),
     getCurrentBusiness(),
-    getUserUsageStats()
+    getUserUsageStats(),
+    getUserLinks()
   ]);
 
   if (!session) {
@@ -34,6 +36,7 @@ export default async function DashboardPage() {
         userPrice={userPrice}
         userEmail={session.user?.email}
         userName={session.user?.user_metadata?.full_name || session.user?.user_metadata?.name}
+        userLinks={userLinks}
       />
     </section>
   );

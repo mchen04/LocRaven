@@ -1,9 +1,9 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 import { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import { BusinessProfile } from '@/features/business/types/business-types';
+import { UserLink } from '@/features/links/types/links-types';
 import { ProductWithPrices } from '@/features/pricing/controllers/get-user-product';
 import { Price } from '@/features/pricing/types';
 
@@ -21,9 +21,10 @@ interface DashboardTabsProps {
   userPrice?: Price | null;
   userEmail?: string;
   userName?: string;
+  userLinks?: UserLink[] | null;
 }
 
-export function DashboardTabs({ subscription, businessProfile, usageStats, userProduct, userPrice, userEmail, userName }: DashboardTabsProps) {
+export function DashboardTabs({ subscription, businessProfile, usageStats, userProduct, userPrice, userEmail, userName, userLinks }: DashboardTabsProps) {
   return (
     <div className='mx-auto max-w-6xl'>
       <Tabs defaultValue='updates' className='space-y-6'>
@@ -56,7 +57,7 @@ export function DashboardTabs({ subscription, businessProfile, usageStats, userP
         </TabsContent>
 
         <TabsContent value='links' className='mt-6'>
-          <LinksTab />
+          <LinksTab links={userLinks} />
         </TabsContent>
 
         <TabsContent value='subscriptions' className='mt-6'>

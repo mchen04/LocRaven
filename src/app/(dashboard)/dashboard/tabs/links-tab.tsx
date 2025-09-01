@@ -1,57 +1,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { LinksTabProps, UserLink } from '@/features/links/types/links-types';
 
-interface LinksTabProps {}
-
-interface GeneratedLink {
-  id: string;
-  title: string;
-  url: string;
-  status: 'active' | 'expired';
-  createdAt: string;
-  expiresAt: string;
-  views: number;
-  type: string;
-}
-
-// Mock data - replace with actual API call
-const mockLinks: GeneratedLink[] = [
-  {
-    id: '1',
-    title: 'Summer Sale Landing Page',
-    url: 'https://yoursite.com/summer-sale-2024',
-    status: 'active',
-    createdAt: '2024-01-15',
-    expiresAt: '2024-03-15',
-    views: 1247,
-    type: 'Landing Page',
-  },
-  {
-    id: '2',
-    title: 'New Menu Launch',
-    url: 'https://yoursite.com/new-menu-launch',
-    status: 'active',
-    createdAt: '2024-01-10',
-    expiresAt: '2024-02-28',
-    views: 892,
-    type: 'Announcement',
-  },
-  {
-    id: '3',
-    title: 'Holiday Hours Notice',
-    url: 'https://yoursite.com/holiday-hours',
-    status: 'expired',
-    createdAt: '2023-12-20',
-    expiresAt: '2024-01-05',
-    views: 2156,
-    type: 'Notice',
-  },
-];
-
-export function LinksTab({}: LinksTabProps) {
-  const activeLinks = mockLinks.filter((link) => link.status === 'active');
-  const expiredLinks = mockLinks.filter((link) => link.status === 'expired');
+export function LinksTab({ links }: LinksTabProps) {
+  const activeLinks = links?.filter((link) => link.status === 'active') || [];
+  const expiredLinks = links?.filter((link) => link.status === 'expired') || [];
 
   const handleCopyLink = (url: string) => {
     navigator.clipboard.writeText(url);
@@ -119,7 +73,7 @@ function LinkItem({
   onEdit,
   onDelete,
 }: {
-  link: GeneratedLink;
+  link: UserLink;
   onCopy: (url: string) => void;
   onEdit: (linkId: string) => void;
   onDelete: (linkId: string) => void;
@@ -140,7 +94,7 @@ function LinkItem({
               {link.status}
             </span>
             <span className='rounded-full bg-zinc-700 px-2 py-1 text-xs text-zinc-300'>
-              {link.type}
+              {link.pageType || 'Page'}
             </span>
           </div>
           
@@ -149,9 +103,9 @@ function LinkItem({
           </div>
           
           <div className='flex items-center gap-6 text-sm text-zinc-400'>
-            <span>Views: {link.views.toLocaleString()}</span>
+            <span>Published: {link.published ? 'Yes' : 'No'}</span>
             <span>Created: {new Date(link.createdAt).toLocaleDateString()}</span>
-            <span>Expires: {new Date(link.expiresAt).toLocaleDateString()}</span>
+            <span>Expires: {link.expiresAt ? new Date(link.expiresAt).toLocaleDateString() : 'Never'}</span>
           </div>
         </div>
         
