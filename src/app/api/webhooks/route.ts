@@ -20,7 +20,10 @@ const relevantEvents = new Set([
 export async function POST(req: Request) {
   const body = await req.text();
   const sig = req.headers.get('stripe-signature') as string;
-  const webhookSecret = getEnvVar(process.env.STRIPE_WEBHOOK_SECRET, 'STRIPE_WEBHOOK_SECRET');
+  // Use local webhook secret in development, remote webhook secret in production
+  const webhookSecret = process.env.NODE_ENV === 'development' 
+    ? getEnvVar(process.env.STRIPE_WEBHOOK_SECRET_LOCAL, 'STRIPE_WEBHOOK_SECRET_LOCAL')
+    : getEnvVar(process.env.STRIPE_WEBHOOK_SECRET, 'STRIPE_WEBHOOK_SECRET');
   let event: Stripe.Event;
 
   try {
