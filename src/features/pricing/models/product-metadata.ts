@@ -11,8 +11,10 @@ export const productMetadataSchema = z
   })
   .transform((data) => ({
     priceCardVariant: data.price_card_variant,
-    generatedImages: data.generated_images ? parseInt(data.generated_images) : 'enterprise',
-    imageEditor: data.image_editor,
+    generatedPages: data.generated_images === 'enterprise' 
+      ? 'unlimited' 
+      : data.generated_images ? parseInt(data.generated_images) : 'unlimited',
+    contentOptimization: data.image_editor,
     supportLevel: data.support_level,
   }));
 

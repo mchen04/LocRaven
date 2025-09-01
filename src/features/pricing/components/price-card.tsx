@@ -75,11 +75,11 @@ export function PricingCard({
         {!Boolean(price) && product.prices.length > 1 && <PricingSwitch onChange={handleBillingIntervalChange} />}
 
         <div className='m-auto flex w-fit flex-1 flex-col gap-2 px-8 py-4'>
-          {metadata.generatedImages === 'enterprise' && <CheckItem text={`Unlimited banner images`} />}
-          {metadata.generatedImages !== 'enterprise' && (
-            <CheckItem text={`Generate ${metadata.generatedImages} banner images`} />
+          {metadata.generatedPages === 'unlimited' && <CheckItem text={`Unlimited business pages`} />}
+          {metadata.generatedPages !== 'unlimited' && (
+            <CheckItem text={`Generate ${metadata.generatedPages} business pages`} />
           )}
-          {<CheckItem text={`${metadata.imageEditor} image editing features`} />}
+          {<CheckItem text={`${metadata.contentOptimization} content optimization`} />}
           {<CheckItem text={`${metadata.supportLevel} support`} />}
         </div>
 
