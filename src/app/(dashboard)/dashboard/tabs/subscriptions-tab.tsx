@@ -1,46 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import { PricingCard } from '@/features/pricing/components/price-card';
-import { Price, ProductWithPrices } from '@/features/pricing/types';
+import { ProductWithPrices } from '@/features/pricing/controllers/get-user-product';
+import { Price } from '@/features/pricing/types';
 
 interface SubscriptionsTabProps {
   subscription: any; // TODO: Type this properly
+  usageStats?: UsageStats | null;
+  userProduct?: ProductWithPrices | null;
+  userPrice?: Price | null;
 }
 
-export function SubscriptionsTab({ subscription }: SubscriptionsTabProps) {
-  const [userProduct, setUserProduct] = useState<ProductWithPrices | undefined>();
-  const [userPrice, setUserPrice] = useState<Price | undefined>();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        // TODO: Replace with actual API call
-        const products = []; // await getProducts();
-        
-        if (subscription) {
-          for (const product of products) {
-            for (const price of product.prices) {
-              if (price.id === subscription.price_id) {
-                setUserProduct(product);
-                setUserPrice(price);
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load products:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadProducts();
-  }, [subscription]);
+export function SubscriptionsTab({ subscription, usageStats, userProduct, userPrice }: SubscriptionsTabProps) {
 
   return (
     <div className='space-y-6'>
@@ -58,11 +33,7 @@ export function SubscriptionsTab({ subscription }: SubscriptionsTabProps) {
           )
         }
       >
-        {loading ? (
-          <div className='py-8 text-center text-zinc-400'>
-            <p>Loading subscription details...</p>
-          </div>
-        ) : userProduct && userPrice ? (
+        {userProduct && userPrice ? (
           <PricingCard product={userProduct} price={userPrice} />
         ) : (
           <div className='py-8 text-center'>
@@ -76,65 +47,43 @@ export function SubscriptionsTab({ subscription }: SubscriptionsTabProps) {
 
       {subscription && (
         <Card title='Usage & Limits'>
-          <div className='grid grid-cols-2 gap-6'>
-            <div className='text-center'>
-              <div className='text-2xl font-bold text-white'>8</div>
-              <div className='text-sm text-zinc-400'>Updates Used</div>
-              <div className='text-xs text-zinc-500'>This month</div>
-            </div>
-            <div className='text-center'>
-              <div className='text-2xl font-bold text-white'>50</div>
-              <div className='text-sm text-zinc-400'>Updates Remaining</div>
-              <div className='text-xs text-zinc-500'>Resets Feb 15</div>
-            </div>
-          </div>
-          
-          <div className='mt-6'>
-            <div className='flex justify-between text-sm mb-2'>
-              <span className='text-zinc-400'>Monthly Usage</span>
-              <span className='text-zinc-300'>8 / 58</span>
-            </div>
-            <div className='w-full bg-zinc-800 rounded-full h-2'>
-              <div 
-                className='bg-blue-600 h-2 rounded-full transition-all duration-300'
-                style={{ width: '14%' }}
-              ></div>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      <Card title='Billing History'>
-        <div className='space-y-3'>
-          {subscription ? (
+          {usageStats ? (
             <>
-              <div className='flex items-center justify-between py-2 border-b border-zinc-800'>
-                <div>
-                  <div className='text-sm font-medium text-white'>January 2024</div>
-                  <div className='text-xs text-zinc-400'>Paid on Jan 1, 2024</div>
+              <div className='grid grid-cols-2 gap-6'>
+                <div className='text-center'>
+                  <div className='text-2xl font-bold text-white'>{usageStats.updatesUsed}</div>
+                  <div className='text-sm text-zinc-400'>Updates Used</div>
+                  <div className='text-xs text-zinc-500'>This period</div>
                 </div>
-                <div className='text-sm text-white'>$29.00</div>
-              </div>
-              <div className='flex items-center justify-between py-2 border-b border-zinc-800'>
-                <div>
-                  <div className='text-sm font-medium text-white'>December 2023</div>
-                  <div className='text-xs text-zinc-400'>Paid on Dec 1, 2023</div>
+                <div className='text-center'>
+                  <div className='text-2xl font-bold text-white'>{usageStats.updatesLimit - usageStats.updatesUsed}</div>
+                  <div className='text-sm text-zinc-400'>Updates Remaining</div>
+                  <div className='text-xs text-zinc-500'>
+                    Resets {new Date(usageStats.periodEnd).toLocaleDateString()}
+                  </div>
                 </div>
-                <div className='text-sm text-white'>$29.00</div>
               </div>
-              <div className='pt-4 text-center'>
-                <Button size='sm' variant='secondary'>
-                  View All Invoices
-                </Button>
+              
+              <div className='mt-6'>
+                <div className='flex justify-between text-sm mb-2'>
+                  <span className='text-zinc-400'>Usage Progress</span>
+                  <span className='text-zinc-300'>{usageStats.updatesUsed} / {usageStats.updatesLimit}</span>
+                </div>
+                <div className='w-full bg-zinc-800 rounded-full h-2'>
+                  <div 
+                    className='bg-blue-600 h-2 rounded-full transition-all duration-300'
+                    style={{ width: `${usageStats.usagePercentage}%` }}
+                  ></div>
+                </div>
               </div>
             </>
           ) : (
             <div className='py-4 text-center text-zinc-400'>
-              <p>No billing history available</p>
+              <p>Usage tracking not available</p>
             </div>
           )}
-        </div>
-      </Card>
+        </Card>
+      )}
     </div>
   );
 }

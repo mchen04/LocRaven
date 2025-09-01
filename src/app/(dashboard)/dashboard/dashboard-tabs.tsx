@@ -2,7 +2,10 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import { BusinessProfile } from '@/features/business/types/business-types';
+import { ProductWithPrices } from '@/features/pricing/controllers/get-user-product';
+import { Price } from '@/features/pricing/types';
 
 import { BusinessProfileTab } from './tabs/business-profile-tab';
 import { LinksTab } from './tabs/links-tab';
@@ -13,11 +16,14 @@ import { UpdatesTab } from './tabs/updates-tab';
 interface DashboardTabsProps {
   subscription: any; // TODO: Type this properly
   businessProfile?: BusinessProfile | null;
+  usageStats?: UsageStats | null;
+  userProduct?: ProductWithPrices | null;
+  userPrice?: Price | null;
   userEmail?: string;
   userName?: string;
 }
 
-export function DashboardTabs({ subscription, businessProfile, userEmail, userName }: DashboardTabsProps) {
+export function DashboardTabs({ subscription, businessProfile, usageStats, userProduct, userPrice, userEmail, userName }: DashboardTabsProps) {
   return (
     <div className='mx-auto max-w-6xl'>
       <Tabs defaultValue='updates' className='space-y-6'>
@@ -54,7 +60,12 @@ export function DashboardTabs({ subscription, businessProfile, userEmail, userNa
         </TabsContent>
 
         <TabsContent value='subscriptions' className='mt-6'>
-          <SubscriptionsTab subscription={subscription} />
+          <SubscriptionsTab 
+            subscription={subscription} 
+            usageStats={usageStats}
+            userProduct={userProduct}
+            userPrice={userPrice}
+          />
         </TabsContent>
 
         <TabsContent value='settings' className='mt-6'>
