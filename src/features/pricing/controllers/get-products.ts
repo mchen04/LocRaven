@@ -12,7 +12,9 @@ export async function getProducts() {
     .order('unit_amount', { referencedTable: 'prices' });
 
   if (error) {
-    console.error(error.message);
+    console.error('Products table error:', error.message);
+    // Return empty array if products table doesn't exist yet
+    return [];
   }
 
   return data ?? [];
