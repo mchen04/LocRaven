@@ -11,7 +11,7 @@ export default async function SignUp() {
   const subscription = await getSubscription();
 
   if (session && subscription) {
-    redirect('/account');
+    redirect('/dashboard');
   }
 
   if (session && !subscription) {

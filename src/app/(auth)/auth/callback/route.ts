@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     if (!userSubscription) {
       return NextResponse.redirect(`${siteUrl}/pricing`);
     } else {
-      return NextResponse.redirect(`${siteUrl}/account`);
+      return NextResponse.redirect(`${siteUrl}/dashboard`);
     }
   }
 
