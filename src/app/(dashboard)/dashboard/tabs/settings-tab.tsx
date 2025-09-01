@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { createSupabaseServerClient } from '@/libs/supabase/supabase-server-client';
+import { deleteUserAccount } from '@/features/account/controllers/delete-user-account';
+import { updateUserProfile } from '@/features/account/controllers/update-user-profile';
 
 interface SettingsTabProps {
   userEmail?: string;
@@ -26,23 +27,20 @@ export function SettingsTab({ userEmail, userName }: SettingsTabProps) {
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
+    
     try {
-      // Update user display name in auth.users metadata
-      const supabase = await createSupabaseServerClient();
-      const { error } = await supabase.auth.updateUser({
-        data: { full_name: name }
-      });
-
-      if (error) {
-        toast({
-          title: 'Error',
-          description: 'Failed to update profile',
-          variant: 'destructive',
-        });
-      } else {
+      const result = await updateUserProfile({ fullName: name });
+      
+      if (result.success) {
         toast({
           title: 'Success',
           description: 'Profile updated successfully',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to update profile',
+          variant: 'destructive',
         });
       }
     } catch (error) {
@@ -82,27 +80,16 @@ export function SettingsTab({ userEmail, userName }: SettingsTabProps) {
     setIsDeleting(true);
     
     try {
-      // Delete user account and all associated data
-      const supabase = await createSupabaseServerClient();
+      const result = await deleteUserAccount();
       
-      // First delete business data
-      await supabase.from('businesses').delete().eq('email', email);
-      
-      // Then delete the auth user
-      const { error } = await supabase.auth.admin.deleteUser(
-        (await supabase.auth.getUser()).data.user?.id || ''
-      );
-
-      if (error) {
+      if (!result.success) {
         toast({
           title: 'Error',
-          description: 'Failed to delete account',
+          description: result.error || 'Failed to delete account',
           variant: 'destructive',
         });
-      } else {
-        // Redirect to home page after deletion
-        window.location.href = '/';
       }
+      // If successful, the server action will redirect automatically
     } catch (error) {
       toast({
         title: 'Error',
