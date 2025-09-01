@@ -5,16 +5,16 @@ import { AccountMenu } from '@/components/account-menu';
 import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTrigger } from '@/components/ui/sheet';
-import { getSession } from '@/features/account/controllers/get-session';
+import { getAuthUser } from '@/features/account/controllers/get-auth-user';
 
 import { signOut } from './(auth)/auth-actions';
 
 export async function Navigation() {
-  const session = await getSession();
+  const user = await getAuthUser();
 
   return (
     <div className='relative flex items-center gap-6'>
-      {session ? (
+      {user ? (
         <AccountMenu signOut={signOut} />
       ) : (
         <>

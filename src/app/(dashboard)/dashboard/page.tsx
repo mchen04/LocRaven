@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { getSession } from '@/features/account/controllers/get-session';
+import { getAuthUser } from '@/features/account/controllers/get-auth-user';
 import { getSubscription } from '@/features/account/controllers/get-subscription';
 import { getUserUsageStats } from '@/features/account/controllers/get-usage-stats';
 import { getCurrentBusiness } from '@/features/business/controllers/get-current-business';
@@ -10,15 +10,15 @@ import { getUserCurrentProduct } from '@/features/pricing/controllers/get-user-p
 import { DashboardTabs } from './dashboard-tabs';
 
 export default async function DashboardPage() {
-  const [session, subscription, businessProfile, usageStats, userLinks] = await Promise.all([
-    getSession(), 
+  const [user, subscription, businessProfile, usageStats, userLinks] = await Promise.all([
+    getAuthUser(), 
     getSubscription(),
     getCurrentBusiness(),
     getUserUsageStats(),
     getUserLinks()
   ]);
 
-  if (!session) {
+  if (!user) {
     redirect('/login');
   }
 
@@ -34,8 +34,8 @@ export default async function DashboardPage() {
         usageStats={usageStats}
         userProduct={userProduct}
         userPrice={userPrice}
-        userEmail={session.user?.email}
-        userName={session.user?.user_metadata?.full_name || session.user?.user_metadata?.name}
+        userEmail={user.email}
+        userName={user.user_metadata?.full_name || user.user_metadata?.name}
         userLinks={userLinks}
       />
     </section>

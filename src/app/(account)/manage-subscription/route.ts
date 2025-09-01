@@ -1,23 +1,23 @@
 import { NextResponse } from 'next/server';
 
 import { getCustomerId } from '@/features/account/controllers/get-customer-id';
-import { getSession } from '@/features/account/controllers/get-session';
+import { getAuthUser } from '@/features/account/controllers/get-auth-user';
 import { stripeAdmin } from '@/libs/stripe/stripe-admin';
 import { getURL } from '@/utils/get-url';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  // 1. Get the user from session
-  const session = await getSession();
+  // 1. Get the authenticated user
+  const user = await getAuthUser();
 
-  if (!session || !session.user.id) {
+  if (!user || !user.id) {
     throw Error('Could not get userId');
   }
 
   // 2. Retrieve or create the customer in Stripe
   const customer = await getCustomerId({
-    userId: session.user.id,
+    userId: user.id,
   });
 
   if (!customer) {

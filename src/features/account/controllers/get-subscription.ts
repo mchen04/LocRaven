@@ -1,12 +1,12 @@
 import { createSupabaseServerClient } from '@/libs/supabase/supabase-server-client';
-import { getSession } from './get-session';
+import { getAuthUser } from './get-auth-user';
 
 export async function getSubscription() {
   // First, ensure user is authenticated
-  const session = await getSession();
+  const user = await getAuthUser();
   
-  if (!session) {
-    console.warn('getSubscription: No authenticated session found');
+  if (!user) {
+    console.warn('getSubscription: No authenticated user found');
     return null;
   }
 
@@ -15,7 +15,7 @@ export async function getSubscription() {
   const { data, error } = await supabase
     .from('subscriptions')
     .select('*, prices(*, products(*))')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user.id)
     .in('status', ['trialing', 'active'])
     .is('canceled_at', null)
     .order('created', { ascending: false })
@@ -24,8 +24,8 @@ export async function getSubscription() {
   if (error) {
     console.error('getSubscription error:', {
       error,
-      userId: session.user.id,
-      hasSession: !!session,
+      userId: user.id,
+      hasUser: !!user,
       errorType: typeof error,
       errorKeys: Object.keys(error || {})
     });
