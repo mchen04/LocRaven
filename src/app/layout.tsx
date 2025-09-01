@@ -7,7 +7,6 @@ import { IoLogoFacebook, IoLogoInstagram, IoLogoTwitter } from 'react-icons/io5'
 import { Logo } from '@/components/logo';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/utils/cn';
-import { Analytics } from '@vercel/analytics/react';
 
 import { Navigation } from './navigation';
 
@@ -43,7 +42,6 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <Footer />
         </div>
         <Toaster />
-        <Analytics />
       </body>
     </html>
   );

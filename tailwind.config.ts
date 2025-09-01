@@ -18,6 +18,10 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-montserrat)', 'ui-sans-serif', 'system-ui'],
+        alt: ['var(--font-montserrat-alternates)', 'ui-sans-serif', 'system-ui'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
