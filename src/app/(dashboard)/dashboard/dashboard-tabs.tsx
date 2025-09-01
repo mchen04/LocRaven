@@ -2,6 +2,8 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { BusinessProfile } from '@/features/business/types/business-types';
+
 import { BusinessProfileTab } from './tabs/business-profile-tab';
 import { LinksTab } from './tabs/links-tab';
 import { SettingsTab } from './tabs/settings-tab';
@@ -10,9 +12,10 @@ import { UpdatesTab } from './tabs/updates-tab';
 
 interface DashboardTabsProps {
   subscription: any; // TODO: Type this properly
+  businessProfile?: BusinessProfile | null;
 }
 
-export function DashboardTabs({ subscription }: DashboardTabsProps) {
+export function DashboardTabs({ subscription, businessProfile }: DashboardTabsProps) {
   return (
     <div className='mx-auto max-w-6xl'>
       <Tabs defaultValue='updates' className='space-y-6'>
@@ -41,7 +44,7 @@ export function DashboardTabs({ subscription }: DashboardTabsProps) {
         </TabsContent>
 
         <TabsContent value='profile' className='mt-6'>
-          <BusinessProfileTab />
+          <BusinessProfileTab initialData={businessProfile} />
         </TabsContent>
 
         <TabsContent value='links' className='mt-6'>
