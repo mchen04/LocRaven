@@ -1,9 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { LinksTabProps, UserLink } from '@/features/links/types/links-types';
 
 export function LinksTab({ links }: LinksTabProps) {
+  const [activeSection, setActiveSection] = useState('active');
+  const [visibleActiveCount, setVisibleActiveCount] = useState(5);
+  const [visibleExpiredCount, setVisibleExpiredCount] = useState(5);
+  
   const activeLinks = links?.filter((link) => link.status === 'active') || [];
   const expiredLinks = links?.filter((link) => link.status === 'expired') || [];
 
@@ -22,47 +27,116 @@ export function LinksTab({ links }: LinksTabProps) {
     console.log('Deleting link:', linkId);
   };
 
+  const handleLoadMoreActive = () => {
+    setVisibleActiveCount(prev => prev + 5);
+  };
+
+  const handleLoadMoreExpired = () => {
+    setVisibleExpiredCount(prev => prev + 5);
+  };
+
+  const visibleActiveLinks = activeLinks.slice(0, visibleActiveCount);
+  const visibleExpiredLinks = expiredLinks.slice(0, visibleExpiredCount);
+  const hasMoreActive = activeLinks.length > visibleActiveCount;
+  const hasMoreExpired = expiredLinks.length > visibleExpiredCount;
+
+  const sections = [
+    { id: 'active', name: 'Active', count: activeLinks.length },
+    { id: 'expired', name: 'Expired', count: expiredLinks.length },
+  ];
+
   return (
     <div className='space-y-6'>
-      <Card title='Active Links'>
-        {activeLinks.length > 0 ? (
-          <div className='space-y-4'>
-            {activeLinks.map((link) => (
-              <LinkItem
-                key={link.id}
-                link={link}
-                onCopy={handleCopyLink}
-                onEdit={handleEditLink}
-                onDelete={handleDeleteLink}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className='py-8 text-center text-zinc-400'>
-            <p>No active links yet. Create an update to generate your first link!</p>
-          </div>
-        )}
-      </Card>
+      {/* Section Navigation */}
+      <div className='border-b border-zinc-700'>
+        <nav className='flex space-x-8'>
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeSection === section.id
+                  ? 'border-white text-white'
+                  : 'border-transparent text-zinc-400 hover:text-zinc-300'
+              }`}
+            >
+              {section.name} ({section.count})
+            </button>
+          ))}
+        </nav>
+      </div>
 
-      <Card title='Expired Links'>
-        {expiredLinks.length > 0 ? (
-          <div className='space-y-4'>
-            {expiredLinks.map((link) => (
-              <LinkItem
-                key={link.id}
-                link={link}
-                onCopy={handleCopyLink}
-                onEdit={handleEditLink}
-                onDelete={handleDeleteLink}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className='py-8 text-center text-zinc-400'>
-            <p>No expired links.</p>
-          </div>
-        )}
-      </Card>
+      {/* Active Links Section */}
+      {activeSection === 'active' && (
+        <div className='space-y-6'>
+          <Card title='Active Links'>
+            {activeLinks.length > 0 ? (
+              <div className='space-y-4'>
+                {visibleActiveLinks.map((link) => (
+                  <LinkItem
+                    key={link.id}
+                    link={link}
+                    onCopy={handleCopyLink}
+                    onEdit={handleEditLink}
+                    onDelete={handleDeleteLink}
+                  />
+                ))}
+                {hasMoreActive && (
+                  <div className='flex justify-center pt-4'>
+                    <Button
+                      variant='secondary'
+                      onClick={handleLoadMoreActive}
+                      className='text-sm'
+                    >
+                      Load 5 More ({activeLinks.length - visibleActiveCount} remaining)
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className='py-8 text-center text-zinc-400'>
+                <p>No active links yet. Create an update to generate your first link!</p>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
+
+      {/* Expired Links Section */}
+      {activeSection === 'expired' && (
+        <div className='space-y-6'>
+          <Card title='Expired Links'>
+            {expiredLinks.length > 0 ? (
+              <div className='space-y-4'>
+                {visibleExpiredLinks.map((link) => (
+                  <LinkItem
+                    key={link.id}
+                    link={link}
+                    onCopy={handleCopyLink}
+                    onEdit={handleEditLink}
+                    onDelete={handleDeleteLink}
+                  />
+                ))}
+                {hasMoreExpired && (
+                  <div className='flex justify-center pt-4'>
+                    <Button
+                      variant='secondary'
+                      onClick={handleLoadMoreExpired}
+                      className='text-sm'
+                    >
+                      Load 5 More ({expiredLinks.length - visibleExpiredCount} remaining)
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className='py-8 text-center text-zinc-400'>
+                <p>No expired links.</p>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
