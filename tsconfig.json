@@ -1,69 +1,27 @@
 {
   "compilerOptions": {
-    // TypeScript 5.9 compatible with Next.js
-    "target": "esnext",
-    "module": "esnext",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "jsx": "preserve",
-    
-    // Module resolution (TypeScript 5.9 optimizations)
-    "moduleResolution": "bundler",
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    
-    // Type checking
-    "strict": true,
-    "noUnusedLocals": false, // Disable for now to avoid build breaks
-    "noUnusedParameters": false, // Disable for now to avoid build breaks
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    
-    // Performance (TypeScript 5.9 optimizations)
-    "skipLibCheck": true,
-    "noEmit": true,
+    "jsx": "preserve",
     "incremental": true,
-    // Enable faster incremental builds and caching
-    "assumeChangesOnlyAffectDirectDependencies": true,
-    
-    // Next.js
     "plugins": [
       {
         "name": "next"
       }
     ],
-    
-    // Path mapping
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@/components/*": ["./components/*"],
-      "@/lib/*": ["./lib/*"],
-      "@/types/*": ["./types/*"],
-      "~/*": ["./*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "supabase/functions",
-    "edge-functions-backup",
-    "functions",
-    "**/__tests__/**",
-    "**/*.test.ts",
-    "**/*.test.tsx"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

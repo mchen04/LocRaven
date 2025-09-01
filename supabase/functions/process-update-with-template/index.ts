@@ -5,19 +5,14 @@ import {
   successResponse, 
   handleCors, 
   safeJsonParse,
-  slugify,
-  formatPhoneNumber,
-  getCategoryDisplay,
-  formatBusinessHours,
-  getPriceRangeSymbols,
-  generateSemanticSlug,
-  detectDynamicTags,
-  calculateTagExpiration,
-  loadTemplate,
-  replaceTemplatePlaceholders,
   generateAIOptimizedContent,
   generateIntentBasedURL
 } from '../_shared/utils.ts'
+import { 
+  createPageData, 
+  estimateRenderedSize, 
+  compressPageData
+} from '../_shared/simple-template-engine.ts'
 
 // AI FAQ optimization imports
 interface AIOptimizedFAQ {
@@ -93,26 +88,40 @@ serve(async (req) => {
           updateId
         );
         
-        // Generate AI-native HTML with optimized content
-        const processedHtml = generateAINativeBusinessUpdateHtml(business, { 
+        // Create page data for template system
+        const updateData = {
           content_text: contentText,
           created_at: new Date().toISOString(),
           expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-        }, filePath, title, description, intentType);
+        };
+
+        const pageData = createPageData(
+          business,
+          updateData,
+          { title, description },
+          { type: intentType, filePath, slug, pageVariant }
+        );
+
+        const compressedData = compressPageData(pageData);
+        const estimatedSize = estimateRenderedSize(pageData);
         
         return {
           update_id: updateId,
           business_id: businessId,
           file_path: filePath,
           title: title,
-          html_content: processedHtml,
+          template_id: intentType,
+          page_data: compressedData,
+          rendered_size_kb: estimatedSize,
           content_intent: 'update',
           slug: slug,
           page_type: 'update',
           intent_type: intentType,
           page_variant: pageVariant,
           generation_batch_id: batchId,
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          // Keep HTML for backward compatibility during migration
+          html_content: null
         };
         
       } catch (error) {
@@ -127,18 +136,27 @@ serve(async (req) => {
         );
         
         const fallbackTitle = `${business.name} - Update - ${business.address_city}, ${business.address_state}`;
-        const fallbackHtml = generateAINativeBusinessUpdateHtml(business, { 
+        const fallbackUpdateData = {
           content_text: contentText,
           created_at: new Date().toISOString(),
           expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-        }, filePath, fallbackTitle, contentText, intentType);
+        };
+
+        const fallbackPageData = createPageData(
+          business,
+          fallbackUpdateData,
+          { title: fallbackTitle, description: contentText },
+          { type: intentType, filePath, slug, pageVariant }
+        );
         
         return {
           update_id: updateId,
           business_id: businessId,
           file_path: filePath,
           title: fallbackTitle,
-          html_content: fallbackHtml,
+          template_id: intentType,
+          page_data: compressPageData(fallbackPageData),
+          rendered_size_kb: estimateRenderedSize(fallbackPageData),
           content_intent: 'update',
           slug: slug,
           page_type: 'update',
@@ -187,7 +205,9 @@ serve(async (req) => {
         title: page.title,
         intent_type: page.intent_type,
         page_variant: page.page_variant,
-        html_content: page.html_content,
+        template_id: page.template_id,
+        data_size_bytes: JSON.stringify(page.page_data).length,
+        estimated_html_size_kb: page.rendered_size_kb,
         slug: page.slug,
         expires_at: page.expires_at,
         published: page.published,
