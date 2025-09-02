@@ -56,7 +56,12 @@ export function SubscriptionsTab({ subscription, usageStats, userProduct, userPr
                   <div className='text-xs text-zinc-500'>This period</div>
                 </div>
                 <div className='text-center'>
-                  <div className='text-2xl font-bold text-white'>{usageStats.updatesLimit - usageStats.updatesUsed}</div>
+                  <div className='text-2xl font-bold text-white'>
+                    {usageStats.updatesLimit === null 
+                      ? 'Unlimited' 
+                      : usageStats.updatesLimit - usageStats.updatesUsed
+                    }
+                  </div>
                   <div className='text-sm text-zinc-400'>Updates Remaining</div>
                   <div className='text-xs text-zinc-500'>
                     Resets {new Date(usageStats.periodEnd).toLocaleDateString()}
@@ -67,14 +72,22 @@ export function SubscriptionsTab({ subscription, usageStats, userProduct, userPr
               <div className='mt-6'>
                 <div className='flex justify-between text-sm mb-2'>
                   <span className='text-zinc-400'>Usage Progress</span>
-                  <span className='text-zinc-300'>{usageStats.updatesUsed} / {usageStats.updatesLimit}</span>
+                  <span className='text-zinc-300'>
+                    {usageStats.updatesUsed} / {usageStats.updatesLimit === null ? 'Unlimited' : usageStats.updatesLimit}
+                  </span>
                 </div>
-                <div className='w-full bg-zinc-800 rounded-full h-2'>
-                  <div 
-                    className='bg-blue-600 h-2 rounded-full transition-all duration-300'
-                    style={{ width: `${usageStats.usagePercentage}%` }}
-                  ></div>
-                </div>
+                {usageStats.updatesLimit === null ? (
+                  <div className='w-full bg-zinc-800 rounded-full h-2'>
+                    <div className='bg-green-500 h-2 rounded-full transition-all duration-300 w-full opacity-50'></div>
+                  </div>
+                ) : (
+                  <div className='w-full bg-zinc-800 rounded-full h-2'>
+                    <div 
+                      className='bg-blue-600 h-2 rounded-full transition-all duration-300'
+                      style={{ width: `${usageStats.usagePercentage}%` }}
+                    ></div>
+                  </div>
+                )}
               </div>
             </>
           ) : (
