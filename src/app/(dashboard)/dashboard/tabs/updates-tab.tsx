@@ -1,44 +1,272 @@
 'use client';
 
-import { useState } from 'react';
-
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { BusinessUpdatesService } from '@/services/business-updates';
+import type {
+  BusinessUpdate,
+  GeneratedPage,
+  BusinessProfile,
+  BusinessUsage,
+  UpdateFormData,
+  UpdateFormErrors,
+} from '@/types/business-updates';
 
 interface UpdatesTabProps {}
 
 export function UpdatesTab({}: UpdatesTabProps) {
-  const [updateText, setUpdateText] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [expireDate, setExpireDate] = useState('');
-  const [generatedPages, setGeneratedPages] = useState<string[]>([]);
+  // Form state
+  const [formData, setFormData] = useState<UpdateFormData>({
+    contentText: '',
+    startDate: '',
+    expireDate: '',
+    specialHours: '',
+    updateCategory: 'general',
+    dealTerms: '',
+  });
+  
+  const [formErrors, setFormErrors] = useState<UpdateFormErrors>({});
+  
+  // API state
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isPublishing, setIsPublishing] = useState<string[]>([]);
+  const [currentUpdate, setCurrentUpdate] = useState<BusinessUpdate | null>(null);
+  const [generatedPages, setGeneratedPages] = useState<GeneratedPage[]>([]);
+  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
+  const [businessUsage, setBusinessUsage] = useState<BusinessUsage | null>(null);
+  
+  // UI state
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Load business profile and usage on component mount
+  useEffect(() => {
+    loadBusinessProfile();
+    loadBusinessUsage();
+  }, []);
+
+  // Real-time subscriptions for update status
+  useEffect(() => {
+    if (!currentUpdate) return;
+
+    const updateSubscription = BusinessUpdatesService.subscribeToUpdateStatus(
+      currentUpdate.id,
+      (update) => {
+        setCurrentUpdate(update);
+        if (update.status === 'ready-for-preview') {
+          loadGeneratedPages(update.id);
+        }
+      }
+    );
+
+    const pagesSubscription = BusinessUpdatesService.subscribeToGeneratedPages(
+      currentUpdate.id,
+      setGeneratedPages
+    );
+
+    return () => {
+      BusinessUpdatesService.unsubscribe(updateSubscription);
+      BusinessUpdatesService.unsubscribe(pagesSubscription);
+    };
+  }, [currentUpdate]);
+
+  const loadBusinessProfile = async () => {
+    const response = await BusinessUpdatesService.getCurrentBusinessProfile();
+    if (response.success && response.data) {
+      setBusinessProfile(response.data);
+    } else {
+      setErrorMessage(response.error || 'Failed to load business profile');
+    }
+  };
+
+  const loadBusinessUsage = async () => {
+    const response = await BusinessUpdatesService.getBusinessUsage();
+    if (response.success && response.data) {
+      setBusinessUsage(response.data);
+    }
+  };
+
+  const loadGeneratedPages = async (updateId: string) => {
+    const response = await BusinessUpdatesService.getGeneratedPages(updateId);
+    if (response.success && response.data) {
+      setGeneratedPages(response.data);
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: UpdateFormErrors = {};
+
+    if (!formData.contentText.trim()) {
+      errors.contentText = 'Update content is required';
+    }
+
+    if (!formData.startDate) {
+      errors.startDate = 'Start date is required';
+    }
+
+    if (!formData.expireDate) {
+      errors.expireDate = 'Expire date is required';
+    }
+
+    if (formData.startDate && formData.expireDate) {
+      const startDate = new Date(formData.startDate);
+      const expireDate = new Date(formData.expireDate);
+      if (expireDate <= startDate) {
+        errors.expireDate = 'Expire date must be after start date';
+      }
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleFormChange = (field: keyof UpdateFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear field error when user starts typing
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
 
   const handleGeneratePages = async () => {
-    if (!updateText || !startDate || !expireDate) {
+    if (!validateForm()) return;
+
+    // Check usage limits
+    if (businessUsage && businessUsage.updates_used >= businessUsage.updates_limit) {
+      setErrorMessage(`Usage limit reached: ${businessUsage.updates_used}/${businessUsage.updates_limit} updates used this month`);
       return;
     }
 
     setIsGenerating(true);
-    // TODO: Implement AI page generation API call
-    setTimeout(() => {
-      setGeneratedPages([
-        'Business Update Landing Page',
-        'Social Media Announcement',
-        'Email Newsletter Content',
-        'Website Banner',
-      ]);
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    try {
+      // Step 1: Create the update
+      const createResponse = await BusinessUpdatesService.createUpdate(formData);
+      if (!createResponse.success || !createResponse.data) {
+        throw new Error(createResponse.error || 'Failed to create update');
+      }
+
+      const update = createResponse.data;
+      setCurrentUpdate(update);
+
+      // Step 2: Process with AI template generation
+      const processResponse = await BusinessUpdatesService.processUpdateWithTemplate(update, formData);
+      if (!processResponse.success || !processResponse.data) {
+        throw new Error(processResponse.error || 'Failed to process update');
+      }
+
+      const result = processResponse.data;
+      setGeneratedPages(result.pages);
+      setSuccessMessage(`Successfully generated ${result.total_pages} AI-optimized pages in ${result.processingTime}ms`);
+      
+      // Refresh usage after successful generation
+      loadBusinessUsage();
+
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to generate pages';
+      setErrorMessage(errorMsg);
+      console.error('Error generating pages:', error);
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
-  const handlePublishPage = (page: string) => {
-    // TODO: Implement publish functionality
-    console.log('Publishing page:', page);
+  const handlePublishPage = async (page: GeneratedPage) => {
+    setIsPublishing(prev => [...prev, page.id]);
+    setErrorMessage('');
+
+    try {
+      const response = await BusinessUpdatesService.publishPages([page.id]);
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to publish page');
+      }
+
+      // Update the page status in local state
+      setGeneratedPages(prev => 
+        prev.map(p => 
+          p.id === page.id 
+            ? { ...p, published: true, published_at: new Date().toISOString() }
+            : p
+        )
+      );
+
+      setSuccessMessage(`Successfully published: ${page.title}`);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to publish page';
+      setErrorMessage(errorMsg);
+    } finally {
+      setIsPublishing(prev => prev.filter(id => id !== page.id));
+    }
+  };
+
+  const handlePublishAllPages = async () => {
+    const unpublishedPages = generatedPages.filter(page => !page.published);
+    if (unpublishedPages.length === 0) return;
+
+    const pageIds = unpublishedPages.map(page => page.id);
+    setIsPublishing(pageIds);
+    setErrorMessage('');
+
+    try {
+      const response = await BusinessUpdatesService.publishPages(pageIds, generatedPages[0]?.generation_batch_id);
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to publish pages');
+      }
+
+      // Update all pages status in local state
+      setGeneratedPages(prev => 
+        prev.map(page => 
+          pageIds.includes(page.id)
+            ? { ...page, published: true, published_at: new Date().toISOString() }
+            : page
+        )
+      );
+
+      setSuccessMessage(`Successfully published ${unpublishedPages.length} pages`);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to publish pages';
+      setErrorMessage(errorMsg);
+    } finally {
+      setIsPublishing([]);
+    }
   };
 
   return (
     <div className='space-y-6'>
+      {/* Usage and Business Info */}
+      {businessProfile && businessUsage && (
+        <div className='flex items-center justify-between rounded-md bg-zinc-900 p-4'>
+          <div>
+            <h3 className='text-lg font-medium text-white'>{businessProfile.name}</h3>
+            <p className='text-sm text-zinc-400'>{businessProfile.address_city}, {businessProfile.address_state}</p>
+          </div>
+          <div className='text-right'>
+            <p className='text-sm text-zinc-400'>Usage this month</p>
+            <p className='text-lg font-semibold text-white'>
+              {businessUsage.updates_used}/{businessUsage.updates_limit}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Error and Success Messages */}
+      {errorMessage && (
+        <Alert className='border-red-500 bg-red-950 text-red-200'>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+
+      {successMessage && (
+        <Alert className='border-green-500 bg-green-950 text-green-200'>
+          <AlertDescription>{successMessage}</AlertDescription>
+        </Alert>
+      )}
+
       <Card title='Create Business Update'>
         <div className='space-y-4'>
           <div>
@@ -47,11 +275,18 @@ export function UpdatesTab({}: UpdatesTabProps) {
             </label>
             <textarea
               id='update-text'
-              value={updateText}
-              onChange={(e) => setUpdateText(e.target.value)}
-              className='min-h-24 w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white placeholder-zinc-400 focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600'
+              value={formData.contentText}
+              onChange={(e) => handleFormChange('contentText', e.target.value)}
+              className={`min-h-24 w-full rounded-md border bg-zinc-800 px-3 py-2 text-white placeholder-zinc-400 focus:outline-none focus:ring-1 ${
+                formErrors.contentText 
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                  : 'border-zinc-700 focus:border-zinc-600 focus:ring-zinc-600'
+              }`}
               placeholder='Enter your business update or announcement...'
             />
+            {formErrors.contentText && (
+              <p className='mt-1 text-sm text-red-400'>{formErrors.contentText}</p>
+            )}
           </div>
 
           <div className='grid grid-cols-2 gap-4'>
@@ -62,10 +297,17 @@ export function UpdatesTab({}: UpdatesTabProps) {
               <Input
                 id='start-date'
                 type='date'
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className='bg-zinc-800 border-zinc-700 text-white focus:border-zinc-600'
+                value={formData.startDate}
+                onChange={(e) => handleFormChange('startDate', e.target.value)}
+                className={`bg-zinc-800 text-white ${
+                  formErrors.startDate
+                    ? 'border-red-500 focus:border-red-500'
+                    : 'border-zinc-700 focus:border-zinc-600'
+                }`}
               />
+              {formErrors.startDate && (
+                <p className='mt-1 text-sm text-red-400'>{formErrors.startDate}</p>
+              )}
             </div>
             <div>
               <label htmlFor='expire-date' className='mb-2 block text-sm font-medium text-white'>
@@ -74,42 +316,180 @@ export function UpdatesTab({}: UpdatesTabProps) {
               <Input
                 id='expire-date'
                 type='date'
-                value={expireDate}
-                onChange={(e) => setExpireDate(e.target.value)}
-                className='bg-zinc-800 border-zinc-700 text-white focus:border-zinc-600'
+                value={formData.expireDate}
+                onChange={(e) => handleFormChange('expireDate', e.target.value)}
+                className={`bg-zinc-800 text-white ${
+                  formErrors.expireDate
+                    ? 'border-red-500 focus:border-red-500'
+                    : 'border-zinc-700 focus:border-zinc-600'
+                }`}
               />
+              {formErrors.expireDate && (
+                <p className='mt-1 text-sm text-red-400'>{formErrors.expireDate}</p>
+              )}
             </div>
           </div>
 
+          {/* Optional fields */}
+          <div className='grid grid-cols-2 gap-4'>
+            <div>
+              <label htmlFor='special-hours' className='mb-2 block text-sm font-medium text-white'>
+                Special Hours (Optional)
+              </label>
+              <Input
+                id='special-hours'
+                value={formData.specialHours}
+                onChange={(e) => handleFormChange('specialHours', e.target.value)}
+                className='bg-zinc-800 border-zinc-700 text-white focus:border-zinc-600'
+                placeholder='e.g., Open until 10pm today'
+              />
+            </div>
+            <div>
+              <label htmlFor='update-category' className='mb-2 block text-sm font-medium text-white'>
+                Category
+              </label>
+              <select
+                id='update-category'
+                value={formData.updateCategory}
+                onChange={(e) => handleFormChange('updateCategory', e.target.value)}
+                className='w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600'
+              >
+                <option value='general'>General Update</option>
+                <option value='promotion'>Promotion</option>
+                <option value='hours'>Hours Change</option>
+                <option value='event'>Event</option>
+                <option value='announcement'>Announcement</option>
+              </select>
+            </div>
+          </div>
+
+          {formData.updateCategory === 'promotion' && (
+            <div>
+              <label htmlFor='deal-terms' className='mb-2 block text-sm font-medium text-white'>
+                Deal Terms (Optional)
+              </label>
+              <Input
+                id='deal-terms'
+                value={formData.dealTerms}
+                onChange={(e) => handleFormChange('dealTerms', e.target.value)}
+                className='bg-zinc-800 border-zinc-700 text-white focus:border-zinc-600'
+                placeholder='e.g., Valid for new customers only'
+              />
+            </div>
+          )}
+
+          {/* Current Update Status */}
+          {currentUpdate && (
+            <div className='rounded-md bg-zinc-800 p-3'>
+              <div className='flex items-center justify-between'>
+                <span className='text-white'>Status:</span>
+                <Badge 
+                  variant={
+                    currentUpdate.status === 'ready-for-preview' ? 'default' :
+                    currentUpdate.status === 'processing' ? 'secondary' :
+                    currentUpdate.status === 'failed' ? 'destructive' : 'outline'
+                  }
+                >
+                  {currentUpdate.status.replace('-', ' ')}
+                </Badge>
+              </div>
+              {currentUpdate.processing_time_ms && (
+                <p className='text-sm text-zinc-400 mt-1'>
+                  Processing time: {currentUpdate.processing_time_ms}ms
+                </p>
+              )}
+              {currentUpdate.error_message && (
+                <p className='text-sm text-red-400 mt-1'>
+                  Error: {currentUpdate.error_message}
+                </p>
+              )}
+            </div>
+          )}
+
           <Button
             onClick={handleGeneratePages}
-            disabled={!updateText || !startDate || !expireDate || isGenerating}
+            disabled={isGenerating || (businessUsage && businessUsage.updates_used >= businessUsage.updates_limit)}
             className='w-full'
           >
-            {isGenerating ? 'Generating Pages...' : 'Generate AI Pages'}
+            {isGenerating ? 'Generating AI Pages...' : 'Generate AI Pages'}
           </Button>
         </div>
       </Card>
 
       {generatedPages.length > 0 && (
-        <Card title='Generated Pages'>
-          <div className='space-y-3'>
-            {generatedPages.map((page, index) => (
-              <div
-                key={index}
-                className='flex items-center justify-between rounded-md bg-zinc-800 p-3'
-              >
-                <span className='text-white'>{page}</span>
-                <div className='flex gap-2'>
-                  <Button size='sm' variant='secondary'>
-                    Preview
-                  </Button>
-                  <Button size='sm' onClick={() => handlePublishPage(page)}>
-                    Publish
-                  </Button>
+        <Card title={`Generated Pages (${generatedPages.length})`}>
+          <div className='space-y-4'>
+            {/* Bulk actions */}
+            <div className='flex items-center justify-between'>
+              <p className='text-sm text-zinc-400'>
+                {generatedPages.filter(p => p.published).length} of {generatedPages.length} pages published
+              </p>
+              {generatedPages.some(page => !page.published) && (
+                <Button
+                  size='sm'
+                  onClick={handlePublishAllPages}
+                  disabled={isPublishing.length > 0}
+                >
+                  {isPublishing.length > 0 ? 'Publishing...' : 'Publish All'}
+                </Button>
+              )}
+            </div>
+
+            {/* Generated pages list */}
+            <div className='space-y-3'>
+              {generatedPages.map((page) => (
+                <div
+                  key={page.id}
+                  className='flex items-center justify-between rounded-md bg-zinc-800 p-4'
+                >
+                  <div className='flex-1'>
+                    <div className='flex items-center gap-2'>
+                      <span className='text-white font-medium'>{page.title}</span>
+                      <Badge variant='outline' className='text-xs'>
+                        {page.intent_type}
+                      </Badge>
+                      {page.published && (
+                        <Badge variant='default' className='text-xs'>
+                          Published
+                        </Badge>
+                      )}
+                    </div>
+                    <p className='text-sm text-zinc-400 mt-1'>
+                      {page.slug} • {page.estimated_html_size_kb || page.rendered_size_kb}KB
+                    </p>
+                    {page.published_at && (
+                      <p className='text-xs text-zinc-500'>
+                        Published: {new Date(page.published_at).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                  <div className='flex gap-2'>
+                    {page.previewUrl && (
+                      <Button size='sm' variant='secondary' asChild>
+                        <a href={page.previewUrl} target='_blank' rel='noopener noreferrer'>
+                          Preview
+                        </a>
+                      </Button>
+                    )}
+                    {!page.published ? (
+                      <Button
+                        size='sm'
+                        onClick={() => handlePublishPage(page)}
+                        disabled={isPublishing.includes(page.id)}
+                      >
+                        {isPublishing.includes(page.id) ? 'Publishing...' : 'Publish'}
+                      </Button>
+                    ) : (
+                      <Button size='sm' variant='outline' asChild>
+                        <a href={page.file_path} target='_blank' rel='noopener noreferrer'>
+                          View Live
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Card>
       )}

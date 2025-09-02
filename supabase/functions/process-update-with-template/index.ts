@@ -35,16 +35,21 @@ serve(async (req) => {
     const supabase = createSupabaseClient();
 
     const startTime = Date.now()
-    await supabase
-      .from('updates')
-      .update({ 
-        status: 'processing',
-        special_hours_today: specialHours || null,
-        deal_terms: temporalInfo?.dealTerms || null,
-        expiration_date_time: temporalInfo?.expiresAt || null,
-        update_category: temporalInfo?.updateCategory || 'general'
-      })
-      .eq('id', updateId)
+    
+    // Use RPC to bypass RLS policies for service role operations
+    const { error: updateError } = await supabase.rpc('update_business_update_status', {
+      update_id: updateId,
+      new_status: 'processing',
+      special_hours: specialHours ? JSON.stringify(specialHours) : null,
+      deal_terms_param: temporalInfo?.dealTerms || null,
+      expiration_time: temporalInfo?.expiresAt || null,
+      category: temporalInfo?.updateCategory || 'general'
+    });
+
+    if (updateError) {
+      console.error('Error updating status:', updateError);
+      throw new Error(`Failed to update status: ${updateError.message}`);
+    }
 
     // Get business details
     const { data: business } = await supabase
@@ -189,13 +194,16 @@ serve(async (req) => {
     }
 
     // Update status to ready-for-preview instead of completed
-    await supabase
-      .from('updates')
-      .update({ 
-        status: 'ready-for-preview',
-        processing_time_ms: processingTime
-      })
-      .eq('id', updateId)
+    const { error: finalUpdateError } = await supabase.rpc('update_business_update_status', {
+      update_id: updateId,
+      new_status: 'ready-for-preview',
+      processing_time: processingTime
+    });
+
+    if (finalUpdateError) {
+      console.error('Error updating final status:', finalUpdateError);
+      // Don't throw here as pages were successfully generated
+    }
 
     // Increment usage tracking for this business (using same direct query pattern)
     try {
@@ -257,13 +265,11 @@ serve(async (req) => {
     
     const { updateId } = await req.json().catch(() => ({}))
     if (updateId) {
-      await supabase
-        .from('updates')
-        .update({ 
-          status: 'failed',
-          error_message: error.message
-        })
-        .eq('id', updateId)
+      await supabase.rpc('update_business_update_status', {
+        update_id: updateId,
+        new_status: 'failed',
+        error_msg: error.message
+      });
     }
     
     return errorResponse(error.message)
