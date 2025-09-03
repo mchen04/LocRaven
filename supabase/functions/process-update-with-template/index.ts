@@ -32,9 +32,18 @@ serve(async (req) => {
 
   try {
     const { updateId, businessId, contentText, temporalInfo, specialHours, faqData } = await safeJsonParse(req);
+    console.log('Edge Function called with:', { updateId, businessId, contentText: contentText?.substring(0, 100) });
+    
     const supabase = createSupabaseClient();
 
     const startTime = Date.now()
+    
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(updateId)) {
+      console.error('Invalid UUID format for updateId:', updateId);
+      throw new Error(`Invalid UUID format for updateId: ${updateId}`);
+    }
     
     // Use RPC to bypass RLS policies for service role operations
     const { error: updateError } = await supabase.rpc('update_business_update_status', {
@@ -73,6 +82,8 @@ serve(async (req) => {
     // Generate all 6 pages in parallel for maximum efficiency
     const pageGenerationPromises = intentTypes.map(async (intentType) => {
       try {
+        console.log(`Generating ${intentType} content for business: ${business.name}`);
+        
         // Generate AI-optimized content for this intent
         const { title, description } = await generateAIOptimizedContent(
           business, 
@@ -84,6 +95,8 @@ serve(async (req) => {
           intentType, 
           aiProvider
         );
+        
+        console.log(`Successfully generated ${intentType} content:`, { title: title.substring(0, 50), description: description.substring(0, 50) });
         
         // Generate intent-specific URL structure
         const { filePath, slug, pageVariant } = generateIntentBasedURL(

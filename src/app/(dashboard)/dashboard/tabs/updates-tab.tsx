@@ -148,18 +148,29 @@ export function UpdatesTab({}: UpdatesTabProps) {
     setSuccessMessage('');
 
     try {
+      console.log('🔄 Starting page generation process...');
+      
       // Step 1: Create the update
+      console.log('📝 Creating update record...');
       const createResponse = await BusinessUpdatesService.createUpdate(formData);
+      console.log('✅ Create response:', createResponse);
+      
       if (!createResponse.success || !createResponse.data) {
+        console.error('❌ Failed to create update:', createResponse.error);
         throw new Error(createResponse.error || 'Failed to create update');
       }
 
       const update = createResponse.data;
+      console.log('✅ Created update:', update);
       setCurrentUpdate(update);
 
       // Step 2: Process with AI template generation
+      console.log('🤖 Processing with AI template generation...');
       const processResponse = await BusinessUpdatesService.processUpdateWithTemplate(update, formData);
+      console.log('🔄 Process response:', processResponse);
+      
       if (!processResponse.success || !processResponse.data) {
+        console.error('❌ Failed to process update:', processResponse.error);
         throw new Error(processResponse.error || 'Failed to process update');
       }
 

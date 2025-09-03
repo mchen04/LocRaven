@@ -7,12 +7,14 @@ export interface BusinessUpdate {
   status: 'draft' | 'processing' | 'ready-for-preview' | 'published' | 'failed';
   created_at: string;
   expires_at?: string;
-  special_hours_today?: string;
+  special_hours_today?: any; // jsonb
   deal_terms?: string;
   expiration_date_time?: string;
-  update_category?: string;
+  update_category?: 'general' | 'special' | 'hours' | 'event' | 'new_service' | 'closure';
+  update_faqs?: any[]; // jsonb array
   processing_time_ms?: number;
   error_message?: string;
+  ai_provider?: string;
 }
 
 export interface GeneratedPage {
@@ -21,18 +23,28 @@ export interface GeneratedPage {
   business_id: string;
   file_path: string;
   title: string;
-  template_id: string;
-  page_data: any; // Compressed page data
-  rendered_size_kb: number;
-  content_intent: string;
-  slug: string;
-  page_type: string;
-  intent_type: 'direct' | 'local' | 'category' | 'branded-local' | 'service-urgent' | 'competitive';
-  page_variant: string;
-  generation_batch_id: string;
-  expires_at: string;
-  published: boolean;
+  template_id?: string;
+  page_data?: any; // jsonb - compressed page data
+  rendered_size_kb?: number;
+  content_intent?: string;
+  slug?: string;
+  page_type?: 'business' | 'update' | 'category' | 'location';
+  intent_type?: 'direct' | 'local' | 'category' | 'branded-local' | 'service-urgent' | 'competitive';
+  page_variant?: string;
+  generation_batch_id?: string;
+  expires_at?: string;
+  expired_at?: string;
+  expired?: boolean;
+  dynamic_tags?: string[];
+  tags_expire_at?: string;
+  published?: boolean;
   published_at?: string;
+  html_content?: string;
+  ai_citation_score?: number;
+  last_status_calculation?: string;
+  created_at: string;
+  updated_at: string;
+  // Client-side only
   previewUrl?: string;
   estimated_html_size_kb?: number;
 }
@@ -75,21 +87,45 @@ export interface PublishPagesResponse {
 
 export interface BusinessProfile {
   id: string;
-  name: string;
-  description?: string;
+  name?: string;
+  email?: string;
+  slug?: string;
   address_street?: string;
   address_city?: string;
   address_state?: string;
   zip_code?: string;
   phone?: string;
-  email?: string;
   website?: string;
-  primary_category?: string;
-  ai_provider?: string;
+  primary_category?: 'food-dining' | 'shopping' | 'beauty-grooming' | 'health-medical' | 'repairs-services' | 'professional-services' | 'activities-entertainment' | 'education-training' | 'creative-digital' | 'transportation-delivery';
+  description?: string;
+  static_tags?: string[];
   hours?: string;
-  services?: string[];
-  specialties?: string[];
+  price_positioning?: string;
+  established_year?: number;
+  country?: string;
+  phone_country_code?: string;
+  specialties?: any; // jsonb
+  services?: any; // jsonb
+  awards?: any; // jsonb
+  certifications?: any; // jsonb
+  social_media?: any; // jsonb
+  latitude?: number;
+  longitude?: number;
+  parking_info?: string;
+  accessibility_features?: string[];
   payment_methods?: string[];
+  languages_spoken?: string[];
+  structured_hours?: any; // jsonb
+  service_area?: string;
+  review_summary?: any; // jsonb
+  status_override?: 'closed_emergency' | 'closed_holiday' | 'closed_maintenance' | 'temporarily_closed' | 'normal_operations';
+  business_faqs?: any[]; // jsonb
+  featured_items?: any[]; // jsonb
+  enhanced_parking_info?: any; // jsonb
+  service_area_details?: any; // jsonb
+  availability_policy?: any; // jsonb
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface BusinessUsage {
@@ -106,7 +142,7 @@ export interface UpdateFormData {
   startDate: string;
   expireDate: string;
   specialHours?: string;
-  updateCategory?: string;
+  updateCategory?: 'general' | 'special' | 'hours' | 'event' | 'new_service' | 'closure';
   dealTerms?: string;
 }
 
