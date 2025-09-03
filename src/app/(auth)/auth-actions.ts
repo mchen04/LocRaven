@@ -21,7 +21,14 @@ export async function signInWithOAuth(provider: 'google'): Promise<ActionRespons
     return { data: null, error: error };
   }
 
-  redirect(data.url as string);
+  if (data?.url) {
+    // @ts-expect-error - Next.js redirect type issue with external URLs
+    redirect(data.url);
+    return; // This will never be reached, but satisfies TypeScript
+  }
+  
+  // If no URL returned, something went wrong
+  return { data: null, error: new Error('No redirect URL provided') };
 }
 
 export async function signInWithEmail(email: string): Promise<ActionResponse> {

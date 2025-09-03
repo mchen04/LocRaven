@@ -5,7 +5,7 @@ import { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import { BusinessProfile } from '@/features/business/types/business-types';
 import { UserLink } from '@/features/links/types/links-types';
 import { ProductWithPrices } from '@/features/pricing/controllers/get-user-product';
-import { Price } from '@/features/pricing/types';
+import { Price, SubscriptionWithProduct } from '@/features/pricing/types';
 
 import { BusinessProfileTab } from './tabs/business-profile-tab';
 import { LinksTab } from './tabs/links-tab';
@@ -14,7 +14,7 @@ import { SubscriptionsTab } from './tabs/subscriptions-tab';
 import { UpdatesTab } from './tabs/updates-tab';
 
 interface DashboardTabsProps {
-  subscription: any; // TODO: Type this properly
+  subscription: SubscriptionWithProduct | null;
   businessProfile?: BusinessProfile | null;
   usageStats?: UsageStats | null;
   userProduct?: ProductWithPrices | null;

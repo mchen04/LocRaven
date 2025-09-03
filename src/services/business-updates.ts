@@ -1,19 +1,19 @@
 // Business updates API service layer for Supabase integration
 
-import { createBrowserClient } from '@supabase/ssr';
-import { getEnvVar } from '@/utils/get-env-var';
 import type {
+  ApiResponse,
+  BusinessProfile,
   BusinessUpdate,
+  BusinessUsage,
   GeneratedPage,
   ProcessUpdateRequest,
   ProcessUpdateResponse,
   PublishPagesRequest,
   PublishPagesResponse,
-  BusinessProfile,
-  BusinessUsage,
   UpdateFormData,
-  ApiResponse,
 } from '@/types/business-updates';
+import { getEnvVar } from '@/utils/get-env-var';
+import { createBrowserClient } from '@supabase/ssr';
 
 // Initialize Supabase client
 const supabase = createBrowserClient(
@@ -328,6 +328,48 @@ export class BusinessUpdatesService {
       .subscribe();
 
     return subscription;
+  }
+
+  /**
+   * Delete a generated page (link)
+   */
+  static async deleteGeneratedPage(pageId: string): Promise<ApiResponse<void>> {
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user?.email) {
+        return { success: false, error: 'User not authenticated' };
+      }
+
+      // First verify ownership through business email
+      const { data: business } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('email', user.email)
+        .single();
+
+      if (!business) {
+        return { success: false, error: 'Business not found' };
+      }
+
+      // Delete the page (RLS will verify ownership)
+      const { error } = await supabase
+        .from('generated_pages')
+        .delete()
+        .eq('id', pageId)
+        .eq('business_id', business.id); // Extra safety check
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to delete page' 
+      };
+    }
   }
 
   /**

@@ -71,15 +71,17 @@ const copyBillingDetailsToCustomer = async (userId: string, paymentMethod: Strip
 
   await stripeAdmin.customers.update(customer, { name, phone, address: address as AddressParam });
 
-  const { error } = await supabaseAdminClient
-    .from('users')
-    .update({
-      billing_address: { ...address },
-      payment_method: { ...paymentMethod[paymentMethod.type] },
-    })
-    .eq('id', userId);
+  // TODO: Store billing info in appropriate table
+  // Currently disabled - no users table in public schema
+  // const { error } = await supabaseAdminClient
+  //   .from('users')
+  //   .update({
+  //     billing_address: { ...address },
+  //     payment_method: { ...paymentMethod[paymentMethod.type] },
+  //   })
+  //   .eq('id', userId);
 
-  if (error) {
-    throw error;
-  }
+  // if (error) {
+  //   throw error;
+  // }
 };

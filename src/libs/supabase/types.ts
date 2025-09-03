@@ -217,6 +217,27 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          created_at: string | null
+          id: string
+          stripe_customer_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          stripe_customer_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          stripe_customer_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       generated_pages: {
         Row: {
           ai_citation_score: number | null
@@ -476,6 +497,7 @@ export type Database = {
           deal_terms: string | null
           error_message: string | null
           expiration_date_time: string | null
+          expires_at: string | null
           id: string
           processing_time_ms: number | null
           special_hours_today: Json | null
@@ -491,6 +513,7 @@ export type Database = {
           deal_terms?: string | null
           error_message?: string | null
           expiration_date_time?: string | null
+          expires_at?: string | null
           id?: string
           processing_time_ms?: number | null
           special_hours_today?: Json | null
@@ -506,6 +529,7 @@ export type Database = {
           deal_terms?: string | null
           error_message?: string | null
           expiration_date_time?: string | null
+          expires_at?: string | null
           id?: string
           processing_time_ms?: number | null
           special_hours_today?: Json | null
@@ -536,7 +560,29 @@ export type Database = {
         Args: { business_id_param: string }
         Returns: boolean
       }
+      debug_usage_lookup: {
+        Args: { business_id_param: string }
+        Returns: {
+          calculated_limit: number
+          extracted_tier: string
+          found_subscription: boolean
+          metadata_content: Json
+        }[]
+      }
       get_current_usage_period: {
+        Args: { business_id_param: string }
+        Returns: {
+          business_id: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          updates_limit: number
+          updates_used: number
+          usage_period_end: string
+          usage_period_start: string
+        }
+      }
+      get_current_usage_period_v2: {
         Args: { business_id_param: string }
         Returns: {
           business_id: string
@@ -565,6 +611,19 @@ export type Database = {
       }
       refresh_table_statistics: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_business_update_status: {
+        Args: {
+          category?: string
+          deal_terms_param?: string
+          error_msg?: string
+          expiration_time?: string
+          new_status?: string
+          processing_time?: number
+          special_hours?: string
+          update_id: string
+        }
         Returns: undefined
       }
     }

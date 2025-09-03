@@ -1,20 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
 import { LinksTabProps, UserLink } from '@/features/links/types/links-types';
+import { BusinessUpdatesService } from '@/services/business-updates';
 
 export function LinksTab({ links }: LinksTabProps) {
   const [activeSection, setActiveSection] = useState('active');
   const [visibleActiveCount, setVisibleActiveCount] = useState(5);
   const [visibleExpiredCount, setVisibleExpiredCount] = useState(5);
+  const [localLinks, setLocalLinks] = useState(links);
+  const [isDeletingIds, setIsDeletingIds] = useState<string[]>([]);
+  const { toast } = useToast();
   
-  const activeLinks = links?.filter((link) => link.status === 'active') || [];
-  const expiredLinks = links?.filter((link) => link.status === 'expired') || [];
+  const activeLinks = localLinks?.filter((link) => link.status === 'active') || [];
+  const expiredLinks = localLinks?.filter((link) => link.status === 'expired') || [];
 
   const handleCopyLink = (url: string) => {
     navigator.clipboard.writeText(url);
-    // TODO: Show success toast
+    toast({
+      title: "Link copied",
+      description: "The link has been copied to your clipboard",
+    });
   };
 
   const handleEditLink = (linkId: string) => {
@@ -22,9 +31,36 @@ export function LinksTab({ links }: LinksTabProps) {
     console.log('Editing link:', linkId);
   };
 
-  const handleDeleteLink = (linkId: string) => {
-    // TODO: Implement delete functionality
-    console.log('Deleting link:', linkId);
+  const handleDeleteLink = async (linkId: string) => {
+    setIsDeletingIds(prev => [...prev, linkId]);
+    
+    try {
+      const response = await BusinessUpdatesService.deleteGeneratedPage(linkId);
+      
+      if (response.success) {
+        // Update local state
+        setLocalLinks(prev => prev?.filter(link => link.id !== linkId) || []);
+        
+        toast({
+          title: "Success",
+          description: "Link deleted successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to delete link",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeletingIds(prev => prev.filter(id => id !== linkId));
+    }
   };
 
   const handleLoadMoreActive = () => {
@@ -79,6 +115,7 @@ export function LinksTab({ links }: LinksTabProps) {
                     onCopy={handleCopyLink}
                     onEdit={handleEditLink}
                     onDelete={handleDeleteLink}
+                    isDeletingIds={isDeletingIds}
                   />
                 ))}
                 {hasMoreActive && (
@@ -115,6 +152,7 @@ export function LinksTab({ links }: LinksTabProps) {
                     onCopy={handleCopyLink}
                     onEdit={handleEditLink}
                     onDelete={handleDeleteLink}
+                    isDeletingIds={isDeletingIds}
                   />
                 ))}
                 {hasMoreExpired && (
@@ -146,11 +184,13 @@ function LinkItem({
   onCopy,
   onEdit,
   onDelete,
+  isDeletingIds,
 }: {
   link: UserLink;
   onCopy: (url: string) => void;
   onEdit: (linkId: string) => void;
   onDelete: (linkId: string) => void;
+  isDeletingIds: string[];
 }) {
   return (
     <div className='rounded-md bg-zinc-800 p-4'>
@@ -195,7 +235,9 @@ function LinkItem({
             <Button
               size='sm'
               variant='secondary'
-              onClick={() => onEdit(link.id)}
+              disabled={true}
+              className='opacity-50 cursor-not-allowed'
+              title='Edit functionality coming soon'
             >
               Edit
             </Button>
@@ -204,9 +246,10 @@ function LinkItem({
             size='sm'
             variant='secondary'
             onClick={() => onDelete(link.id)}
+            disabled={isDeletingIds.includes(link.id)}
             className='text-red-400 hover:text-red-300'
           >
-            Delete
+            {isDeletingIds.includes(link.id) ? 'Deleting...' : 'Delete'}
           </Button>
         </div>
       </div>

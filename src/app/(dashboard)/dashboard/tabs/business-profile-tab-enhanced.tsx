@@ -7,15 +7,14 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
 import { upsertBusinessProfile } from '@/features/business/controllers/upsert-business-profile';
 import { 
+  accessibilityOptions,
   businessProfileSchema, 
   categoryOptions, 
-  pricePositioningOptions,
-  paymentMethodOptions,
-  languageOptions,
-  accessibilityOptions,
   countryOptions,
-  phoneCountryCodes
-} from '@/features/business/types/business-profile-form';
+  languageOptions,
+  paymentMethodOptions,
+  phoneCountryCodes,
+  pricePositioningOptions} from '@/features/business/types/business-profile-form';
 import { BusinessProfile, businessToFormState, formStateToBusinessData } from '@/features/business/types/business-types';
 import { Constants } from '@/libs/supabase/types';
 

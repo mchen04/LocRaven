@@ -42,12 +42,13 @@ export async function getUserUsageStats(): Promise<UsageStats | null> {
 
     // Determine usage limit based on subscription tier
     let updatesLimit = 5; // Free tier default
-    if (subscription?.prices?.metadata?.tier === 'basic') {
+    const metadata = subscription?.prices?.metadata as { tier?: string } | undefined;
+    if (metadata?.tier === 'basic') {
       updatesLimit = 50;
-    } else if (subscription?.prices?.metadata?.tier === 'pro') {
+    } else if (metadata?.tier === 'pro') {
       updatesLimit = 250;
-    } else if (subscription?.prices?.metadata?.tier === 'enterprise') {
-      updatesLimit = null; // Unlimited
+    } else if (metadata?.tier === 'enterprise') {
+      updatesLimit = 999999; // Unlimited (represented as high number)
     }
 
     // Calculate current month boundaries

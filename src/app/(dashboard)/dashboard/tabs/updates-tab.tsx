@@ -1,16 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useEffect, useState } from 'react';
+
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 import { BusinessUpdatesService } from '@/services/business-updates';
 import type {
-  BusinessUpdate,
-  GeneratedPage,
   BusinessProfile,
+  BusinessUpdate,
   BusinessUsage,
+  GeneratedPage,
   UpdateFormData,
   UpdateFormErrors,
 } from '@/types/business-updates';
@@ -41,6 +43,7 @@ export function UpdatesTab({}: UpdatesTabProps) {
   // UI state
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const { toast } = useToast();
 
   // Load business profile and usage on component mount
   useEffect(() => {
@@ -162,7 +165,10 @@ export function UpdatesTab({}: UpdatesTabProps) {
 
       const result = processResponse.data;
       setGeneratedPages(result.pages);
-      setSuccessMessage(`Successfully generated ${result.total_pages} AI-optimized pages in ${result.processingTime}ms`);
+      toast({
+        title: "Pages generated!",
+        description: `Successfully created ${result.total_pages} AI-optimized pages in ${result.processingTime}ms`,
+      });
       
       // Refresh usage after successful generation
       loadBusinessUsage();
@@ -195,7 +201,10 @@ export function UpdatesTab({}: UpdatesTabProps) {
         )
       );
 
-      setSuccessMessage(`Successfully published: ${page.title}`);
+      toast({
+        title: "Page published",
+        description: page.title,
+      });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to publish page';
       setErrorMessage(errorMsg);
@@ -227,7 +236,10 @@ export function UpdatesTab({}: UpdatesTabProps) {
         )
       );
 
-      setSuccessMessage(`Successfully published ${unpublishedPages.length} pages`);
+      toast({
+        title: "All pages published",
+        description: `Successfully published ${unpublishedPages.length} pages`,
+      });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to publish pages';
       setErrorMessage(errorMsg);
@@ -408,7 +420,7 @@ export function UpdatesTab({}: UpdatesTabProps) {
 
           <Button
             onClick={handleGeneratePages}
-            disabled={isGenerating || (businessUsage && businessUsage.updates_used >= businessUsage.updates_limit)}
+            disabled={isGenerating || (businessUsage ? businessUsage.updates_used >= businessUsage.updates_limit : false)}
             className='w-full'
           >
             {isGenerating ? 'Generating AI Pages...' : 'Generate AI Pages'}

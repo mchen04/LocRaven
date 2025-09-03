@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import { PricingCard } from '@/features/pricing/components/price-card';
 import { ProductWithPrices } from '@/features/pricing/controllers/get-user-product';
-import { Price } from '@/features/pricing/types';
+import { Price, SubscriptionWithProduct } from '@/features/pricing/types';
 
 interface SubscriptionsTabProps {
-  subscription: any; // TODO: Type this properly
+  subscription: SubscriptionWithProduct | null;
   usageStats?: UsageStats | null;
   userProduct?: ProductWithPrices | null;
   userPrice?: Price | null;

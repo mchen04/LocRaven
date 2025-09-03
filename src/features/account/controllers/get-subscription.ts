@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from '@/libs/supabase/supabase-server-client';
+
 import { getAuthUser } from './get-auth-user';
 
 export async function getSubscription() {

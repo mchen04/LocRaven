@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import { getCustomerId } from '@/features/account/controllers/get-customer-id';
 import { getAuthUser } from '@/features/account/controllers/get-auth-user';
+import { getCustomerId } from '@/features/account/controllers/get-customer-id';
 import { stripeAdmin } from '@/libs/stripe/stripe-admin';
 import { getURL } from '@/utils/get-url';
 

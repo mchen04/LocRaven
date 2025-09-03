@@ -13,6 +13,8 @@ export async function upsertProduct(product: Stripe.Product) {
     description: product.description ?? null,
     image: product.images?.[0] ?? null,
     metadata: product.metadata,
+    created: new Date(product.created * 1000).toISOString(),
+    updated: new Date().toISOString(),
   };
 
   const { error } = await supabaseAdminClient.from('products').upsert([productData]);

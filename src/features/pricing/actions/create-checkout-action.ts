@@ -2,8 +2,8 @@
 
 import { redirect } from 'next/navigation';
 
-import { getOrCreateCustomer } from '@/features/account/controllers/get-or-create-customer';
 import { getAuthUser } from '@/features/account/controllers/get-auth-user';
+import { getOrCreateCustomer } from '@/features/account/controllers/get-or-create-customer';
 import { Price } from '@/features/pricing/types';
 import { stripeAdmin } from '@/libs/stripe/stripe-admin';
 import { getURL } from '@/utils/get-url';
@@ -13,6 +13,7 @@ export async function createCheckoutAction({ price }: { price: Price }) {
   const user = await getAuthUser();
 
   if (!user) {
+    // @ts-expect-error - Next.js redirect type issue with dynamic URLs
     return redirect(`${getURL()}/signup`);
   }
 
@@ -51,5 +52,6 @@ export async function createCheckoutAction({ price }: { price: Price }) {
   }
 
   // 4. Redirect to checkout url
+  // @ts-expect-error - Next.js redirect type issue with external URLs
   redirect(checkoutSession.url);
 }
