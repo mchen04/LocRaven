@@ -1,6 +1,7 @@
 import { 
   PageData, 
   renderMetaTags, 
+  renderOpenGraphTags,
   renderBusinessContact, 
   renderBusinessDetails, 
   renderFAQSection,
@@ -116,6 +117,7 @@ export function renderDirectTemplate(data: PageData): string {
 <html lang="en">
 <head>
 ${renderMetaTags(data)}
+${renderOpenGraphTags(data)}
 <script type="application/ld+json">
 ${generateJsonLD(data)}
 </script>
@@ -149,6 +151,7 @@ export function renderLocalTemplate(data: PageData): string {
 <html lang="en">
 <head>
 ${renderMetaTags(data)}
+${renderOpenGraphTags(data)}
 <script type="application/ld+json">
 ${generateJsonLD(data)}
 </script>
@@ -181,6 +184,7 @@ export function renderCategoryTemplate(data: PageData): string {
 <html lang="en">
 <head>
 ${renderMetaTags(data)}
+${renderOpenGraphTags(data)}
 <script type="application/ld+json">
 ${generateJsonLD(data)}
 </script>
@@ -227,6 +231,7 @@ export function renderBrandedLocalTemplate(data: PageData): string {
 <html lang="en">
 <head>
 ${renderMetaTags(data)}
+${renderOpenGraphTags(data)}
 <script type="application/ld+json">
 ${generateJsonLD(data)}
 </script>
@@ -258,6 +263,7 @@ export function renderServiceUrgentTemplate(data: PageData): string {
 <html lang="en">
 <head>
 ${renderMetaTags(data)}
+${renderOpenGraphTags(data)}
 <script type="application/ld+json">
 ${generateJsonLD(data)}
 </script>
@@ -293,6 +299,7 @@ export function renderServiceUrgentTemplate(data: PageData): string {
 <html lang="en">
 <head>
 ${renderMetaTags(data)}
+${renderOpenGraphTags(data)}
 <script type="application/ld+json">
 ${generateJsonLD(data)}
 </script>
@@ -328,6 +335,7 @@ export function renderCompetitiveTemplate(data: PageData): string {
 <html lang="en">
 <head>
 ${renderMetaTags(data)}
+${renderOpenGraphTags(data)}
 <script type="application/ld+json">
 ${generateJsonLD(data)}
 </script>

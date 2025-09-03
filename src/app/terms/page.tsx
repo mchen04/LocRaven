@@ -5,6 +5,35 @@ import { MarketingLayout, PageSection } from '@/components/marketing-layout';
 export const metadata: Metadata = {
   title: 'Terms of Service - LocRaven',
   description: 'Terms and conditions for using LocRaven\'s AI-powered local business discovery platform.',
+  keywords: 'terms of service, terms and conditions, legal agreement, LocRaven platform',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: 'Terms of Service - LocRaven',
+    description: 'Terms and conditions for using LocRaven\'s AI-powered local business discovery platform.',
+    type: 'website',
+    url: 'https://locraven.com/terms',
+    siteName: 'LocRaven',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'LocRaven Terms of Service',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Terms of Service - LocRaven',
+    description: 'Terms and conditions for using LocRaven\'s AI-powered local business discovery platform.',
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: 'https://locraven.com/terms',
+  },
 };
 
 const tableOfContents = [

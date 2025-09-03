@@ -5,7 +5,35 @@ import { MarketingLayout, PageSection } from '@/components/marketing-layout';
 export const metadata: Metadata = {
   title: 'About Us - LocRaven',
   description: 'Learn about LocRaven\'s mission to make every local business AI-discoverable and level the playing field against big chains.',
-  keywords: 'LocRaven, local business, AI discovery, business optimization, local SEO',
+  keywords: 'LocRaven, local business, AI discovery, business optimization, local SEO, company mission',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: 'About Us - LocRaven',
+    description: 'Learn about LocRaven\'s mission to make every local business AI-discoverable and level the playing field against big chains.',
+    type: 'website',
+    url: 'https://locraven.com/about-us',
+    siteName: 'LocRaven',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'About LocRaven - AI-Powered Local Business Discovery',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Us - LocRaven',
+    description: 'Learn about LocRaven\'s mission to make every local business AI-discoverable and level the playing field against big chains.',
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: 'https://locraven.com/about-us',
+  },
 };
 
 export default function AboutUsPage() {

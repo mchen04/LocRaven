@@ -5,6 +5,35 @@ import { MarketingLayout, PageSection } from '@/components/marketing-layout';
 export const metadata: Metadata = {
   title: 'Privacy Policy - LocRaven',
   description: 'Learn how LocRaven protects your privacy and handles your personal information in compliance with GDPR and CCPA.',
+  keywords: 'privacy policy, data protection, GDPR, CCPA, local business privacy',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: 'Privacy Policy - LocRaven',
+    description: 'Learn how LocRaven protects your privacy and handles your personal information in compliance with GDPR and CCPA.',
+    type: 'website',
+    url: 'https://locraven.com/privacy',
+    siteName: 'LocRaven',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'LocRaven Privacy Policy',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy Policy - LocRaven',
+    description: 'Learn how LocRaven protects your privacy and handles your personal information in compliance with GDPR and CCPA.',
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: 'https://locraven.com/privacy',
+  },
 };
 
 const tableOfContents = [

@@ -6,6 +6,34 @@ export const metadata: Metadata = {
   title: 'Support - LocRaven',
   description: 'Get help with LocRaven - comprehensive guides, FAQs, and support resources for AI-powered local business discovery.',
   keywords: 'LocRaven support, help, FAQ, business updates, AI optimization',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: 'Support - LocRaven',
+    description: 'Get help with LocRaven - comprehensive guides, FAQs, and support resources for AI-powered local business discovery.',
+    type: 'website',
+    url: 'https://locraven.com/support',
+    siteName: 'LocRaven',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'LocRaven Support Center',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Support - LocRaven',
+    description: 'Get help with LocRaven - comprehensive guides, FAQs, and support resources for AI-powered local business discovery.',
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: 'https://locraven.com/support',
+  },
 };
 
 export default function SupportPage() {

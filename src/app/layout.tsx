@@ -26,19 +26,107 @@ const montserratAlternates = Montserrat_Alternates({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://locraven.com'),
   title: 'LocRaven - AI-Powered Local Business Discovery',
-  description: 'World\'s first AI-native local business discovery platform',
+  description: 'World\'s first AI-native local business discovery platform. Generate AI-optimized pages for local businesses in 60 seconds.',
+  keywords: 'local business, AI discovery, local SEO, business optimization, AI-powered marketing, local search',
+  authors: [{ name: 'LocRaven' }],
+  creator: 'LocRaven',
+  publisher: 'LocRaven',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   },
   manifest: '/site.webmanifest',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://locraven.com',
+    title: 'LocRaven - AI-Powered Local Business Discovery',
+    description: 'World\'s first AI-native local business discovery platform. Generate AI-optimized pages for local businesses in 60 seconds.',
+    siteName: 'LocRaven',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'LocRaven - AI-Powered Local Business Discovery',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'LocRaven - AI-Powered Local Business Discovery',
+    description: 'World\'s first AI-native local business discovery platform. Generate AI-optimized pages for local businesses in 60 seconds.',
+    creator: '@LocRaven',
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: 'https://locraven.com',
+  },
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "LocRaven",
+    "alternateName": "LocRaven - AI-Powered Local Business Discovery",
+    "description": "World's first AI-native local business discovery platform. Generate AI-optimized pages for local businesses in 60 seconds.",
+    "url": "https://locraven.com",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "creator": {
+      "@type": "Organization",
+      "name": "LocRaven",
+      "url": "https://locraven.com",
+      "logo": "https://locraven.com/logo.png",
+      "sameAs": [
+        "https://twitter.com/LocRaven",
+        "https://facebook.com/LocRaven",
+        "https://instagram.com/LocRaven"
+      ]
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "USD",
+      "description": "AI-powered local business discovery and optimization platform"
+    },
+    "featureList": [
+      "AI-generated business pages",
+      "Local SEO optimization",
+      "Schema markup generation",
+      "Multi-intent page creation",
+      "Real-time business updates"
+    ],
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Local businesses"
+    }
+  };
+
   return (
     <html lang='en'>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+        />
+      </head>
       <body className={cn('font-sans antialiased', montserrat.variable, montserratAlternates.variable)}>
         <div className='m-auto flex h-full max-w-[1440px] flex-col px-4'>
           <AppBar />

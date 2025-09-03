@@ -81,6 +81,36 @@ export function renderMetaTags(data: PageData): string {
 <meta name="content-variant" content="${data.intent.type}-optimized">`;
 }
 
+export function renderOpenGraphTags(data: PageData): string {
+  const pageUrl = `https://locraven.com/business/${data.intent.slug}`;
+  const businessImage = `https://locraven.com/api/og-image?business=${encodeURIComponent(data.business.name)}&location=${encodeURIComponent(data.business.address_city)}`;
+  
+  return `<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="${data.seo.title}">
+<meta property="og:description" content="${data.seo.description}">
+<meta property="og:url" content="${pageUrl}">
+<meta property="og:image" content="${businessImage}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${data.business.name} - ${data.business.address_city}, ${data.business.address_state}">
+<meta property="og:site_name" content="LocRaven">
+<meta property="og:locale" content="en_US">
+<meta property="business:contact_data:locality" content="${data.business.address_city}">
+<meta property="business:contact_data:region" content="${data.business.address_state}">
+<meta property="business:contact_data:country_name" content="${data.business.country || 'United States'}">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${data.seo.title}">
+<meta name="twitter:description" content="${data.seo.description}">
+<meta name="twitter:image" content="${businessImage}">
+<meta name="twitter:site" content="@LocRaven">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="${pageUrl}">`;
+}
+
 export function renderBusinessContact(data: PageData): string {
   return `<h2>Business Contact</h2>
 ${renderIfExists(data.business.phone, `<p>Phone: ${data.business.phone}</p>`)}
