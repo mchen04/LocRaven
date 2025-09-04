@@ -121,19 +121,17 @@ const nextConfig = withBundleAnalyzer({
         maxGenerations: 2,
       };
     }
-    // Define environment variables explicitly for client bundle (Cloudflare Pages compatibility)
-    if (!isServer) {
-      config.plugins.push(
-        new webpack.DefinePlugin({
-          'process.env.NEXT_PUBLIC_SUPABASE_URL': JSON.stringify('https://hmztritmqsscxnjhrvqi.supabase.co'),
-          'process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtenRyaXRtcXNzY3huamhydnFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3MjIxNTgsImV4cCI6MjA3MDI5ODE1OH0.SbDaNbMQEhpeENWk_GEJwNXwUWEbh1HpdR0tH-hebLg'),
-          'process.env.NEXT_PUBLIC_APP_URL': JSON.stringify('https://locraven.com'),
-          'process.env.NEXT_PUBLIC_LANDING_URL': JSON.stringify('https://locraven.com'),
-        })
-      );
-      
-      console.log('✅ Environment variables explicitly defined in client bundle');
-    }
+    // Define environment variables explicitly for both client and server builds (Cloudflare Pages compatibility)
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NEXT_PUBLIC_SUPABASE_URL': JSON.stringify('https://hmztritmqsscxnjhrvqi.supabase.co'),
+        'process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtenRyaXRtcXNzY3huamhydnFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3MjIxNTgsImV4cCI6MjA3MDI5ODE1OH0.SbDaNbMQEhpeENWk_GEJwNXwUWEbh1HpdR0tH-hebLg'),
+        'process.env.NEXT_PUBLIC_APP_URL': JSON.stringify('https://locraven.com'),
+        'process.env.NEXT_PUBLIC_LANDING_URL': JSON.stringify('https://locraven.com'),
+      })
+    );
+    
+    console.log('✅ Environment variables explicitly defined in client and server bundles');
     
     return config;
   },
