@@ -136,6 +136,7 @@ const nextConfig = withBundleAnalyzer({
       config.plugins.push(
         new webpack.DefinePlugin({
           'process.env.SUPABASE_SERVICE_ROLE_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtenRyaXRtcXNzY3huamhydnFpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDcyMjE1OCwiZXhwIjoyMDcwMjk4MTU4fQ.placeholder-for-build-time-analysis'),
+          'process.env.STRIPE_SECRET_KEY': JSON.stringify('sk_placeholder_for_build_time_analysis'),
         })
       );
     }
