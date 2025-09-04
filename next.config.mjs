@@ -130,6 +130,15 @@ const nextConfig = withBundleAnalyzer({
         'process.env.NEXT_PUBLIC_LANDING_URL': JSON.stringify('https://locraven.com'),
       })
     );
+
+    // Add server-side secrets for build-time analysis (Cloudflare runtime will override)
+    if (isServer) {
+      config.plugins.push(
+        new webpack.DefinePlugin({
+          'process.env.SUPABASE_SERVICE_ROLE_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtenRyaXRtcXNzY3huamhydnFpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDcyMjE1OCwiZXhwIjoyMDcwMjk4MTU4fQ.placeholder-for-build-time-analysis'),
+        })
+      );
+    }
     
     console.log('✅ Environment variables explicitly defined in client and server bundles');
     
