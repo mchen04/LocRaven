@@ -18,7 +18,9 @@ const nextConfig = withBundleAnalyzer({
   output: 'standalone',
   trailingSlash: false,
   images: {
-    // Use Next.js built-in image optimization
+    // Use Cloudflare Images transformations (FREE - 5,000/month)
+    loader: 'custom',
+    loaderFile: './src/utils/cloudflare-image-loader.ts',
     remotePatterns: [
       {
         protocol: 'https',
