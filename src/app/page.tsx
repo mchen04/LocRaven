@@ -239,7 +239,7 @@ function HeroSection() {
         alt=''
         className='absolute right-0 top-0 rounded-tr-lg'
         priority
-        quality={100}
+        quality={90}
       />
     </section>
   );

@@ -9,7 +9,7 @@ export function Logo() {
         width={40}
         height={40}
         priority
-        quality={100}
+        quality={90}
         alt='LocRaven logo mark'
       />
       <span className='font-alt text-xl text-white'>LocRaven</span>

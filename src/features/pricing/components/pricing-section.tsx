@@ -32,7 +32,7 @@ export async function PricingSection({ isPricingPage }: { isPricingPage?: boolea
         alt=''
         className='absolute left-0 top-0 rounded-t-lg'
         priority={isPricingPage}
-        quality={100}
+        quality={90}
       />
     </section>
   );
