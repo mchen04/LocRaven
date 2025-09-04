@@ -1,7 +1,7 @@
+import { PropsWithChildren } from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Montserrat, Montserrat_Alternates } from 'next/font/google';
 import Link from 'next/link';
-import { PropsWithChildren } from 'react';
 import { IoLogoFacebook, IoLogoInstagram, IoLogoTwitter } from 'react-icons/io5';
 
 import { Analytics } from '@/components/analytics';

@@ -378,15 +378,16 @@ export function UpdatesTab({}: UpdatesTabProps) {
                 className='w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white focus:border-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600'
               >
                 <option value='general'>General Update</option>
-                <option value='promotion'>Promotion</option>
+                <option value='special'>Special/Promotion</option>
                 <option value='hours'>Hours Change</option>
                 <option value='event'>Event</option>
-                <option value='announcement'>Announcement</option>
+                <option value='new_service'>New Service</option>
+                <option value='closure'>Closure</option>
               </select>
             </div>
           </div>
 
-          {formData.updateCategory === 'promotion' && (
+          {formData.updateCategory === 'special' && (
             <div>
               <label htmlFor='deal-terms' className='mb-2 block text-sm font-medium text-white'>
                 Deal Terms (Optional)
