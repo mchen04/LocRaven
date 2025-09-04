@@ -18,13 +18,9 @@ const nextConfig = withBundleAnalyzer({
   output: 'standalone',
   trailingSlash: false,
   images: {
-    // Enable optimization for better performance and SEO
-    unoptimized: false,
-    // Responsive image breakpoints optimized for performance
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // Progressive quality settings for better Core Web Vitals
-    qualities: [75, 90],
+    // Use Cloudflare image optimization for OpenNext deployment
+    loader: "custom",
+    loaderFile: "./image-loader.ts",
     // Allowed image domains
     remotePatterns: [
       {
@@ -40,11 +36,6 @@ const nextConfig = withBundleAnalyzer({
         hostname: 'locraven.com',
       }
     ],
-    // Modern image formats for better compression
-    formats: ['image/webp', 'image/avif'],
-    // Enable image optimization with priority loading
-    dangerouslyAllowSVG: false,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   // Performance and SEO optimizations
   poweredByHeader: false,
