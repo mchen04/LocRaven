@@ -1,9 +1,10 @@
-import { PropsWithChildren } from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Montserrat, Montserrat_Alternates } from 'next/font/google';
 import Link from 'next/link';
+import { PropsWithChildren } from 'react';
 import { IoLogoFacebook, IoLogoInstagram, IoLogoTwitter } from 'react-icons/io5';
 
+import { Analytics } from '@/components/analytics';
 import { Logo } from '@/components/logo';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/utils/cn';
@@ -12,7 +13,9 @@ import { Navigation } from './navigation';
 
 import '@/styles/globals.css';
 
-export const dynamic = 'force-dynamic';
+// Removed force-dynamic for better SEO and performance
+// Pages that need dynamic rendering should set this individually
+// export const dynamic = 'force-dynamic';
 
 const montserrat = Montserrat({
   variable: '--font-montserrat',
@@ -78,6 +81,19 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
+  colorScheme: 'dark light',
+  viewportFit: 'cover',
+};
+
 export default function RootLayout({ children }: PropsWithChildren) {
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -136,6 +152,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <Footer />
         </div>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
@@ -181,18 +198,18 @@ function Footer() {
           <div className='flex flex-col gap-2 lg:gap-6'>
             <div className='font-semibold text-neutral-100'>Follow us</div>
             <nav className='flex flex-col gap-2 lg:gap-6'>
-              <Link href='#'>
-                <span className='flex items-center gap-2'>
+              <Link href='https://twitter.com/LocRaven' target='_blank' rel='noopener noreferrer'>
+                <span className='flex items-center gap-2 hover:text-blue-400 transition-colors'>
                   <IoLogoTwitter size={22} /> <span>Twitter</span>
                 </span>
               </Link>
-              <Link href='#'>
-                <span className='flex items-center gap-2'>
+              <Link href='https://facebook.com/LocRaven' target='_blank' rel='noopener noreferrer'>
+                <span className='flex items-center gap-2 hover:text-blue-400 transition-colors'>
                   <IoLogoFacebook size={22} /> <span>Facebook</span>
                 </span>
               </Link>
-              <Link href='#'>
-                <span className='flex items-center gap-2'>
+              <Link href='https://instagram.com/LocRaven' target='_blank' rel='noopener noreferrer'>
+                <span className='flex items-center gap-2 hover:text-blue-400 transition-colors'>
                   <IoLogoInstagram size={22} /> <span>Instagram</span>
                 </span>
               </Link>

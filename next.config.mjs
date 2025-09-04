@@ -18,14 +18,14 @@ const nextConfig = withBundleAnalyzer({
   output: 'standalone',
   trailingSlash: false,
   images: {
-    // Enable optimization for production, unoptimized for Cloudflare compatibility
-    unoptimized: process.env.NODE_ENV === 'development' ? false : true,
-    // Responsive image breakpoints
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // Enable optimization for better performance and SEO
+    unoptimized: false,
+    // Responsive image breakpoints optimized for performance
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // Image quality settings
-    qualities: [75, 100],
-    // Allowed image domains (add your image domains here)
+    // Progressive quality settings for better Core Web Vitals
+    qualities: [75, 90],
+    // Allowed image domains
     remotePatterns: [
       {
         protocol: 'https',
@@ -34,10 +34,17 @@ const nextConfig = withBundleAnalyzer({
       {
         protocol: 'https',
         hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'locraven.com',
       }
     ],
-    // Image formats for optimization
-    formats: ['image/webp'],
+    // Modern image formats for better compression
+    formats: ['image/webp', 'image/avif'],
+    // Enable image optimization with priority loading
+    dangerouslyAllowSVG: false,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   // Performance and SEO optimizations
   poweredByHeader: false,
