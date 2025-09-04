@@ -18,8 +18,9 @@ const nextConfig = withBundleAnalyzer({
   output: 'standalone',
   trailingSlash: false,
   images: {
-    // Disable image optimization for compatibility with Cloudflare free plan
-    unoptimized: true,
+    // Enable Cloudflare image optimization via custom loader
+    loader: 'custom',
+    loaderFile: './src/utils/cloudflare-image-loader.js',
     // Allowed image domains
     remotePatterns: [
       {
@@ -64,18 +65,37 @@ const nextConfig = withBundleAnalyzer({
           },
           {
             key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin'
+            value: 'strict-origin-when-cross-origin'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: [
+              'camera=()',
+              'microphone=()',
+              'geolocation=()',
+              'interest-cohort=()',
+              'payment=(self)',
+              'usb=()',
+              'bluetooth=()'
+            ].join(', ')
           },
           {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.google.com *.googleapis.com",
-              "style-src 'self' 'unsafe-inline' *.googleapis.com",
-              "img-src 'self' blob: data: *.googleapis.com *.gstatic.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.google.com *.googleapis.com *.cloudflare.com",
+              "style-src 'self' 'unsafe-inline' *.googleapis.com *.cloudflare.com",
+              "img-src 'self' blob: data: *.googleapis.com *.gstatic.com *.cloudflare.com locraven.com",
               "font-src 'self' *.googleapis.com *.gstatic.com",
-              "connect-src 'self' *.supabase.co *.stripe.com",
-              "frame-src 'self' *.stripe.com"
+              "connect-src 'self' *.supabase.co *.stripe.com *.cloudflare.com",
+              "frame-src 'self' *.stripe.com",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'"
             ].join('; ')
           }
         ],

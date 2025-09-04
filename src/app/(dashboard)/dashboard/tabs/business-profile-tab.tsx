@@ -267,6 +267,7 @@ export function BusinessProfileTab({ initialData }: BusinessProfileTabProps) {
     placeholder?: string;
   }) => {
     const [inputValue, setInputValue] = useState('');
+    const fieldId = label.toLowerCase().replace(/\s+/g, '-');
     
     const handleAdd = () => {
       if (inputValue && !items.includes(inputValue)) {
@@ -284,14 +285,16 @@ export function BusinessProfileTab({ initialData }: BusinessProfileTabProps) {
 
     return (
       <div>
-        <label className='mb-2 block text-sm font-medium text-white'>{label}</label>
+        <label htmlFor={fieldId} className='mb-2 block text-sm font-medium text-white'>{label}</label>
         <div className='space-y-2'>
           <div className='flex gap-2'>
             {options ? (
               <select
+                id={fieldId}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 className='flex-1 rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-white focus:border-zinc-600'
+                aria-label={`Select ${label.toLowerCase()}`}
               >
                 <option value=''>Select {label.toLowerCase()}</option>
                 {options.map((option) => (
@@ -302,11 +305,13 @@ export function BusinessProfileTab({ initialData }: BusinessProfileTabProps) {
               </select>
             ) : (
               <Input
+                id={fieldId}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className='flex-1 bg-zinc-800 border-zinc-700 text-white focus:border-zinc-600'
                 placeholder={placeholder}
+                aria-label={`Add ${label.toLowerCase()}`}
               />
             )}
             <Button 
@@ -314,6 +319,7 @@ export function BusinessProfileTab({ initialData }: BusinessProfileTabProps) {
               onClick={handleAdd} 
               className='px-4'
               disabled={!inputValue || items.includes(inputValue)}
+              aria-label={`Add ${label.toLowerCase()} item`}
             >
               Add
             </Button>

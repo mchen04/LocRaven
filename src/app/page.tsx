@@ -236,10 +236,11 @@ function HeroSection() {
         src='/hero-shape.png'
         width={867}
         height={790}
-        alt=''
+        alt='LocRaven AI-optimized business pages visualization'
         className='absolute right-0 top-0 rounded-tr-lg'
         priority
-        quality={90}
+        quality={75}
+        sizes='(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw'
       />
     </section>
   );

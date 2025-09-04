@@ -129,7 +129,7 @@ export function DiscoveryImpactSection() {
           <h3 className="text-2xl font-bold text-white mb-2 text-center">
             Expected Impact Based on Industry Data
           </h3>
-          <p className="text-center text-zinc-400 mb-8 text-sm">
+          <p className="text-center text-zinc-300 mb-8 text-sm">
             *Results based on industry averages. Individual results vary.
           </p>
           
@@ -213,7 +213,7 @@ export function DiscoveryImpactSection() {
               Sign Up Free
             </button>
             
-            <p className="text-xs text-zinc-500 mt-4">
+            <p className="text-xs text-zinc-300 mt-4">
               No credit card required • Cancel anytime
             </p>
           </div>
@@ -238,7 +238,7 @@ export function DiscoveryImpactSection() {
             <div className="text-xs text-zinc-400">More Clicks</div>
           </div>
         </div>
-        <p className="text-xs text-zinc-500 mt-2">
+        <p className="text-xs text-zinc-300 mt-2">
           Source: Google, BrightLocal, Think with Google 2024
         </p>
       </div>

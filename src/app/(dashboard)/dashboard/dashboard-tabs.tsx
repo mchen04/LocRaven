@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import { BusinessProfile } from '@/features/business/types/business-types';
@@ -7,11 +8,22 @@ import { UserLink } from '@/features/links/types/links-types';
 import { ProductWithPrices } from '@/features/pricing/controllers/get-user-product';
 import { Price, SubscriptionWithProduct } from '@/features/pricing/types';
 
-import { BusinessProfileTab } from './tabs/business-profile-tab';
-import { LinksTab } from './tabs/links-tab';
-import { SettingsTab } from './tabs/settings-tab';
-import { SubscriptionsTab } from './tabs/subscriptions-tab';
-import { UpdatesTab } from './tabs/updates-tab';
+// Dynamic imports for tab components to reduce initial bundle size
+const BusinessProfileTab = dynamic(() => import('./tabs/business-profile-tab').then(mod => ({ default: mod.BusinessProfileTab })), {
+  loading: () => <div className="flex items-center justify-center p-8">Loading...</div>
+});
+const LinksTab = dynamic(() => import('./tabs/links-tab').then(mod => ({ default: mod.LinksTab })), {
+  loading: () => <div className="flex items-center justify-center p-8">Loading...</div>
+});
+const SettingsTab = dynamic(() => import('./tabs/settings-tab').then(mod => ({ default: mod.SettingsTab })), {
+  loading: () => <div className="flex items-center justify-center p-8">Loading...</div>
+});
+const SubscriptionsTab = dynamic(() => import('./tabs/subscriptions-tab').then(mod => ({ default: mod.SubscriptionsTab })), {
+  loading: () => <div className="flex items-center justify-center p-8">Loading...</div>
+});
+const UpdatesTab = dynamic(() => import('./tabs/updates-tab').then(mod => ({ default: mod.UpdatesTab })), {
+  loading: () => <div className="flex items-center justify-center p-8">Loading...</div>
+});
 
 interface DashboardTabsProps {
   subscription: SubscriptionWithProduct | null;

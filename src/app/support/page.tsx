@@ -339,10 +339,11 @@ export default function SupportPage() {
             <h3 className="text-lg font-semibold mb-4 text-white">Support Request</h3>
             <form className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                <label htmlFor="support-email" className="block text-sm font-medium text-neutral-300 mb-2">
                   Email Address
                 </label>
                 <input
+                  id="support-email"
                   type="email"
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
                   placeholder="your@email.com"
@@ -351,10 +352,10 @@ export default function SupportPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                <label htmlFor="support-subject" className="block text-sm font-medium text-neutral-300 mb-2">
                   Subject
                 </label>
-                <select className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
+                <select id="support-subject" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none">
                   <option>General Question</option>
                   <option>Technical Issue</option>
                   <option>Billing Question</option>
@@ -365,10 +366,11 @@ export default function SupportPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                <label htmlFor="support-message" className="block text-sm font-medium text-neutral-300 mb-2">
                   Message
                 </label>
                 <textarea
+                  id="support-message"
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none h-32"
                   placeholder="Please describe your question or issue in detail..."
                   required

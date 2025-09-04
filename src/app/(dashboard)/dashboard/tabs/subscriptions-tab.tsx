@@ -38,7 +38,7 @@ export function SubscriptionsTab({ subscription, usageStats, userProduct, userPr
         ) : (
           <div className='py-8 text-center'>
             <p className='text-zinc-400 mb-4'>You don&apos;t have an active subscription</p>
-            <p className='text-sm text-zinc-500'>
+            <p className='text-sm text-zinc-300'>
               Subscribe to start generating AI-powered business pages and managing your online presence.
             </p>
           </div>
@@ -53,7 +53,7 @@ export function SubscriptionsTab({ subscription, usageStats, userProduct, userPr
                 <div className='text-center'>
                   <div className='text-2xl font-bold text-white'>{usageStats.updatesUsed}</div>
                   <div className='text-sm text-zinc-400'>Updates Used</div>
-                  <div className='text-xs text-zinc-500'>This period</div>
+                  <div className='text-xs text-zinc-300'>This period</div>
                 </div>
                 <div className='text-center'>
                   <div className='text-2xl font-bold text-white'>
@@ -63,7 +63,7 @@ export function SubscriptionsTab({ subscription, usageStats, userProduct, userPr
                     }
                   </div>
                   <div className='text-sm text-zinc-400'>Updates Remaining</div>
-                  <div className='text-xs text-zinc-500'>
+                  <div className='text-xs text-zinc-300'>
                     Resets {new Date(usageStats.periodEnd).toLocaleDateString()}
                   </div>
                 </div>
