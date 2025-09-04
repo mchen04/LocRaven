@@ -57,7 +57,7 @@ export function DiscoveryImpactSection() {
           Your Business May Be Missing 56% of Potential Customers
         </h2>
         <p className="text-xl text-zinc-300 max-w-3xl mx-auto mb-8">
-          Every day, millions of people search for businesses like yours. But if you're not optimized for discovery, you're invisible to more than half of them.
+          Every day, millions of people search for businesses like yours. But if you&apos;re not optimized for discovery, you&apos;re invisible to more than half of them.
         </p>
         
         {/* Problem Stats */}
@@ -77,7 +77,7 @@ export function DiscoveryImpactSection() {
           <div className="bg-purple-950/30 border border-purple-800/30 rounded-lg p-4">
             <MapPin className="w-8 h-8 text-purple-400 mx-auto mb-2" />
             <div className="text-2xl font-bold text-purple-300">5.9M</div>
-            <div className="text-sm text-purple-200">"Near Me" Keywords</div>
+            <div className="text-sm text-purple-200">&ldquo;Near Me&rdquo; Keywords</div>
           </div>
           
           <div className="bg-yellow-950/30 border border-yellow-800/30 rounded-lg p-4">
@@ -111,7 +111,7 @@ export function DiscoveryImpactSection() {
             <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">
               <MapPin className="w-8 h-8 text-purple-400 mb-4" />
               <h4 className="text-lg font-semibold text-white mb-2">Location-Specific</h4>
-              <p className="text-zinc-300">Creates content targeting every search intent: "near me", branded local, service urgent, and competitive.</p>
+              <p className="text-zinc-300">Creates content targeting every search intent: &ldquo;near me&rdquo;, branded local, service urgent, and competitive.</p>
             </div>
             
             <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-6">

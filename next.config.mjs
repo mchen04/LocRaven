@@ -18,9 +18,8 @@ const nextConfig = withBundleAnalyzer({
   output: 'standalone',
   trailingSlash: false,
   images: {
-    // Use Cloudflare image optimization for OpenNext deployment
-    loader: "custom",
-    loaderFile: "./image-loader.ts",
+    // Disable image optimization for compatibility with Cloudflare free plan
+    unoptimized: true,
     // Allowed image domains
     remotePatterns: [
       {
