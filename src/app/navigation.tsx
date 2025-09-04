@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { IoMenu } from 'react-icons/io5';
+import { Menu } from 'lucide-react';
 
 import { AccountMenu } from '@/components/account-menu';
 import { Logo } from '@/components/logo';
@@ -23,7 +23,7 @@ export async function Navigation() {
           </Button>
           <Sheet>
             <SheetTrigger className='block lg:hidden'>
-              <IoMenu size={28} />
+              <Menu size={28} />
             </SheetTrigger>
             <SheetContent className='w-full bg-black'>
               <SheetHeader>
