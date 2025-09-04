@@ -74,7 +74,7 @@ export async function getUserUsageStats(): Promise<UsageStats | null> {
 
     // If no usage record exists, create one
     if (!usageData) {
-      const { data: newUsageData, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('business_usage_tracking')
         .insert({
           business_id: business.id,

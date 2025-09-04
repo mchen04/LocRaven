@@ -227,11 +227,6 @@ export function BusinessProfileTab({ initialData }: BusinessProfileTabProps) {
   };
 
   // Helper functions for array management
-  const addToArray = (arr: string[], setArr: (arr: string[]) => void, value: string) => {
-    if (value && !arr.includes(value)) {
-      setArr([...arr, value]);
-    }
-  };
 
   const removeFromArray = (arr: string[], setArr: (arr: string[]) => void, value: string) => {
     setArr(arr.filter(item => item !== value));

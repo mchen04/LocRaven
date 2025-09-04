@@ -113,7 +113,6 @@ export function LinksTab({ links }: LinksTabProps) {
                     key={link.id}
                     link={link}
                     onCopy={handleCopyLink}
-                    onEdit={handleEditLink}
                     onDelete={handleDeleteLink}
                     isDeletingIds={isDeletingIds}
                   />
@@ -150,7 +149,6 @@ export function LinksTab({ links }: LinksTabProps) {
                     key={link.id}
                     link={link}
                     onCopy={handleCopyLink}
-                    onEdit={handleEditLink}
                     onDelete={handleDeleteLink}
                     isDeletingIds={isDeletingIds}
                   />
@@ -182,13 +180,11 @@ export function LinksTab({ links }: LinksTabProps) {
 function LinkItem({
   link,
   onCopy,
-  onEdit,
   onDelete,
   isDeletingIds,
 }: {
   link: UserLink;
   onCopy: (url: string) => void;
-  onEdit: (linkId: string) => void;
   onDelete: (linkId: string) => void;
   isDeletingIds: string[];
 }) {

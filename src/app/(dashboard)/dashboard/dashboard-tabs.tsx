@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import { BusinessProfile } from '@/features/business/types/business-types';

@@ -56,11 +56,11 @@ export async function upsertUserSubscription({
   // For a new subscription copy the billing details to the customer object.
   // NOTE: This is a costly operation and should happen at the very end.
   if (isCreateAction && subscription.default_payment_method && userId) {
-    await copyBillingDetailsToCustomer(userId, subscription.default_payment_method as Stripe.PaymentMethod);
+    await copyBillingDetailsToCustomer(subscription.default_payment_method as Stripe.PaymentMethod);
   }
 }
 
-const copyBillingDetailsToCustomer = async (userId: string, paymentMethod: Stripe.PaymentMethod) => {
+const copyBillingDetailsToCustomer = async (paymentMethod: Stripe.PaymentMethod) => {
   const customer = paymentMethod.customer;
   if (typeof customer !== 'string') {
     throw new Error('Customer id not found');
