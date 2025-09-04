@@ -18,10 +18,7 @@ const nextConfig = withBundleAnalyzer({
   output: 'standalone',
   trailingSlash: false,
   images: {
-    // Enable Cloudflare image optimization via custom loader
-    loader: 'custom',
-    loaderFile: './src/utils/cloudflare-image-loader.js',
-    // Allowed image domains
+    // Use Next.js built-in image optimization
     remotePatterns: [
       {
         protocol: 'https',
