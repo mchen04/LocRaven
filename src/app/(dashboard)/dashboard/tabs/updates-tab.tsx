@@ -491,24 +491,24 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
                     )}
                   </div>
                   <div className='flex gap-2'>
-                    {page.previewUrl && (
-                      <Button size='sm' variant='secondary' asChild>
-                        <a href={page.previewUrl} target='_blank' rel='noopener noreferrer'>
-                          Preview
-                        </a>
-                      </Button>
-                    )}
                     {!page.published ? (
-                      <Button
-                        size='sm'
-                        onClick={() => handlePublishPage(page)}
-                        disabled={isPublishing.includes(page.id)}
-                      >
-                        {isPublishing.includes(page.id) ? 'Publishing...' : 'Publish'}
-                      </Button>
+                      <>
+                        <Button size='sm' variant='secondary' asChild>
+                          <a href={`https://pub-31a9302263d148d4b7988d574b3c2488.r2.dev${page.file_path}/index.html`} target='_blank' rel='noopener noreferrer'>
+                            Preview
+                          </a>
+                        </Button>
+                        <Button
+                          size='sm'
+                          onClick={() => handlePublishPage(page)}
+                          disabled={isPublishing.includes(page.id)}
+                        >
+                          {isPublishing.includes(page.id) ? 'Publishing...' : 'Publish'}
+                        </Button>
+                      </>
                     ) : (
                       <Button size='sm' variant='outline' asChild>
-                        <a href={page.file_path} target='_blank' rel='noopener noreferrer'>
+                        <a href={`https://locraven.com${page.file_path}`} target='_blank' rel='noopener noreferrer'>
                           View Live
                         </a>
                       </Button>

@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "main": ".open-next/worker.js",
+  "main": "./custom-worker.ts",
   "name": "locraven",
   "compatibility_date": "2024-12-30",
   "compatibility_flags": [
@@ -14,6 +14,10 @@
     {
       "binding": "NEXT_INC_CACHE_R2_BUCKET",
       "bucket_name": "locraven-next-cache"
+    },
+    {
+      "binding": "LOCRAVEN_PAGES_BUCKET",
+      "bucket_name": "locraven-pages"
     }
   ],
   "durable_objects": {

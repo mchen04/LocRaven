@@ -62,7 +62,10 @@ export function DashboardTabs({ subscription, businessProfile, usageStats, userP
         </div>
 
         <TabsContent value='updates' className='mt-6'>
-          <UpdatesTab />
+          <UpdatesTab 
+            initialBusinessProfile={businessProfile} 
+            initialUsageStats={usageStats}
+          />
         </TabsContent>
 
         <TabsContent value='profile' className='mt-6'>
