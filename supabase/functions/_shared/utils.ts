@@ -445,11 +445,19 @@ export async function generateAIOptimizedContent(
 // Build intent-specific prompts for AI optimization
 function buildPromptForIntent(business: any, updateData: any, intentType: string): string {
   const baseContext = `
-Business: ${business.name}
-Category: ${business.primary_category}
-Location: ${business.address_city}, ${business.address_state}
-Services: ${business.services?.join(', ') || 'General business services'}
-Specialties: ${business.specialties?.join(', ') || 'Contact for details'}
+CRITICAL INSTRUCTIONS - READ CAREFULLY:
+- Use ONLY the information provided below. Do NOT add any facts not explicitly stated.
+- Do NOT claim rankings (#1, best, top-rated, leading) unless provided in business data
+- Do NOT mention services, locations, or features not listed
+- Do NOT add awards, certifications, or years of experience not provided
+- If information is missing, omit it rather than guessing
+
+AVAILABLE DATA (use ONLY this information):
+Business Name: ${business.name}
+Business Category: ${business.primary_category}
+Location: ${business.address_city}, ${business.address_state} (DO NOT mention other cities)
+Services Offered: ${business.services?.length ? business.services.join(', ') : 'Services available - contact for details'}
+Specialties: ${business.specialties?.length ? business.specialties.join(', ') : 'Contact for specialties'}
 Service Area: ${business.service_area || `${business.address_city} area`}
 Update: ${updateData.content_text}
 ${updateData.expires_at ? `Valid Until: ${new Date(updateData.expires_at).toLocaleDateString()}` : ''}
@@ -466,7 +474,10 @@ Requirements:
 - Title: 50-150 characters, include business name + key benefit + location
 - Description: 150-300 characters, focus on specific offer/update with clear call-to-action
 - Slug: 30-60 characters, business name + main offer, optimized for "[business name] deals" searches
-- Emphasize: Business credibility, specific offer details, direct contact encouragement
+- MUST start title/description with: "Based on provided data:" (remove this phrase from final output)
+- ONLY use services and information explicitly listed above
+- DO NOT add superlatives, rankings, or unverified claims
+- Emphasize: Business credibility using ONLY provided data, specific offer details, direct contact encouragement
 - Target queries: "[business name] deals", "[business name] specials", "[business name] [location]"
 
 Slug examples: "marios-bistro-winter-menu-special", "joe-plumbing-emergency-service-24-7"
@@ -484,8 +495,11 @@ Requirements:
 - Title: 50-150 characters, emphasize location + service category + current availability
 - Description: 150-300 characters, position within local market context, mention area coverage
 - Slug: 30-60 characters, service type + "near me" + location, optimized for local discovery
-- Emphasize: Geographic relevance, local presence, area served, "near me" optimization
-- Target queries: "[service] near me", "[category] in [city]", "best [service] [location]"
+- MUST start title/description with: "Based on provided data:" (remove this phrase from final output)
+- ONLY use services and information explicitly listed above
+- DO NOT add superlatives, rankings, or unverified claims like "best" or "top"
+- Emphasize: Geographic relevance using ONLY provided location data, local presence, area served, "near me" optimization
+- Target queries: "[service] near me", "[category] in [city]", "[service] [location]"
 
 Slug examples: "italian-restaurants-near-me-seattle", "plumber-near-me-san-francisco-open-now"
 
@@ -501,11 +515,14 @@ Create CATEGORY/SERVICE intent optimization for users researching this type of s
 Requirements:
 - Title: 50-150 characters, emphasize service expertise + benefit + broader market appeal
 - Description: 150-300 characters, highlight professional capabilities, specializations, value proposition
-- Slug: 30-60 characters, "best" + service category + location + specialty/benefit
-- Emphasize: Industry expertise, service quality, unique specializations, professional benefits
-- Target queries: "[service type] companies", "professional [service]", "[specialty] experts"
+- Slug: 30-60 characters, service category + location + specialty/benefit (avoid superlatives unless in data)
+- MUST start title/description with: "Based on provided data:" (remove this phrase from final output)
+- ONLY use services and specializations explicitly listed above
+- DO NOT add superlatives like "best" unless explicitly stated in business data
+- Emphasize: Industry expertise using ONLY provided specialties, service quality, professional benefits
+- Target queries: "[service type] companies", "professional [service]", "[specialty] services"
 
-Slug examples: "best-web-development-dublin-ai-optimization", "professional-plumbing-services-emergency"
+Slug examples: "web-development-dublin-ai-optimization", "professional-plumbing-services-emergency"
 
 Format response as JSON:
 {"title": "...", "description": "...", "slug": "..."}`,
@@ -520,7 +537,10 @@ Requirements:
 - Title: 50-150 characters, combine business name + location + current offer/service
 - Description: 150-300 characters, emphasize local reputation and specific current availability
 - Slug: 30-60 characters, business name + city + action word optimized for "[business] in [city]"
-- Emphasize: Brand recognition in local market, geographic proximity, current offers
+- MUST start title/description with: "Based on provided data:" (remove this phrase from final output)
+- ONLY use services and information explicitly listed above
+- DO NOT add local reputation claims unless explicitly stated in business data
+- Emphasize: Brand presence using ONLY provided data, geographic proximity, current offers
 - Target queries: "[business name] [city]", "[business name] near me", "[business name] in [location]"
 
 Slug examples: "marios-bistro-seattle-book-table-now", "joe-plumbing-denver-call-today"
@@ -538,7 +558,10 @@ Requirements:
 - Title: 50-150 characters, emphasize immediate availability + service type + quick response
 - Description: 150-300 characters, highlight fast response time, immediate availability, urgent service capabilities
 - Slug: 30-60 characters, service + "available now" + location, optimized for emergency searches
-- Emphasize: Speed, availability, immediate response, emergency/urgent service capability
+- MUST start title/description with: "Based on provided data:" (remove this phrase from final output)
+- ONLY use services and availability information explicitly listed above
+- DO NOT add response time claims unless explicitly stated in business data
+- Emphasize: Speed, availability, immediate response ONLY if supported by provided data
 - Target queries: "emergency [service]", "urgent [service] needed", "immediate [service] available"
 
 Slug examples: "plumber-available-now-chicago-24-7", "electrician-emergency-service-miami"
@@ -552,14 +575,21 @@ ${baseContext}
 
 Create COMPETITIVE intent optimization for users comparing service providers:
 
-Requirements:
-- Title: 50-150 characters, position as top choice + competitive advantages + market leadership
-- Description: 150-300 characters, highlight unique value propositions, competitive advantages, market differentiation
-- Slug: 30-60 characters, "top rated" + service + location + year, optimized for "best in area" searches
-- Emphasize: Quality leadership, competitive pricing, superior service, market-leading expertise
-- Target queries: "best [service] in [area]", "top [service] provider", "[service] reviews and ratings"
+ANTI-HALLUCINATION REQUIREMENTS:
+- MUST start title/description with: 'Based on provided data:'
+- DO NOT add superlatives, rankings, or unverified claims (no "best", "top", "#1", "leading")
+- ONLY mention services, specialties, and features explicitly listed in business data
+- DO NOT invent competitive advantages not provided in business data
+- Use factual language: "offers [service]" not "provides superior [service]"
 
-Slug examples: "top-rated-web-design-bay-area-2025", "best-plumbing-service-chicago-reviews"
+Requirements:
+- Title: 50-150 characters, factual positioning using actual business services and location
+- Description: 150-300 characters, highlight verifiable services, specialties, and business details from provided data
+- Slug: 30-60 characters, service + location + year, optimized for comparison searches
+- Emphasize: Actual services offered, verified business information, factual location details
+- Target queries: "[service] in [area]", "[service] provider", "[business name] services"
+
+Slug examples: "web-design-bay-area-2025", "plumbing-service-chicago"
 
 Format response as JSON:
 {"title": "...", "description": "...", "slug": "..."}`
@@ -591,7 +621,7 @@ async function callGeminiAPI(prompt: string): Promise<{title: string, descriptio
         }]
       }],
       generationConfig: {
-        temperature: 0.7,
+        temperature: 0.4,
         topK: 40,
         topP: 0.95,
         maxOutputTokens: 1024,
