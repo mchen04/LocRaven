@@ -167,6 +167,171 @@ export function generateSemanticSlug(content: string): string {
   return slugify(words.join(' '));
 }
 
+// Extract semantic keywords from update content for AI optimization
+function extractSemanticKeywords(content: string, business: any): string[] {
+  const keywords: string[] = [];
+  const lowerContent = content.toLowerCase();
+  
+  // Deal/offer keywords
+  if (/sale|deal|offer|discount|% off|special|promo/i.test(content)) {
+    const percentMatch = content.match(/(\d+)%\s*(off|discount)/i);
+    if (percentMatch) {
+      keywords.push(`${percentMatch[1]}-percent-off`);
+    }
+    keywords.push('special-deals', 'limited-offer');
+  }
+  
+  // Service-specific keywords
+  if (business.services?.length > 0) {
+    const service = business.services[0].toLowerCase();
+    if (service.includes('website') || service.includes('web')) {
+      keywords.push('website-services', 'web-development');
+    }
+    if (service.includes('ai')) {
+      keywords.push('ai-services', 'ai-optimization');
+    }
+  }
+  
+  // Temporal keywords
+  if (/today|tonight|now|immediate|urgent|24.?7/i.test(content)) {
+    keywords.push('available-now', 'immediate-service');
+  }
+  
+  if (/holiday|winter|summer|spring|fall|seasonal/i.test(content)) {
+    const season = content.match(/(holiday|winter|summer|spring|fall|seasonal)/i);
+    if (season) {
+      keywords.push(`${season[1].toLowerCase()}-special`);
+    }
+  }
+  
+  // Menu/product keywords
+  if (/menu|new items|launching|introducing/i.test(content)) {
+    keywords.push('new-offerings', 'menu-update');
+  }
+  
+  return keywords;
+}
+
+// Add intent-specific patterns for AI search optimization
+function addIntentSpecificPatterns(
+  keywords: string[], 
+  intentType: string, 
+  business: any
+): string[] {
+  const patterns: string[] = [...keywords];
+  const city = slugify(business.address_city || 'local');
+  const category = business.primary_category;
+  
+  switch (intentType) {
+    case 'direct':
+      patterns.push('book-now', 'contact-today');
+      break;
+      
+    case 'local':
+      patterns.push('near-me', `${city}-area`, 'local-business');
+      if (/open|available|serving/i.test(keywords.join(' '))) {
+        patterns.push('open-now');
+      }
+      break;
+      
+    case 'category':
+      patterns.push(`best-${category}`, 'professional-services');
+      if (category === 'professional-services') {
+        patterns.push('expert-solutions');
+      }
+      break;
+      
+    case 'branded-local':
+      patterns.push(`${city}-location`, 'get-started');
+      break;
+      
+    case 'service-urgent':
+      patterns.push('emergency-service', 'urgent-help', 'available-24-7');
+      break;
+      
+    case 'competitive':
+      patterns.push('top-rated', 'best-choice', '2025');
+      break;
+  }
+  
+  return patterns;
+}
+
+// Generate AI-optimized slug from content and intent
+export function generateAIOptimizedSlug(
+  content: string, 
+  intentType: string, 
+  business: any,
+  aiSlug?: string
+): string {
+  // Use AI-generated slug if available and valid
+  if (aiSlug && aiSlug.length > 5 && aiSlug.length <= 60) {
+    return slugify(aiSlug);
+  }
+  
+  // Extract semantic keywords
+  const semanticKeywords = extractSemanticKeywords(content, business);
+  
+  // Add intent-specific patterns
+  const allKeywords = addIntentSpecificPatterns(semanticKeywords, intentType, business);
+  
+  // Build slug based on intent type
+  let slug = '';
+  
+  switch (intentType) {
+    case 'direct':
+      // Business-focused slug
+      const businessSlug = slugify(business.name);
+      const mainKeyword = allKeywords.find(k => k.includes('percent-off') || k.includes('special')) || 'current-offer';
+      slug = `${businessSlug}-${mainKeyword}`;
+      break;
+      
+    case 'local':
+      // Location-focused slug
+      const serviceType = business.primary_category.replace('-', '-');
+      const locationKeyword = allKeywords.find(k => k.includes('near-me') || k.includes('area')) || 'near-me';
+      slug = `${serviceType}-${locationKeyword}`;
+      break;
+      
+    case 'category':
+      // Category-focused slug
+      const categoryKeyword = allKeywords.find(k => k.includes('best-') || k.includes('professional')) || `best-${business.primary_category}`;
+      const specialtyKeyword = allKeywords.find(k => k.includes('special') || k.includes('deals')) || 'services';
+      slug = `${categoryKeyword}-${specialtyKeyword}`;
+      break;
+      
+    case 'branded-local':
+      // Brand + location slug
+      const brandSlug = slugify(business.name);
+      const citySlug = slugify(business.address_city);
+      const actionKeyword = allKeywords.find(k => k.includes('get-started') || k.includes('book')) || 'contact-now';
+      slug = `${brandSlug}-${citySlug}-${actionKeyword}`;
+      break;
+      
+    case 'service-urgent':
+      // Urgency-focused slug
+      const urgentKeyword = allKeywords.find(k => k.includes('urgent') || k.includes('emergency') || k.includes('available-now')) || 'help-available-now';
+      const cityName = slugify(business.address_city);
+      slug = `${business.primary_category}-${urgentKeyword}-${cityName}`;
+      break;
+      
+    case 'competitive':
+      // Competition-focused slug
+      const competitiveKeyword = allKeywords.find(k => k.includes('top-rated') || k.includes('best')) || 'top-rated';
+      const serviceSlug = business.primary_category.replace('-', '-');
+      slug = `${competitiveKeyword}-${serviceSlug}-${slugify(business.address_city)}-2025`;
+      break;
+      
+    default:
+      // Fallback to enhanced semantic slug
+      const topKeywords = allKeywords.slice(0, 3);
+      slug = topKeywords.length > 0 ? topKeywords.join('-') : generateSemanticSlug(content);
+  }
+  
+  // Ensure reasonable length and format
+  return slugify(slug).substring(0, 80);
+}
+
 // Dynamic tag detection from update content
 export function detectDynamicTags(updateText: string): string[] {
   const tags = ['updated-today'];
@@ -261,7 +426,7 @@ export async function generateAIOptimizedContent(
   updateData: any,
   intentType: 'direct' | 'local' | 'category',
   aiProvider: string = 'gemini'
-): Promise<{title: string, description: string}> {
+): Promise<{title: string, description: string, slug?: string}> {
   try {
     const prompt = buildPromptForIntent(business, updateData, intentType);
     
@@ -300,11 +465,14 @@ Create DIRECT/BRAND intent optimization for users searching specifically for thi
 Requirements:
 - Title: 50-150 characters, include business name + key benefit + location
 - Description: 150-300 characters, focus on specific offer/update with clear call-to-action
+- Slug: 30-60 characters, business name + main offer, optimized for "[business name] deals" searches
 - Emphasize: Business credibility, specific offer details, direct contact encouragement
 - Target queries: "[business name] deals", "[business name] specials", "[business name] [location]"
 
+Slug examples: "marios-bistro-winter-menu-special", "joe-plumbing-emergency-service-24-7"
+
 Format response as JSON:
-{"title": "...", "description": "..."}`,
+{"title": "...", "description": "...", "slug": "..."}`,
 
     local: `You are a local SEO expert optimizing content for AI search engines like ChatGPT, Perplexity, and Claude.
 
@@ -315,11 +483,14 @@ Create LOCAL/DISCOVERY intent optimization for users searching for services near
 Requirements:
 - Title: 50-150 characters, emphasize location + service category + current availability
 - Description: 150-300 characters, position within local market context, mention area coverage
+- Slug: 30-60 characters, service type + "near me" + location, optimized for local discovery
 - Emphasize: Geographic relevance, local presence, area served, "near me" optimization
 - Target queries: "[service] near me", "[category] in [city]", "best [service] [location]"
 
+Slug examples: "italian-restaurants-near-me-seattle", "plumber-near-me-san-francisco-open-now"
+
 Format response as JSON:
-{"title": "...", "description": "..."}`,
+{"title": "...", "description": "...", "slug": "..."}`,
 
     category: `You are a local SEO expert optimizing content for AI search engines like ChatGPT, Perplexity, and Claude.
 
@@ -330,11 +501,14 @@ Create CATEGORY/SERVICE intent optimization for users researching this type of s
 Requirements:
 - Title: 50-150 characters, emphasize service expertise + benefit + broader market appeal
 - Description: 150-300 characters, highlight professional capabilities, specializations, value proposition
+- Slug: 30-60 characters, "best" + service category + location + specialty/benefit
 - Emphasize: Industry expertise, service quality, unique specializations, professional benefits
 - Target queries: "[service type] companies", "professional [service]", "[specialty] experts"
 
+Slug examples: "best-web-development-dublin-ai-optimization", "professional-plumbing-services-emergency"
+
 Format response as JSON:
-{"title": "...", "description": "..."}`,
+{"title": "...", "description": "...", "slug": "..."}`,
 
     'branded-local': `You are a local SEO expert optimizing content for AI search engines like ChatGPT, Perplexity, and Claude.
 
@@ -345,11 +519,14 @@ Create BRANDED-LOCAL intent optimization for users searching for this specific b
 Requirements:
 - Title: 50-150 characters, combine business name + location + current offer/service
 - Description: 150-300 characters, emphasize local reputation and specific current availability
+- Slug: 30-60 characters, business name + city + action word optimized for "[business] in [city]"
 - Emphasize: Brand recognition in local market, geographic proximity, current offers
 - Target queries: "[business name] [city]", "[business name] near me", "[business name] in [location]"
 
+Slug examples: "marios-bistro-seattle-book-table-now", "joe-plumbing-denver-call-today"
+
 Format response as JSON:
-{"title": "...", "description": "..."}`,
+{"title": "...", "description": "...", "slug": "..."}`,
 
     'service-urgent': `You are a local SEO expert optimizing content for AI search engines like ChatGPT, Perplexity, and Claude.
 
@@ -360,11 +537,14 @@ Create SERVICE-URGENT intent optimization for users needing immediate service av
 Requirements:
 - Title: 50-150 characters, emphasize immediate availability + service type + quick response
 - Description: 150-300 characters, highlight fast response time, immediate availability, urgent service capabilities
+- Slug: 30-60 characters, service + "available now" + location, optimized for emergency searches
 - Emphasize: Speed, availability, immediate response, emergency/urgent service capability
 - Target queries: "emergency [service]", "urgent [service] needed", "immediate [service] available"
 
+Slug examples: "plumber-available-now-chicago-24-7", "electrician-emergency-service-miami"
+
 Format response as JSON:
-{"title": "...", "description": "..."}`,
+{"title": "...", "description": "...", "slug": "..."}`,
 
     'competitive': `You are a local SEO expert optimizing content for AI search engines like ChatGPT, Perplexity, and Claude.
 
@@ -375,18 +555,21 @@ Create COMPETITIVE intent optimization for users comparing service providers:
 Requirements:
 - Title: 50-150 characters, position as top choice + competitive advantages + market leadership
 - Description: 150-300 characters, highlight unique value propositions, competitive advantages, market differentiation
+- Slug: 30-60 characters, "top rated" + service + location + year, optimized for "best in area" searches
 - Emphasize: Quality leadership, competitive pricing, superior service, market-leading expertise
 - Target queries: "best [service] in [area]", "top [service] provider", "[service] reviews and ratings"
 
+Slug examples: "top-rated-web-design-bay-area-2025", "best-plumbing-service-chicago-reviews"
+
 Format response as JSON:
-{"title": "...", "description": "..."}`
+{"title": "...", "description": "...", "slug": "..."}`
   };
 
   return prompts[intentType];
 }
 
 // Call Gemini API for content generation
-async function callGeminiAPI(prompt: string): Promise<{title: string, description: string}> {
+async function callGeminiAPI(prompt: string): Promise<{title: string, description: string, slug?: string}> {
   const apiKey = Deno.env.get('GEMINI_API_KEY');
   console.log('Gemini API Key available:', apiKey ? 'YES' : 'NO', 'Length:', apiKey?.length || 0);
   
@@ -439,22 +622,25 @@ async function callGeminiAPI(prompt: string): Promise<{title: string, descriptio
     const parsedContent = JSON.parse(generatedText);
     return {
       title: parsedContent.title || 'Business Update',
-      description: parsedContent.description || 'Contact for details'
+      description: parsedContent.description || 'Contact for details',
+      slug: parsedContent.slug || null
     };
   } catch (parseError) {
-    // If JSON parsing fails, extract title and description manually
+    // If JSON parsing fails, extract title, description, and slug manually
     const titleMatch = generatedText.match(/"title":\s*"([^"]+)"/);
     const descMatch = generatedText.match(/"description":\s*"([^"]+)"/);
+    const slugMatch = generatedText.match(/"slug":\s*"([^"]+)"/);
     
     return {
       title: titleMatch?.[1] || 'Business Update',
-      description: descMatch?.[1] || 'Contact for details'
+      description: descMatch?.[1] || 'Contact for details',
+      slug: slugMatch?.[1] || null
     };
   }
 }
 
 // Fallback content generation when AI fails
-function generateFallbackContent(business: any, updateData: any, intentType: string): {title: string, description: string} {
+function generateFallbackContent(business: any, updateData: any, intentType: string): {title: string, description: string, slug?: string} {
   const location = `${business.address_city}, ${business.address_state}`;
   const category = getCategoryDisplay(business.primary_category);
   
@@ -490,69 +676,70 @@ export function generateIntentBasedURL(
   business: any, 
   updateData: any, 
   intentType: 'direct' | 'local' | 'category' | 'branded-local' | 'service-urgent' | 'competitive',
-  updateId?: string
+  updateId?: string,
+  aiSlug?: string
 ): { filePath: string, slug: string, pageVariant: string } {
   const countryCode = (business.country || 'us').toLowerCase();
   const stateCode = (business.address_state || 'ca').toLowerCase();
   const citySlug = slugify(business.address_city || 'city');
   const businessSlug = slugify(business.name);
-  const updateSlug = generateSemanticSlug(updateData.content_text);
   
-  // Add unique identifier to prevent slug collisions
-  const uniqueId = updateId ? updateId.substring(0, 8) : Date.now().toString().substring(-6);
+  // Use AI-generated slug or fallback to semantic/optimized slug generation
+  let optimizedSlug: string;
+  if (aiSlug && aiSlug.length > 5 && aiSlug.length <= 80) {
+    optimizedSlug = slugify(aiSlug);
+  } else {
+    optimizedSlug = generateAIOptimizedSlug(updateData.content_text, intentType, business);
+  }
   
+  // No timestamp needed - trust that semantic slugs are naturally unique
   switch (intentType) {
     case 'direct':
       return {
-        filePath: `/${countryCode}/${stateCode}/${citySlug}/${businessSlug}/${updateSlug}-${uniqueId}`,
-        slug: `${businessSlug}-${updateSlug}-${uniqueId}`,
+        filePath: `/${countryCode}/${stateCode}/${citySlug}/${businessSlug}/${optimizedSlug}`,
+        slug: optimizedSlug,
         pageVariant: 'direct-business-update'
       };
     
     case 'local':
-      const localSlug = `current-specials-${updateSlug}-${uniqueId}`;
       return {
-        filePath: `/${countryCode}/${stateCode}/${citySlug}/${business.primary_category}/${localSlug}`,
-        slug: `${business.primary_category}-${citySlug}-${localSlug}`,
+        filePath: `/${countryCode}/${stateCode}/${citySlug}/${business.primary_category}/${optimizedSlug}`,
+        slug: optimizedSlug,
         pageVariant: 'local-discovery-specials'
       };
     
     case 'category':
-      const categorySlug = generateCategoryVariantSlug(updateData.content_text, business);
       return {
-        filePath: `/${countryCode}/${stateCode}/${citySlug}/${business.primary_category}/${categorySlug}-${uniqueId}`,
-        slug: `${business.primary_category}-${citySlug}-${categorySlug}-${uniqueId}`,
+        filePath: `/${countryCode}/${stateCode}/${citySlug}/${business.primary_category}/${optimizedSlug}`,
+        slug: optimizedSlug,
         pageVariant: 'category-service-focus'
       };
     
     case 'branded-local':
-      const brandedLocalSlug = `${businessSlug}-${citySlug}-${updateSlug}`;
       return {
-        filePath: `/${countryCode}/${stateCode}/${citySlug}/${businessSlug}/local-${updateSlug}-${uniqueId}`,
-        slug: `${brandedLocalSlug}-local-${uniqueId}`,
+        filePath: `/${countryCode}/${stateCode}/${citySlug}/${businessSlug}/${optimizedSlug}`,
+        slug: optimizedSlug,
         pageVariant: 'branded-local-presence'
       };
     
     case 'service-urgent':
-      const urgentSlug = `urgent-${updateSlug}-available`;
       return {
-        filePath: `/${countryCode}/${stateCode}/${citySlug}/${business.primary_category}/urgent-${updateSlug}-${uniqueId}`,
-        slug: `${business.primary_category}-urgent-${citySlug}-${uniqueId}`,
+        filePath: `/${countryCode}/${stateCode}/${citySlug}/${business.primary_category}/${optimizedSlug}`,
+        slug: optimizedSlug,
         pageVariant: 'service-urgent-availability'
       };
     
     case 'competitive':
-      const competitiveSlug = `top-${business.primary_category}-${updateSlug}`;
       return {
-        filePath: `/${countryCode}/${stateCode}/${citySlug}/${business.primary_category}/top-${updateSlug}-${uniqueId}`,
-        slug: `top-${business.primary_category}-${citySlug}-${uniqueId}`,
+        filePath: `/${countryCode}/${stateCode}/${citySlug}/${business.primary_category}/${optimizedSlug}`,
+        slug: optimizedSlug,
         pageVariant: 'competitive-market-leader'
       };
     
     default:
       return {
-        filePath: `/${countryCode}/${stateCode}/${citySlug}/${businessSlug}/${updateSlug}-${uniqueId}`,
-        slug: `${businessSlug}-${updateSlug}-${uniqueId}`,
+        filePath: `/${countryCode}/${stateCode}/${citySlug}/${businessSlug}/${optimizedSlug}`,
+        slug: optimizedSlug,
         pageVariant: 'default-update'
       };
   }

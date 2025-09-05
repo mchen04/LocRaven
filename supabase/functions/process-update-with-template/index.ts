@@ -85,7 +85,7 @@ serve(async (req) => {
         console.log(`Generating ${intentType} content for business: ${business.name}`);
         
         // Generate AI-optimized content for this intent
-        const { title, description } = await generateAIOptimizedContent(
+        const { title, description, slug: aiSlug } = await generateAIOptimizedContent(
           business, 
           {
             content_text: contentText,
@@ -96,14 +96,19 @@ serve(async (req) => {
           aiProvider
         );
         
-        console.log(`Successfully generated ${intentType} content:`, { title: title.substring(0, 50), description: description.substring(0, 50) });
+        console.log(`Successfully generated ${intentType} content:`, { 
+          title: title.substring(0, 50), 
+          description: description.substring(0, 50),
+          aiSlug: aiSlug?.substring(0, 30) || 'none'
+        });
         
-        // Generate intent-specific URL structure
+        // Generate intent-specific URL structure using AI-generated slug
         const { filePath, slug, pageVariant } = generateIntentBasedURL(
           business,
           { content_text: contentText },
           intentType,
-          updateId
+          updateId,
+          aiSlug
         );
         
         // Create page data for template system
@@ -145,12 +150,13 @@ serve(async (req) => {
       } catch (error) {
         console.error(`Error generating ${intentType} page:`, error);
         
-        // Fallback: generate basic page if AI fails
+        // Fallback: generate basic page if AI fails (no AI slug available)
         const { filePath, slug, pageVariant } = generateIntentBasedURL(
           business,
           { content_text: contentText },
           intentType,
-          updateId
+          updateId,
+          undefined // No AI slug in fallback case
         );
         
         const fallbackTitle = `${business.name} - Update - ${business.address_city}, ${business.address_state}`;
