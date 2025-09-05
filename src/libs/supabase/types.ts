@@ -74,12 +74,17 @@ export type Database = {
           featured_items: Json | null
           hours: string | null
           id: string
+          is_onboarded: boolean | null
           languages_spoken: string[] | null
           latitude: number | null
           longitude: number | null
           name: string | null
+          onboarded_at: string | null
           parking_info: string | null
           payment_methods: string[] | null
+          permanent_page_generated: boolean | null
+          permanent_page_path: string | null
+          permanent_page_slug: string | null
           phone: string | null
           phone_country_code: string | null
           price_positioning: string | null
@@ -118,12 +123,17 @@ export type Database = {
           featured_items?: Json | null
           hours?: string | null
           id?: string
+          is_onboarded?: boolean | null
           languages_spoken?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name?: string | null
+          onboarded_at?: string | null
           parking_info?: string | null
           payment_methods?: string[] | null
+          permanent_page_generated?: boolean | null
+          permanent_page_path?: string | null
+          permanent_page_slug?: string | null
           phone?: string | null
           phone_country_code?: string | null
           price_positioning?: string | null
@@ -162,12 +172,17 @@ export type Database = {
           featured_items?: Json | null
           hours?: string | null
           id?: string
+          is_onboarded?: boolean | null
           languages_spoken?: string[] | null
           latitude?: number | null
           longitude?: number | null
           name?: string | null
+          onboarded_at?: string | null
           parking_info?: string | null
           payment_methods?: string[] | null
+          permanent_page_generated?: boolean | null
+          permanent_page_path?: string | null
+          permanent_page_slug?: string | null
           phone?: string | null
           phone_country_code?: string | null
           price_positioning?: string | null
@@ -546,6 +561,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      webhook_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          object_id: string
+          processed_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id: string
+          object_id: string
+          processed_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          object_id?: string
+          processed_at?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

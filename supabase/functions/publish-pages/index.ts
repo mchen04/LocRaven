@@ -12,7 +12,8 @@ import {
   renderCategoryTemplate,
   renderBrandedLocalTemplate,
   renderServiceUrgentTemplate,
-  renderCompetitiveTemplate
+  renderCompetitiveTemplate,
+  renderBusinessTemplate
 } from '../_shared/templates/intent-templates.ts'
 
 // AI-optimized template renderer using our new templates
@@ -33,6 +34,8 @@ function renderTemplate(templateId: string, pageData: any): string {
         return renderServiceUrgentTemplate(pageData);
       case 'competitive':
         return renderCompetitiveTemplate(pageData);
+      case 'business':
+        return renderBusinessTemplate(pageData);
       default:
         console.warn(`Unknown template ID: ${templateId}, falling back to direct template`);
         return renderDirectTemplate(pageData);

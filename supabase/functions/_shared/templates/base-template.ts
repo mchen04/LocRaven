@@ -338,6 +338,26 @@ export function renderSpeakableContent(data: PageData): string {
 }
 
 // Generate AI context block for LLM parsing
+// Render business page link if available
+export function renderBusinessPageLink(data: PageData): string {
+  if (!data.business.permanent_page_path) {
+    return '';
+  }
+  
+  const businessPageUrl = `https://locraven.com${data.business.permanent_page_path}`;
+  
+  return `
+    <div class="business-profile-link">
+      <p>
+        <strong>📍 Visit our complete business profile:</strong>
+        <a href="${businessPageUrl}" target="_blank" rel="noopener" class="business-page-cta">
+          ${data.business.name} - Full Profile & Information
+        </a>
+      </p>
+    </div>
+  `;
+}
+
 export function renderAIContextBlock(data: PageData): string {
   const bullets = generateInSummaryBullets(data);
   const keywords = [
