@@ -42,20 +42,20 @@ export function DashboardTabs({ subscription, businessProfile, usageStats, userP
     <div className='mx-auto max-w-6xl'>
       <Tabs defaultValue='updates' className='space-y-6'>
         <div className='flex justify-center'>
-          <TabsList className='grid w-full max-w-2xl grid-cols-5 bg-zinc-900'>
-            <TabsTrigger value='updates' className='text-sm'>
+          <TabsList className='flex w-full max-w-2xl overflow-x-auto bg-zinc-900 md:justify-center scrollbar-hide'>
+            <TabsTrigger value='updates' className='text-sm whitespace-nowrap flex-shrink-0 min-w-fit px-4'>
               Updates
             </TabsTrigger>
-            <TabsTrigger value='profile' className='text-sm'>
+            <TabsTrigger value='profile' className='text-sm whitespace-nowrap flex-shrink-0 min-w-fit px-3'>
               Business Profile
             </TabsTrigger>
-            <TabsTrigger value='links' className='text-sm'>
+            <TabsTrigger value='links' className='text-sm whitespace-nowrap flex-shrink-0 min-w-fit px-4'>
               Links
             </TabsTrigger>
-            <TabsTrigger value='subscriptions' className='text-sm'>
+            <TabsTrigger value='subscriptions' className='text-sm whitespace-nowrap flex-shrink-0 min-w-fit px-3'>
               Subscriptions
             </TabsTrigger>
-            <TabsTrigger value='settings' className='text-sm'>
+            <TabsTrigger value='settings' className='text-sm whitespace-nowrap flex-shrink-0 min-w-fit px-4'>
               Settings
             </TabsTrigger>
           </TabsList>

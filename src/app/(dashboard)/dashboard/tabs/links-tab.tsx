@@ -190,9 +190,9 @@ function LinkItem({
 }) {
   return (
     <div className='rounded-md bg-zinc-800 p-4'>
-      <div className='flex items-start justify-between'>
-        <div className='flex-1'>
-          <div className='flex items-center gap-3 mb-2'>
+      <div className='flex flex-col md:flex-row md:items-start md:justify-between'>
+        <div className='flex-1 mb-4 md:mb-0'>
+          <div className='flex items-center gap-3 mb-2 flex-wrap'>
             <h3 className='font-medium text-white'>{link.title}</h3>
             <span
               className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -212,18 +212,19 @@ function LinkItem({
             <p className='text-sm text-zinc-400 break-all'>{link.url}</p>
           </div>
           
-          <div className='flex items-center gap-6 text-sm text-zinc-400'>
+          <div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-zinc-400'>
             <span>Published: {link.published ? 'Yes' : 'No'}</span>
             <span>Created: {new Date(link.createdAt).toLocaleDateString()}</span>
             <span>Expires: {link.expiresAt ? new Date(link.expiresAt).toLocaleDateString() : 'Never'}</span>
           </div>
         </div>
         
-        <div className='flex gap-2 ml-4'>
+        <div className='flex flex-wrap gap-2 md:ml-4 md:flex-col lg:flex-row'>
           <Button
             size='sm'
             variant='secondary'
             onClick={() => onCopy(link.url)}
+            className='flex-1 sm:flex-none text-xs sm:text-sm'
           >
             Copy Link
           </Button>
@@ -232,7 +233,7 @@ function LinkItem({
               size='sm'
               variant='secondary'
               disabled={true}
-              className='opacity-50 cursor-not-allowed'
+              className='opacity-50 cursor-not-allowed flex-1 sm:flex-none text-xs sm:text-sm'
               title='Edit functionality coming soon'
             >
               Edit
@@ -243,7 +244,7 @@ function LinkItem({
             variant='secondary'
             onClick={() => onDelete(link.id)}
             disabled={isDeletingIds.includes(link.id)}
-            className='text-red-400 hover:text-red-300'
+            className='text-red-400 hover:text-red-300 flex-1 sm:flex-none text-xs sm:text-sm'
           >
             {isDeletingIds.includes(link.id) ? 'Deleting...' : 'Delete'}
           </Button>
