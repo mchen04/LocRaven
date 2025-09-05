@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
+import type { UsageStats } from '@/features/account/controllers/get-usage-stats';
+import type { BusinessProfile as FeatureBusinessProfile } from '@/features/business/types/business-types';
 import { BusinessUpdatesService } from '@/services/business-updates';
 import type {
   BusinessProfile,
@@ -16,10 +18,14 @@ import type {
   UpdateFormData,
   UpdateFormErrors,
 } from '@/types/business-updates';
+import { mapBusinessProfileForUpdates, mapUsageStatsToBusinessUsage } from '@/utils/business-data-mappers';
 
-interface UpdatesTabProps {}
+interface UpdatesTabProps {
+  initialBusinessProfile?: FeatureBusinessProfile | null;
+  initialUsageStats?: UsageStats | null;
+}
 
-export function UpdatesTab({}: UpdatesTabProps) {
+export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: UpdatesTabProps) {
   // Form state
   const [formData, setFormData] = useState<UpdateFormData>({
     contentText: '',
@@ -37,19 +43,23 @@ export function UpdatesTab({}: UpdatesTabProps) {
   const [isPublishing, setIsPublishing] = useState<string[]>([]);
   const [currentUpdate, setCurrentUpdate] = useState<BusinessUpdate | null>(null);
   const [generatedPages, setGeneratedPages] = useState<GeneratedPage[]>([]);
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
-  const [businessUsage, setBusinessUsage] = useState<BusinessUsage | null>(null);
+  
+  // Initialize with mapped server data if available
+  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(
+    initialBusinessProfile ? mapBusinessProfileForUpdates(initialBusinessProfile) : null
+  );
+  const [businessUsage, setBusinessUsage] = useState<BusinessUsage | null>(
+    initialUsageStats && initialBusinessProfile 
+      ? mapUsageStatsToBusinessUsage(initialUsageStats, initialBusinessProfile.id) 
+      : null
+  );
   
   // UI state
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const { toast } = useToast();
 
-  // Load business profile and usage on component mount
-  useEffect(() => {
-    loadBusinessProfile();
-    loadBusinessUsage();
-  }, []);
+  // Data is now passed as props from server component - no need for client-side fetching
 
   // Real-time subscriptions for update status
   useEffect(() => {
@@ -76,21 +86,7 @@ export function UpdatesTab({}: UpdatesTabProps) {
     };
   }, [currentUpdate]);
 
-  const loadBusinessProfile = async () => {
-    const response = await BusinessUpdatesService.getCurrentBusinessProfile();
-    if (response.success && response.data) {
-      setBusinessProfile(response.data);
-    } else {
-      setErrorMessage(response.error || 'Failed to load business profile');
-    }
-  };
-
-  const loadBusinessUsage = async () => {
-    const response = await BusinessUpdatesService.getBusinessUsage();
-    if (response.success && response.data) {
-      setBusinessUsage(response.data);
-    }
-  };
+  // Business profile and usage data now comes from server props
 
   const loadGeneratedPages = async (updateId: string) => {
     const response = await BusinessUpdatesService.getGeneratedPages(updateId);
@@ -181,8 +177,7 @@ export function UpdatesTab({}: UpdatesTabProps) {
         description: `Successfully created ${result.total_pages} AI-optimized pages in ${result.processingTime}ms`,
       });
       
-      // Refresh usage after successful generation
-      loadBusinessUsage();
+      // Usage data will be refreshed on next page load
 
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to generate pages';
@@ -262,20 +257,28 @@ export function UpdatesTab({}: UpdatesTabProps) {
   return (
     <div className='space-y-6'>
       {/* Usage and Business Info */}
-      {businessProfile && businessUsage && (
-        <div className='flex items-center justify-between rounded-md bg-zinc-900 p-4'>
-          <div>
-            <h3 className='text-lg font-medium text-white'>{businessProfile.name}</h3>
-            <p className='text-sm text-zinc-400'>{businessProfile.address_city}, {businessProfile.address_state}</p>
-          </div>
-          <div className='text-right'>
-            <p className='text-sm text-zinc-400'>Usage this month</p>
-            <p className='text-lg font-semibold text-white'>
-              {businessUsage.updates_used}/{businessUsage.updates_limit}
-            </p>
-          </div>
+      <div className='flex items-center justify-between rounded-md bg-zinc-900 p-4'>
+        <div>
+          <h3 className='text-lg font-medium text-white'>
+            {businessProfile?.name || 'Business Profile'}
+          </h3>
+          <p className='text-sm text-zinc-400'>
+            {businessProfile?.address_city && businessProfile?.address_state
+              ? `${businessProfile.address_city}, ${businessProfile.address_state}`
+              : 'Complete your business profile to get started'
+            }
+          </p>
         </div>
-      )}
+        <div className='text-right'>
+          <p className='text-sm text-zinc-400'>Usage this month</p>
+          <p className='text-lg font-semibold text-white'>
+            {businessUsage 
+              ? `${businessUsage.updates_used}/${businessUsage.updates_limit === 0 ? 'Unlimited' : businessUsage.updates_limit}`
+              : '0/250'
+            }
+          </p>
+        </div>
+      </div>
 
       {/* Error and Success Messages */}
       {errorMessage && (
