@@ -188,3 +188,6 @@ test.db
 docs/
 *storybook.log
 storybook-static
+
+# R2 Static Serving Setup Documentation
+R2_STATIC_SERVING_SETUP.md

@@ -6,6 +6,176 @@ import {
   handleCors, 
   safeJsonParse
 } from '../_shared/utils.ts'
+// import { renderTemplate } from '../_shared/templates/intent-templates.ts'
+
+// Simple template function for testing
+function renderTemplate(templateId: string, pageData: any): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${pageData.seo?.title || 'LocRaven Page'}</title>
+  <meta name="description" content="${pageData.seo?.description || 'Local business update'}">
+</head>
+<body>
+  <h1>${pageData.business?.name || 'Business'} - ${templateId} Template</h1>
+  <p><strong>Location:</strong> ${pageData.business?.address_city}, ${pageData.business?.address_state}</p>
+  <h2>Current Update</h2>
+  <p>${pageData.update?.content_text || 'No content available'}</p>
+  <h2>Contact Information</h2>
+  <p><strong>Phone:</strong> ${pageData.business?.phone || 'Not available'}</p>
+  <p><strong>Website:</strong> ${pageData.business?.website || 'Not available'}</p>
+  <p><em>Generated at: ${new Date().toISOString()}</em></p>
+</body>
+</html>`;
+}
+
+// Decompress page data from shortened keys back to full format
+function decompressPageData(compressed: any): any {
+  return {
+    business: {
+      name: compressed.b?.n,
+      address_city: compressed.b?.c,
+      address_state: compressed.b?.s,
+      address_street: compressed.b?.st,
+      zip_code: compressed.b?.z,
+      country: compressed.b?.country || 'US',
+      phone: compressed.b?.p,
+      email: compressed.b?.e,
+      website: compressed.b?.w,
+      description: compressed.b?.d,
+      primary_category: compressed.b?.cat,
+      services: compressed.b?.srv,
+      specialties: compressed.b?.sp,
+      hours: compressed.b?.h,
+      price_positioning: compressed.b?.pr,
+      service_area: compressed.b?.sa,
+      awards: compressed.b?.aw,
+      certifications: compressed.b?.cert,
+      payment_methods: compressed.b?.pm || ['Cash', 'Credit Card'],
+    },
+    update: {
+      content_text: compressed.u?.t,
+      created_at: compressed.u?.ca,
+      expires_at: compressed.u?.ea,
+    },
+    seo: compressed.seo || {},
+    intent: compressed.i || {},
+    faqs: compressed.f || []
+  };
+}
+
+// Add AI-optimized meta tags to HTML
+function addAIOptimizedHeaders(html: string, pageData: any, page: any): string {
+  const aiMetaTags = `
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <meta name="googlebot" content="index, follow, max-video-preview:-1, max-snippet:-1">
+    <meta name="bingbot" content="index, follow">
+    <meta name="ai-content-type" content="local-business-update">
+    <meta name="voice-search-optimized" content="true">
+    <link rel="canonical" href="https://locraven.com${page.file_path}">
+    <meta property="og:url" content="https://locraven.com${page.file_path}">
+    <meta property="og:type" content="business.business">
+    <meta property="og:title" content="${page.title}">
+    <meta property="og:description" content="${pageData.seo?.description || page.title}">`;
+
+  return html.replace('<head>', `<head>${aiMetaTags}`);
+}
+
+// Upload static file to Cloudflare R2 using proper S3 authentication
+async function uploadStaticFile(filePath: string, content: string, contentType: string = 'text/html'): Promise<boolean> {
+  try {
+    const accountId = Deno.env.get('CLOUDFLARE_R2_ACCOUNT_ID');
+    const accessKeyId = Deno.env.get('CLOUDFLARE_R2_ACCESS_KEY_ID');
+    const secretAccessKey = Deno.env.get('CLOUDFLARE_R2_SECRET_ACCESS_KEY');
+    const bucketName = Deno.env.get('CLOUDFLARE_R2_BUCKET_NAME') || 'locraven-pages';
+
+    if (!accountId || !accessKeyId || !secretAccessKey) {
+      console.warn('R2 credentials not configured - skipping static file upload');
+      return false;
+    }
+
+    // Import AWS S3 client for proper authentication
+    const { S3Client, PutObjectCommand } = await import("npm:@aws-sdk/client-s3");
+
+    // Create S3 client with proper R2 configuration (official method)
+    const s3Client = new S3Client({
+      region: "auto",
+      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+      },
+    });
+
+    // Generate proper key path
+    const key = filePath.startsWith('/') ? filePath.substring(1) + '/index.html' : filePath + '/index.html';
+    
+    // Upload using official S3 API with proper authentication
+    await s3Client.send(new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      Body: content,
+      ContentType: contentType,
+      CacheControl: 'public, max-age=86400, s-maxage=31536000',
+      Metadata: {
+        'ai-optimized': 'true',
+        'voice-search': 'enabled',
+        'generated-at': new Date().toISOString()
+      }
+    }));
+
+    console.log(`✅ Successfully uploaded to R2: ${key}`);
+    return true;
+  } catch (error) {
+    console.error(`❌ R2 upload failed for ${filePath}: ${error.message}`);
+    return false;
+  }
+}
+
+// Generate sitemap XML
+async function generateSitemap(publishedPages: any[]): Promise<void> {
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${publishedPages.map(page => `  <url>
+    <loc>https://locraven.com${page.file_path}</loc>
+    <lastmod>${page.updated_at || page.published_at || new Date().toISOString()}</lastmod>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>`).join('\n')}
+</urlset>`;
+
+  await uploadStaticFile('/sitemap', sitemap, 'application/xml');
+}
+
+// Generate robots.txt
+async function generateRobotsTxt(): Promise<void> {
+  const robots = `User-agent: *
+Allow: /
+Crawl-delay: 1
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+Sitemap: https://locraven.com/sitemap.xml`;
+
+  await uploadStaticFile('/robots', robots, 'text/plain');
+}
 
 serve(async (req) => {
   const corsResponse = handleCors(req);
@@ -53,10 +223,10 @@ serve(async (req) => {
       });
     }
 
-    // Get page details before publishing
+    // Get complete page details for static generation
     const { data: pagesBeforePublish, error: fetchDetailError } = await supabase
       .from('generated_pages')
-      .select('id, file_path, title, intent_type, page_variant')
+      .select('*')
       .in('id', pagesToPublish)
       .eq('published', false);
 
@@ -77,6 +247,62 @@ serve(async (req) => {
     if (publishError) {
       console.error('Error publishing pages:', publishError);
       throw new Error(`Failed to publish pages: ${publishError.message}`);
+    }
+
+    // Generate static files for published pages
+    console.log(`Generating static files for ${pagesBeforePublish?.length || 0} pages...`);
+    const staticFileResults = await Promise.allSettled(
+      (pagesBeforePublish || []).map(async (page) => {
+        try {
+          // Decompress page data
+          const pageData = decompressPageData(page.page_data);
+          
+          // Render HTML using existing template engine
+          const html = renderTemplate(page.template_id, pageData);
+          
+          // Add AI-optimized headers
+          const optimizedHTML = addAIOptimizedHeaders(html, pageData, page);
+          
+          // Upload to R2
+          const success = await uploadStaticFile(page.file_path, optimizedHTML);
+          
+          return { 
+            success, 
+            path: page.file_path, 
+            title: page.title 
+          };
+        } catch (error) {
+          console.error(`Static file generation failed for ${page.file_path}:`, error);
+          return { 
+            success: false, 
+            path: page.file_path, 
+            error: error.message 
+          };
+        }
+      })
+    );
+
+    const successfulStaticFiles = staticFileResults.filter(
+      result => result.status === 'fulfilled' && result.value.success
+    ).length;
+
+    // Generate sitemap and robots.txt
+    if (publishedPages && publishedPages.length > 0) {
+      console.log('Generating sitemap and robots.txt...');
+      try {
+        // Get all published pages for sitemap
+        const { data: allPublishedPages } = await supabase
+          .from('generated_pages')
+          .select('file_path, updated_at, published_at')
+          .eq('published', true);
+
+        if (allPublishedPages && allPublishedPages.length > 0) {
+          await generateSitemap(allPublishedPages);
+          await generateRobotsTxt();
+        }
+      } catch (sitemapError) {
+        console.error('Error generating sitemap/robots.txt:', sitemapError);
+      }
     }
 
     // Invalidate Cloudflare cache for published pages
@@ -130,16 +356,22 @@ serve(async (req) => {
         intent_type: page.intent_type,
         page_variant: page.page_variant,
         published_at: page.published_at,
-        liveUrl: `https://locraven.com${page.file_path}`
+        liveUrl: `https://locraven.com${page.file_path}`,
+        staticUrl: `https://locraven.com${page.file_path}`
       })) || [],
       total: publishedPages?.length || 0,
+      staticFileGeneration: {
+        attempted: staticFileResults.length,
+        successful: successfulStaticFiles,
+        failed: staticFileResults.length - successfulStaticFiles
+      },
       cacheInvalidation: {
         attempted: cacheInvalidationResults.length,
         successful: successfulInvalidations,
         failed: cacheInvalidationResults.length - successfulInvalidations
       },
       publishedAt: publishTime,
-      message: `Successfully published ${publishedPages?.length || 0} pages`
+      message: `Successfully published ${publishedPages?.length || 0} pages with ${successfulStaticFiles} static files generated`
     });
 
   } catch (error) {
