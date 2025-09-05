@@ -3,7 +3,7 @@
  * Optimized for Alexa, Google Assistant, Siri, and AI chatbots
  */
 
-import { PageData, isOpenNow, getClosingTime, getCategoryDisplay } from './base-template.js';
+import { PageData, isOpenNow, getClosingTime, getCategoryDisplay } from './base-template.ts';
 
 // Generate voice-optimized content blocks for different query types
 export function generateVoiceContent(data: PageData, queryType: 'hours' | 'location' | 'services' | 'contact' | 'general'): string {

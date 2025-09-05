@@ -3,7 +3,7 @@
  * Complete LocalBusiness, FAQ, Speakable, and specialized schema markup
  */
 
-import { PageData, getCategoryDisplay } from './base-template.js';
+import { PageData, getCategoryDisplay } from './base-template.ts';
 
 // Generate complete LocalBusiness JSON-LD with all available schema fields
 export function generateLocalBusinessSchema(data: PageData): string {

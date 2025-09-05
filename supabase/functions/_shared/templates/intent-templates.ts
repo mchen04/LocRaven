@@ -22,17 +22,17 @@ import {
   renderAIContextBlock,
   renderAvailabilityStatus,
   getCategoryDisplay
-} from './base-template.js';
+} from './base-template.ts';
 
 import { 
   generateAllSchemaMarkup 
-} from './schema-generators.js';
+} from './schema-generators.ts';
 
 import { 
   generateVoiceContent,
   generateSpeakableMarkup,
   generateVoiceTriggersForIntent
-} from './voice-optimization.js';
+} from './voice-optimization.ts';
 
 // Main template render function with AI optimization
 export function renderTemplate(templateId: string, data: PageData): string {

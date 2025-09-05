@@ -6,11 +6,41 @@ import {
   handleCors, 
   safeJsonParse
 } from '../_shared/utils.ts'
-// import { renderTemplate } from '../_shared/templates/intent-templates.ts'
+import { 
+  renderDirectTemplate,
+  renderLocalTemplate, 
+  renderCategoryTemplate,
+  renderBrandedLocalTemplate,
+  renderServiceUrgentTemplate,
+  renderCompetitiveTemplate
+} from '../_shared/templates/intent-templates.ts'
 
-// Simple template function for testing
+// AI-optimized template renderer using our new templates
 function renderTemplate(templateId: string, pageData: any): string {
-  return `<!DOCTYPE html>
+  console.log(`Rendering ${templateId} template with AI optimization`);
+  
+  try {
+    switch (templateId) {
+      case 'direct':
+        return renderDirectTemplate(pageData);
+      case 'local':
+        return renderLocalTemplate(pageData);
+      case 'category':
+        return renderCategoryTemplate(pageData);
+      case 'branded-local':
+        return renderBrandedLocalTemplate(pageData);
+      case 'service-urgent':
+        return renderServiceUrgentTemplate(pageData);
+      case 'competitive':
+        return renderCompetitiveTemplate(pageData);
+      default:
+        console.warn(`Unknown template ID: ${templateId}, falling back to direct template`);
+        return renderDirectTemplate(pageData);
+    }
+  } catch (error) {
+    console.error(`Error rendering ${templateId} template:`, error);
+    // Fallback to basic template if AI-optimized templates fail
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -29,6 +59,7 @@ function renderTemplate(templateId: string, pageData: any): string {
   <p><em>Generated at: ${new Date().toISOString()}</em></p>
 </body>
 </html>`;
+  }
 }
 
 // Decompress page data from shortened keys back to full format
@@ -42,6 +73,7 @@ function decompressPageData(compressed: any): any {
       zip_code: compressed.b?.z,
       country: compressed.b?.country || 'US',
       phone: compressed.b?.p,
+      phone_country_code: compressed.b?.pcc,
       email: compressed.b?.e,
       website: compressed.b?.w,
       description: compressed.b?.d,
@@ -49,16 +81,34 @@ function decompressPageData(compressed: any): any {
       services: compressed.b?.srv,
       specialties: compressed.b?.sp,
       hours: compressed.b?.h,
+      structured_hours: compressed.b?.sh,
       price_positioning: compressed.b?.pr,
+      payment_methods: compressed.b?.pm || ['Cash', 'Credit Card'],
       service_area: compressed.b?.sa,
+      service_area_details: compressed.b?.sad,
       awards: compressed.b?.aw,
       certifications: compressed.b?.cert,
-      payment_methods: compressed.b?.pm || ['Cash', 'Credit Card'],
+      latitude: compressed.b?.lat,
+      longitude: compressed.b?.lng,
+      languages_spoken: compressed.b?.lang,
+      accessibility_features: compressed.b?.acc,
+      parking_info: compressed.b?.park,
+      enhanced_parking_info: compressed.b?.epark,
+      review_summary: compressed.b?.rev,
+      status_override: compressed.b?.stat,
+      business_faqs: compressed.b?.faqs,
+      featured_items: compressed.b?.feat,
+      social_media: compressed.b?.social,
+      established_year: compressed.b?.est
     },
     update: {
       content_text: compressed.u?.t,
       created_at: compressed.u?.ca,
       expires_at: compressed.u?.ea,
+      special_hours_today: compressed.u?.sh,
+      deal_terms: compressed.u?.dt,
+      update_category: compressed.u?.cat,
+      update_faqs: compressed.u?.faqs
     },
     seo: compressed.seo || {},
     intent: compressed.i || {},
