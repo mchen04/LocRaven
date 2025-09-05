@@ -31,8 +31,8 @@ serve(async (req) => {
   if (corsResponse) return corsResponse;
 
   try {
-    const { updateId, businessId, contentText, temporalInfo, specialHours, faqData } = await safeJsonParse(req);
-    console.log('Edge Function called with:', { updateId, businessId, contentText: contentText?.substring(0, 100) });
+    const { updateId, temporalInfo, specialHours, faqData } = await safeJsonParse(req);
+    console.log('Edge Function called with:', { updateId });
     
     const supabase = createSupabaseClient();
 
@@ -60,16 +60,25 @@ serve(async (req) => {
       throw new Error(`Failed to update status: ${updateError.message}`);
     }
 
-    // Get business details
-    const { data: business } = await supabase
-      .from('businesses')
-      .select('*')
-      .eq('id', businessId)
+    // Get update details first to get business_id
+    const { data: updateRecord } = await supabase
+      .from('updates')
+      .select('*, businesses(*)')
+      .eq('id', updateId)
       .single()
 
+    if (!updateRecord) {
+      throw new Error('Update not found')
+    }
+
+    const business = updateRecord.businesses
     if (!business) {
       throw new Error('Business not found')
     }
+
+    // Use the actual business_id and content from the update record
+    const businessId = business.id
+    const contentText = updateRecord.content_text
 
     // Generate batch ID for coordinated multi-page lifecycle
     const batchId = crypto.randomUUID();
