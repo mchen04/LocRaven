@@ -36,7 +36,7 @@ export function mapBusinessProfileForUpdates(
     id: featureProfile.id,
     name: featureProfile.name || undefined,
     email: featureProfile.email || undefined,
-    slug: featureProfile.slug || undefined,
+    slug: featureProfile.url_slug || undefined,
     address_street: featureProfile.address_street || undefined,
     address_city: featureProfile.address_city || undefined,
     address_state: featureProfile.address_state || undefined,

@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { LinksTabProps, UserLink } from '@/features/links/types/links-types';
 import { BusinessUpdatesService } from '@/services/business-updates';
+import { BusinessProfile } from '@/features/business/types/business-types';
 
-export function LinksTab({ links }: LinksTabProps) {
+export function LinksTab({ links, businessProfile }: LinksTabProps & { businessProfile?: BusinessProfile | null }) {
   const [activeSection, setActiveSection] = useState('active');
   const [visibleActiveCount, setVisibleActiveCount] = useState(5);
   const [visibleExpiredCount, setVisibleExpiredCount] = useState(5);
@@ -76,7 +77,11 @@ export function LinksTab({ links }: LinksTabProps) {
   const hasMoreActive = activeLinks.length > visibleActiveCount;
   const hasMoreExpired = expiredLinks.length > visibleExpiredCount;
 
+  const permanentPageUrl = businessProfile?.city_state_slug && businessProfile?.url_slug ? 
+    `https://locraven.com/${businessProfile.city_state_slug}/${businessProfile.url_slug}` : null;
+
   const sections = [
+    { id: 'permanent', name: 'Permanent Page', count: permanentPageUrl ? 1 : 0 },
     { id: 'active', name: 'Active', count: activeLinks.length },
     { id: 'expired', name: 'Expired', count: expiredLinks.length },
   ];
@@ -101,6 +106,65 @@ export function LinksTab({ links }: LinksTabProps) {
           ))}
         </nav>
       </div>
+
+      {/* Permanent Page Section */}
+      {activeSection === 'permanent' && (
+        <div className='space-y-6'>
+          <Card title='Permanent Business Page'>
+            {permanentPageUrl ? (
+              <div className='bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-lg p-6'>
+                <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4'>
+                  <div className='flex-1'>
+                    <div className='flex items-center gap-2 mb-2'>
+                      <h3 className='font-semibold text-cyan-300'>Your Permanent Business Page</h3>
+                      <span className='rounded-full bg-green-900 px-2 py-1 text-xs font-medium text-green-300'>
+                        Never Expires
+                      </span>
+                    </div>
+                    <p className='text-sm text-gray-400 mb-4'>
+                      This permanent page never expires and automatically links to all your business updates. 
+                      Perfect for sharing with customers, adding to business cards, or including in marketing materials.
+                    </p>
+                    <div className='p-3 bg-black/50 rounded border'>
+                      <code className='text-sm text-cyan-300 break-all'>{permanentPageUrl}</code>
+                    </div>
+                  </div>
+                  <div className='flex flex-wrap gap-2 lg:flex-col lg:ml-4'>
+                    <Button
+                      size='sm'
+                      variant='secondary'
+                      onClick={() => handleCopyLink(permanentPageUrl)}
+                      className='flex-1 lg:flex-none'
+                    >
+                      Copy Link
+                    </Button>
+                    <a 
+                      href={permanentPageUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className='inline-flex items-center justify-center flex-1 lg:flex-none px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-medium rounded-md transition-colors'
+                    >
+                      View Page
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className='py-8 text-center text-zinc-400'>
+                <div className='mb-4'>
+                  <svg className='w-12 h-12 mx-auto text-zinc-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1} d='M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' />
+                  </svg>
+                </div>
+                <p className='text-lg mb-2'>No Permanent Page Available</p>
+                <p className='text-sm'>
+                  Complete your business profile to get your permanent business page.
+                </p>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
 
       {/* Active Links Section */}
       {activeSection === 'active' && (

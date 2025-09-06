@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
 import { updateSession } from '@/libs/supabase/supabase-middleware-client';
-import { createServerClient } from '@supabase/ssr';
 import { getEnvVar } from '@/utils/get-env-var';
+import { createServerClient } from '@supabase/ssr';
 
 export async function middleware(request: NextRequest) {
   // First, update the session

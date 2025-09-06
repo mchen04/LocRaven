@@ -38,37 +38,8 @@ interface DashboardTabsProps {
 }
 
 export function DashboardTabs({ subscription, businessProfile, usageStats, userProduct, userPrice, userEmail, userName, userLinks }: DashboardTabsProps) {
-  const permanentPageUrl = businessProfile?.city_state_slug && businessProfile?.url_slug ? 
-    `https://locraven.com/${businessProfile.city_state_slug}/${businessProfile.url_slug}` : null;
-
   return (
     <div className='mx-auto max-w-6xl'>
-      {/* Business Page Link Display */}
-      {permanentPageUrl && (
-        <div className='mb-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-lg p-4'>
-          <div className='flex items-center justify-between'>
-            <div>
-              <h3 className='font-semibold text-cyan-300 mb-1'>Your Permanent Business Page</h3>
-              <p className='text-sm text-gray-400'>
-                Your business has a permanent page that never expires and links to all your updates.
-              </p>
-            </div>
-            <div className='flex gap-2'>
-              <a 
-                href={permanentPageUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className='px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-medium rounded-md transition-colors'
-              >
-                View Page
-              </a>
-            </div>
-          </div>
-          <div className='mt-2 p-2 bg-black/50 rounded border'>
-            <code className='text-xs text-cyan-300 break-all'>{permanentPageUrl}</code>
-          </div>
-        </div>
-      )}
       
       <Tabs defaultValue='updates' className='space-y-6'>
         <div className='flex justify-center'>
@@ -103,7 +74,7 @@ export function DashboardTabs({ subscription, businessProfile, usageStats, userP
         </TabsContent>
 
         <TabsContent value='links' className='mt-6'>
-          <LinksTab links={userLinks} />
+          <LinksTab links={userLinks} businessProfile={businessProfile} />
         </TabsContent>
 
         <TabsContent value='subscriptions' className='mt-6'>
