@@ -14,7 +14,7 @@ export interface UserLink {
   expired: boolean | null;
   published: boolean | null;
   pageType: string | null;
-  updateId: string;
+  updateId: string | null;
 }
 
 export async function getUserLinks(): Promise<UserLink[] | null> {

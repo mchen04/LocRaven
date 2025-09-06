@@ -8,27 +8,34 @@ interface OnboardingResult {
   permanentPageUrl?: string;
 }
 
-function generateBusinessSlug(businessName: string, city: string, state: string): string {
-  // Create URL-safe slug from business name
-  const baseSlug = businessName
+function generateCityStateSlug(city: string, state: string): string {
+  // Create city-state slug (e.g., "dublin-ca")
+  const citySlug = city.toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  
+  const stateSlug = state.toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  
+  return `${citySlug}-${stateSlug}`;
+}
+
+function generateUrlSlug(businessName: string): string {
+  // Create URL-safe slug from business name only
+  return businessName
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
     .replace(/\s+/g, '-') // Replace spaces with hyphens
     .replace(/-+/g, '-') // Replace multiple hyphens with single
     .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
-
-  // Add location context to ensure uniqueness
-  const locationSlug = `${city}-${state}`.toLowerCase().replace(/\s+/g, '-');
-  
-  return `${baseSlug}-${locationSlug}`;
-}
-
-function generatePermanentPagePath(businessSlug: string, city: string, state: string, country = 'us'): string {
-  const normalizedCity = city.toLowerCase().replace(/\s+/g, '-');
-  const normalizedState = state.toLowerCase().replace(/\s+/g, '-');
-  
-  return `/${country}/${normalizedState}/${normalizedCity}/${businessSlug}`;
 }
 
 export async function completeOnboarding(userEmail: string): Promise<OnboardingResult> {
@@ -53,8 +60,8 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
     if (business.is_onboarded) {
       return {
         success: true,
-        permanentPageUrl: business.permanent_page_path ? 
-          `https://locraven.com${business.permanent_page_path}` : undefined
+        permanentPageUrl: business.city_state_slug && business.url_slug ? 
+          `https://locraven.com/${business.city_state_slug}/${business.url_slug}` : undefined
       };
     }
 
@@ -66,29 +73,22 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
       };
     }
 
-    // Generate permanent page slug and path
-    const permanentSlug = generateBusinessSlug(
-      business.name,
+    // Generate new URL structure slugs
+    const cityStateSlug = generateCityStateSlug(
       business.address_city,
       business.address_state
     );
     
-    const permanentPath = generatePermanentPagePath(
-      permanentSlug,
-      business.address_city,
-      business.address_state,
-      business.country || 'us'
-    );
+    const urlSlug = generateUrlSlug(business.name);
 
-    // Update business with onboarding completion
+    // Update business with onboarding completion and new URL structure
     const { error: updateError } = await supabase
       .from('businesses')
       .update({
         is_onboarded: true,
         onboarded_at: new Date().toISOString(),
-        permanent_page_slug: permanentSlug,
-        permanent_page_path: permanentPath,
-        permanent_page_generated: false // Will be set to true after page generation
+        city_state_slug: cityStateSlug,
+        url_slug: urlSlug
       })
       .eq('id', business.id);
 
@@ -100,7 +100,7 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
       };
     }
 
-    // Trigger permanent page generation via Edge Function
+    // Trigger business page generation via Edge Function with new URL structure
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-business-page`, {
         method: 'POST',
@@ -108,7 +108,13 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
         },
-        body: JSON.stringify({ business_id: business.id }),
+        body: JSON.stringify({ 
+          business_id: business.id,
+          use_new_url_structure: true,
+          feature_flags: {
+            new_url_structure: true
+          }
+        }),
       });
 
       const result = await response.json();
@@ -124,7 +130,7 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
       // Don't fail onboarding if page generation fails
     }
     
-    const permanentPageUrl = `https://locraven.com${permanentPath}`;
+    const permanentPageUrl = `https://locraven.com/${cityStateSlug}/${urlSlug}`;
 
     return {
       success: true,

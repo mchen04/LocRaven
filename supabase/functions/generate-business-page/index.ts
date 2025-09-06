@@ -8,12 +8,12 @@ import {
 } from '../_shared/utils.ts'
 import { renderBusinessTemplate } from '../_shared/templates/intent-templates.ts'
 
-// Generate permanent business page
-async function generateBusinessPage(supabase: any, businessId: string): Promise<{ success: boolean; error?: string; pageUrl?: string }> {
+// Generate permanent business page with new URL structure and feature flags
+async function generateBusinessPage(supabase: any, businessId: string, useNewUrlStructure: boolean = true): Promise<{ success: boolean; error?: string; pageUrl?: string }> {
   try {
-    console.log(`Generating permanent business page for business: ${businessId}`);
+    console.log(`Generating permanent business page for business: ${businessId} (new URL structure: ${useNewUrlStructure})`);
     
-    // Get business data
+    // Get business data with new URL structure fields
     const { data: business, error: businessError } = await supabase
       .from('businesses')
       .select('*')
@@ -25,11 +25,32 @@ async function generateBusinessPage(supabase: any, businessId: string): Promise<
       return { success: false, error: 'Business not found' };
     }
 
-    // Check if permanent page was already generated
-    if (business.permanent_page_generated) {
-      const pageUrl = `https://locraven.com${business.permanent_page_path}`;
+    // Validate required new URL structure fields
+    if (!business.city_state_slug || !business.url_slug) {
+      console.error('Business missing required URL structure fields:', {
+        businessId,
+        city_state_slug: business.city_state_slug,
+        url_slug: business.url_slug
+      });
+      return { success: false, error: 'Business has not completed onboarding with new URL structure' };
+    }
+
+    // Check if page already exists in generated_pages
+    const newPagePath = `/${business.city_state_slug}/${business.url_slug}`;
+    
+    const { data: existingPage } = await supabase
+      .from('generated_pages')
+      .select('id, file_path, published')
+      .eq('business_id', businessId)
+      .eq('page_category', 'business')
+      .eq('file_path', newPagePath)
+      .single();
+    
+    if (existingPage && existingPage.published) {
+      const pageUrl = `https://locraven.com${newPagePath}`;
       return { success: true, pageUrl };
     }
+    
 
     // Get latest update for the business (optional for business page)
     const { data: latestUpdate } = await supabase
@@ -40,7 +61,11 @@ async function generateBusinessPage(supabase: any, businessId: string): Promise<
       .limit(1)
       .single();
 
-    // Prepare page data for template rendering
+    // Generate URLs using new structure only
+    const filePath = `/${business.city_state_slug}/${business.url_slug}`;
+    const slug = business.url_slug;
+    
+    // Prepare page data for template rendering with enhanced SEO
     const pageData = {
       business: {
         name: business.name,
@@ -77,7 +102,9 @@ async function generateBusinessPage(supabase: any, businessId: string): Promise<
         featured_items: business.featured_items || [],
         social_media: business.social_media || {},
         established_year: business.established_year,
-        permanent_page_path: business.permanent_page_path
+        // New URL structure fields
+        city_state_slug: business.city_state_slug,
+        url_slug: business.url_slug
       },
       update: latestUpdate ? {
         content_text: latestUpdate.content_text,
@@ -86,16 +113,23 @@ async function generateBusinessPage(supabase: any, businessId: string): Promise<
         special_hours_today: latestUpdate.special_hours_today,
         deal_terms: latestUpdate.deal_terms,
         update_category: latestUpdate.update_category,
-        update_faqs: latestUpdate.update_faqs || []
+        update_faqs: latestUpdate.update_faqs || [],
+        // New fields from enhanced schema
+        search_intents: latestUpdate.search_intents || [],
+        is_time_sensitive: latestUpdate.is_time_sensitive || false
       } : null,
       seo: {
         title: `${business.name} - ${business.address_city}, ${business.address_state}`,
-        description: business.description || `Visit ${business.name} in ${business.address_city}, ${business.address_state}. ${business.primary_category} services and more.`
+        description: business.description || `Visit ${business.name} in ${business.address_city}, ${business.address_state}. ${business.primary_category} services and more.`,
+        // Enhanced SEO for voice search and AI
+        keywords: `${business.name}, ${business.address_city} ${business.primary_category}, ${business.address_state} business`,
+        canonical: `https://locraven.com${filePath}`,
+        schema_type: 'LocalBusiness'
       },
       intent: {
         type: 'business',
-        filePath: business.permanent_page_path,
-        slug: business.permanent_page_slug,
+        filePath: filePath,
+        slug: slug,
         pageVariant: 'business-profile'
       },
       faqs: business.business_faqs || []
@@ -108,40 +142,45 @@ async function generateBusinessPage(supabase: any, businessId: string): Promise<
       return { success: false, error: 'Failed to render business page template' };
     }
 
-    // Store the generated page in business_pages table
-    const { error: insertError } = await supabase
-      .from('business_pages')
-      .insert({
-        business_id: businessId,
-        html_content: htmlContent,
-        metadata: {
-          generated_at: new Date().toISOString(),
-          template_version: '1.0',
-          page_type: 'permanent_business_page'
-        },
-        version: 1
-      });
+    // Store the generated page in generated_pages table (FIXED: was using non-existent business_pages)
+    const pageRecord = {
+      business_id: businessId,
+      update_id: latestUpdate?.id || null,
+      file_path: filePath,
+      title: pageData.seo.title,
+      template_id: 'business',
+      page_data: pageData, // Store full page data for rendering
+      rendered_size_kb: Math.ceil(htmlContent.length / 1024),
+      content_intent: 'business-profile',
+      slug: slug,
+      page_type: 'business',
+      intent_type: 'direct',
+      page_variant: 'business-profile',
+      page_category: 'business', // New field for enhanced system
+      seo_score: 85, // Base SEO score for business pages
+      regeneration_priority: 'normal',
+      published: true, // Business pages are immediately published
+      published_at: new Date().toISOString(),
+      html_content: htmlContent
+    };
+
+    const { data: insertedPage, error: insertError } = await supabase
+      .from('generated_pages')
+      .insert(pageRecord)
+      .select('id, file_path')
+      .single();
 
     if (insertError) {
-      console.error('Failed to store business page:', insertError);
+      console.error('Failed to store business page in generated_pages:', insertError);
       return { success: false, error: 'Failed to store generated page' };
     }
 
-    // Update business to mark permanent page as generated
-    const { error: updateError } = await supabase
-      .from('businesses')
-      .update({ permanent_page_generated: true })
-      .eq('id', businessId);
+    // Business page generated successfully - no migration tracking needed
 
-    if (updateError) {
-      console.error('Failed to update business permanent_page_generated flag:', updateError);
-      // Don't fail the whole operation for this
-    }
-
-    const pageUrl = `https://locraven.com${business.permanent_page_path}`;
-    console.log(`Successfully generated business page: ${pageUrl}`);
+    const pageUrl = `https://locraven.com${filePath}`;
+    console.log(`Successfully generated business page: ${pageUrl} (Page ID: ${insertedPage.id})`);
     
-    return { success: true, pageUrl };
+    return { success: true, pageUrl, pageId: insertedPage.id };
 
   } catch (error) {
     console.error('Error generating business page:', error);
@@ -149,7 +188,7 @@ async function generateBusinessPage(supabase: any, businessId: string): Promise<
   }
 }
 
-// Main handler
+// Main handler with feature flag support
 serve(async (req) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
@@ -158,18 +197,32 @@ serve(async (req) => {
 
   try {
     const supabase = createSupabaseClient(req);
-    const { business_id } = await req.json();
+    const { business_id, use_new_url_structure = true, feature_flags = {} } = await req.json();
 
     if (!business_id) {
       return errorResponse('business_id is required', 400);
     }
 
-    const result = await generateBusinessPage(supabase, business_id);
+    // New URL structure is now default and only option
+    const useNewUrlStructure = true;
+    
+    console.log(`Processing business page generation with feature flags:`, {
+      business_id,
+      use_new_url_structure: useNewUrlStructure,
+      feature_flags
+    });
+
+    const result = await generateBusinessPage(supabase, business_id, useNewUrlStructure);
 
     if (result.success) {
       return successResponse({ 
         message: 'Business page generated successfully',
-        page_url: result.pageUrl 
+        page_url: result.pageUrl,
+        page_id: result.pageId,
+        url_structure: useNewUrlStructure ? 'new' : 'legacy',
+        feature_flags_applied: {
+          new_url_structure: useNewUrlStructure
+        }
       });
     } else {
       return errorResponse(result.error || 'Failed to generate business page', 500);

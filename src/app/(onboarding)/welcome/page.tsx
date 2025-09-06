@@ -19,8 +19,8 @@ export default async function WelcomePage() {
     redirect('/onboarding');
   }
 
-  const permanentPageUrl = businessProfile?.permanent_page_path ? 
-    `https://locraven.com${businessProfile.permanent_page_path}` : null;
+  const permanentPageUrl = businessProfile?.city_state_slug && businessProfile?.url_slug ? 
+    `https://locraven.com/${businessProfile.city_state_slug}/${businessProfile.url_slug}` : null;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">

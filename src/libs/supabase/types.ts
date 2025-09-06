@@ -65,6 +65,7 @@ export type Database = {
           awards: Json | null
           business_faqs: Json | null
           certifications: Json | null
+          city_state_slug: string | null
           country: string | null
           created_at: string | null
           description: string | null
@@ -82,9 +83,6 @@ export type Database = {
           onboarded_at: string | null
           parking_info: string | null
           payment_methods: string[] | null
-          permanent_page_generated: boolean | null
-          permanent_page_path: string | null
-          permanent_page_slug: string | null
           phone: string | null
           phone_country_code: string | null
           price_positioning: string | null
@@ -95,13 +93,13 @@ export type Database = {
           service_area: string | null
           service_area_details: Json | null
           services: Json | null
-          slug: string | null
           social_media: Json | null
           specialties: Json | null
           static_tags: Database["public"]["Enums"]["static_tag"][] | null
           status_override: string | null
           structured_hours: Json | null
           updated_at: string | null
+          url_slug: string | null
           website: string | null
           zip_code: string | null
         }
@@ -114,6 +112,7 @@ export type Database = {
           awards?: Json | null
           business_faqs?: Json | null
           certifications?: Json | null
+          city_state_slug?: string | null
           country?: string | null
           created_at?: string | null
           description?: string | null
@@ -131,9 +130,6 @@ export type Database = {
           onboarded_at?: string | null
           parking_info?: string | null
           payment_methods?: string[] | null
-          permanent_page_generated?: boolean | null
-          permanent_page_path?: string | null
-          permanent_page_slug?: string | null
           phone?: string | null
           phone_country_code?: string | null
           price_positioning?: string | null
@@ -144,13 +140,13 @@ export type Database = {
           service_area?: string | null
           service_area_details?: Json | null
           services?: Json | null
-          slug?: string | null
           social_media?: Json | null
           specialties?: Json | null
           static_tags?: Database["public"]["Enums"]["static_tag"][] | null
           status_override?: string | null
           structured_hours?: Json | null
           updated_at?: string | null
+          url_slug?: string | null
           website?: string | null
           zip_code?: string | null
         }
@@ -163,6 +159,7 @@ export type Database = {
           awards?: Json | null
           business_faqs?: Json | null
           certifications?: Json | null
+          city_state_slug?: string | null
           country?: string | null
           created_at?: string | null
           description?: string | null
@@ -180,9 +177,6 @@ export type Database = {
           onboarded_at?: string | null
           parking_info?: string | null
           payment_methods?: string[] | null
-          permanent_page_generated?: boolean | null
-          permanent_page_path?: string | null
-          permanent_page_slug?: string | null
           phone?: string | null
           phone_country_code?: string | null
           price_positioning?: string | null
@@ -193,42 +187,15 @@ export type Database = {
           service_area?: string | null
           service_area_details?: Json | null
           services?: Json | null
-          slug?: string | null
           social_media?: Json | null
           specialties?: Json | null
           static_tags?: Database["public"]["Enums"]["static_tag"][] | null
           status_override?: string | null
           structured_hours?: Json | null
           updated_at?: string | null
+          url_slug?: string | null
           website?: string | null
           zip_code?: string | null
-        }
-        Relationships: []
-      }
-      cache_invalidation_queue: {
-        Row: {
-          cache_key: string
-          created_at: string | null
-          id: number
-          invalidation_type: string
-          processed_at: string | null
-          status: string | null
-        }
-        Insert: {
-          cache_key: string
-          created_at?: string | null
-          id?: number
-          invalidation_type: string
-          processed_at?: string | null
-          status?: string | null
-        }
-        Update: {
-          cache_key?: string
-          created_at?: string | null
-          id?: number
-          invalidation_type?: string
-          processed_at?: string | null
-          status?: string | null
         }
         Relationships: []
       }
@@ -256,7 +223,7 @@ export type Database = {
       generated_pages: {
         Row: {
           ai_citation_score: number | null
-          business_id: string
+          business_id: string | null
           content_intent: string | null
           created_at: string | null
           dynamic_tags: string[] | null
@@ -269,22 +236,25 @@ export type Database = {
           id: string
           intent_type: string | null
           last_status_calculation: string | null
+          page_category: string | null
           page_data: Json | null
           page_type: string | null
           page_variant: string | null
           published: boolean | null
           published_at: string | null
+          regeneration_priority: string | null
           rendered_size_kb: number | null
+          seo_score: number | null
           slug: string | null
           tags_expire_at: string | null
           template_id: string | null
           title: string
-          update_id: string
+          update_id: string | null
           updated_at: string | null
         }
         Insert: {
           ai_citation_score?: number | null
-          business_id: string
+          business_id?: string | null
           content_intent?: string | null
           created_at?: string | null
           dynamic_tags?: string[] | null
@@ -297,22 +267,25 @@ export type Database = {
           id?: string
           intent_type?: string | null
           last_status_calculation?: string | null
+          page_category?: string | null
           page_data?: Json | null
           page_type?: string | null
           page_variant?: string | null
           published?: boolean | null
           published_at?: string | null
+          regeneration_priority?: string | null
           rendered_size_kb?: number | null
+          seo_score?: number | null
           slug?: string | null
           tags_expire_at?: string | null
           template_id?: string | null
           title: string
-          update_id: string
+          update_id?: string | null
           updated_at?: string | null
         }
         Update: {
           ai_citation_score?: number | null
-          business_id?: string
+          business_id?: string | null
           content_intent?: string | null
           created_at?: string | null
           dynamic_tags?: string[] | null
@@ -325,17 +298,20 @@ export type Database = {
           id?: string
           intent_type?: string | null
           last_status_calculation?: string | null
+          page_category?: string | null
           page_data?: Json | null
           page_type?: string | null
           page_variant?: string | null
           published?: boolean | null
           published_at?: string | null
+          regeneration_priority?: string | null
           rendered_size_kb?: number | null
+          seo_score?: number | null
           slug?: string | null
           tags_expire_at?: string | null
           template_id?: string | null
           title?: string
-          update_id?: string
+          update_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -514,7 +490,11 @@ export type Database = {
           expiration_date_time: string | null
           expires_at: string | null
           id: string
+          intent_confidence: number | null
+          intent_migration_status: string | null
+          is_time_sensitive: boolean | null
           processing_time_ms: number | null
+          search_intents: string[] | null
           special_hours_today: Json | null
           status: string
           update_category: string | null
@@ -530,7 +510,11 @@ export type Database = {
           expiration_date_time?: string | null
           expires_at?: string | null
           id?: string
+          intent_confidence?: number | null
+          intent_migration_status?: string | null
+          is_time_sensitive?: boolean | null
           processing_time_ms?: number | null
+          search_intents?: string[] | null
           special_hours_today?: Json | null
           status?: string
           update_category?: string | null
@@ -546,7 +530,11 @@ export type Database = {
           expiration_date_time?: string | null
           expires_at?: string | null
           id?: string
+          intent_confidence?: number | null
+          intent_migration_status?: string | null
+          is_time_sensitive?: boolean | null
           processing_time_ms?: number | null
+          search_intents?: string[] | null
           special_hours_today?: Json | null
           status?: string
           update_category?: string | null
@@ -599,6 +587,10 @@ export type Database = {
         Args: { business_id_param: string }
         Returns: boolean
       }
+      cleanup_regeneration_queue: {
+        Args: { retention_days?: number }
+        Returns: number
+      }
       debug_usage_lookup: {
         Args: { business_id_param: string }
         Returns: {
@@ -606,6 +598,36 @@ export type Database = {
           extracted_tier: string
           found_subscription: boolean
           metadata_content: Json
+        }[]
+      }
+      execute_intent_query: {
+        Args: { city_state_param: string; query_sql: string }
+        Returns: {
+          content_text: string
+          created_at: string
+          deal_terms: string
+          expires_at: string
+          hours: string
+          id: string
+          is_time_sensitive: boolean
+          name: string
+          phone: string
+          primary_category: string
+          search_intents: string[]
+          structured_hours: Json
+          update_category: string
+          url_slug: string
+        }[]
+      }
+      get_cascade_health_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avg_processing_time_ms: number
+          circuit_breaker_recommendation: string
+          failed_jobs_last_hour: number
+          health_score: number
+          oldest_pending_job: string
+          queue_depth: number
         }[]
       }
       get_current_usage_period: {
@@ -634,6 +656,29 @@ export type Database = {
           usage_period_start: string
         }
       }
+      get_discovery_page_stats: {
+        Args: { city_state_param: string }
+        Returns: {
+          deals_count: number
+          events_count: number
+          last_updated: string
+          new_services_count: number
+          open_now_count: number
+          total_businesses: number
+          total_updates: number
+        }[]
+      }
+      get_seo_health_report: {
+        Args: { days_back?: number }
+        Returns: {
+          avg_seo_score: number
+          improvement_trend: number
+          pages_with_critical_issues: number
+          recommendation: string
+          top_issue_category: string
+          total_pages: number
+        }[]
+      }
       get_user_subscription_status: {
         Args: { user_email_param: string }
         Returns: {
@@ -652,6 +697,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      should_regenerate_discovery_page: {
+        Args: {
+          city_state_param: string
+          last_generated: string
+          page_type: string
+        }
+        Returns: boolean
+      }
       update_business_update_status: {
         Args: {
           category?: string
@@ -663,6 +716,19 @@ export type Database = {
           special_hours?: string
           update_id: string
         }
+        Returns: undefined
+      }
+      update_regeneration_metrics: {
+        Args: {
+          metric_date: string
+          metric_hour: number
+          outcome_type: string
+          processing_time: number
+        }
+        Returns: undefined
+      }
+      update_seo_performance_metrics: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }

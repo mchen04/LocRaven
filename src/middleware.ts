@@ -8,8 +8,9 @@ export async function middleware(request: NextRequest) {
   // First, update the session
   const response = await updateSession(request);
   
-  // Then check for onboarding requirements
   const pathname = request.nextUrl.pathname;
+  
+  // Check for onboarding requirements
   
   // Skip onboarding checks for certain paths
   const skipOnboardingPaths = [

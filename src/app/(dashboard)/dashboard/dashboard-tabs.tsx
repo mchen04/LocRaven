@@ -38,8 +38,8 @@ interface DashboardTabsProps {
 }
 
 export function DashboardTabs({ subscription, businessProfile, usageStats, userProduct, userPrice, userEmail, userName, userLinks }: DashboardTabsProps) {
-  const permanentPageUrl = businessProfile?.permanent_page_path ? 
-    `https://locraven.com${businessProfile.permanent_page_path}` : null;
+  const permanentPageUrl = businessProfile?.city_state_slug && businessProfile?.url_slug ? 
+    `https://locraven.com/${businessProfile.city_state_slug}/${businessProfile.url_slug}` : null;
 
   return (
     <div className='mx-auto max-w-6xl'>

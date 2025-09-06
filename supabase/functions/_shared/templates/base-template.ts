@@ -340,11 +340,11 @@ export function renderSpeakableContent(data: PageData): string {
 // Generate AI context block for LLM parsing
 // Render business page link if available
 export function renderBusinessPageLink(data: PageData): string {
-  if (!data.business.permanent_page_path) {
+  if (!data.business.city_state_slug || !data.business.url_slug) {
     return '';
   }
   
-  const businessPageUrl = `https://locraven.com${data.business.permanent_page_path}`;
+  const businessPageUrl = `https://locraven.com/${data.business.city_state_slug}/${data.business.url_slug}`;
   
   return `
     <div class="business-profile-link">

@@ -703,7 +703,9 @@ export function renderCompetitiveTemplate(data: PageData): string {
 // ===== BUSINESS TEMPLATE: PERMANENT BUSINESS PAGE =====
 // Optimized for permanent business presence - comprehensive business profile page
 export function renderBusinessTemplate(data: PageData): string {
-  const pageUrl = `https://locraven.com${data.business.permanent_page_path || data.intent.filePath}`;
+  const pageUrl = data.business.city_state_slug && data.business.url_slug 
+    ? `https://locraven.com/${data.business.city_state_slug}/${data.business.url_slug}`
+    : `https://locraven.com${data.intent.filePath}`;
   const category = getCategoryDisplay(data.business.primary_category);
   
   return `<!DOCTYPE html>
