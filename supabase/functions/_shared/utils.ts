@@ -262,11 +262,14 @@ export function generateAIOptimizedSlug(
   content: string, 
   intentType: string, 
   business: any,
-  aiSlug?: string
+  aiSlug?: string,
+  updateId?: string
 ): string {
   // Use AI-generated slug if available and valid
   if (aiSlug && aiSlug.length > 5 && aiSlug.length <= 60) {
-    return slugify(aiSlug);
+    // Add timestamp suffix to ensure uniqueness even for AI slugs
+    const timestamp = Date.now().toString().slice(-6); // Last 6 digits
+    return `${slugify(aiSlug)}-${timestamp}`;
   }
   
   // Extract semantic keywords
@@ -327,6 +330,10 @@ export function generateAIOptimizedSlug(
       const topKeywords = allKeywords.slice(0, 3);
       slug = topKeywords.length > 0 ? topKeywords.join('-') : generateSemanticSlug(content);
   }
+  
+  // Add uniqueness suffix using updateId or timestamp to prevent constraint violations
+  const uniqueSuffix = updateId ? updateId.slice(-8) : Date.now().toString().slice(-6);
+  slug = `${slug}-${uniqueSuffix}`;
   
   // Ensure reasonable length and format
   return slugify(slug).substring(0, 80);
@@ -717,9 +724,9 @@ export function generateIntentBasedURL(
   // Use AI-generated slug or fallback to semantic/optimized slug generation
   let optimizedSlug: string;
   if (aiSlug && aiSlug.length > 5 && aiSlug.length <= 80) {
-    optimizedSlug = slugify(aiSlug);
+    optimizedSlug = generateAIOptimizedSlug(updateData.content_text, intentType, business, aiSlug, updateId);
   } else {
-    optimizedSlug = generateAIOptimizedSlug(updateData.content_text, intentType, business);
+    optimizedSlug = generateAIOptimizedSlug(updateData.content_text, intentType, business, undefined, updateId);
   }
   
   // No timestamp needed - trust that semantic slugs are naturally unique

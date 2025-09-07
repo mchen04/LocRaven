@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
+import { BulkActions, BulkPageSelector } from '@/components/pages/PageSelector';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
+import { config } from '@/config/urls';
 import type { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import type { BusinessProfile as FeatureBusinessProfile } from '@/features/business/types/business-types';
 import { BusinessUpdatesService } from '@/services/business-updates';
@@ -19,6 +21,7 @@ import type {
   UpdateFormErrors,
 } from '@/types/business-updates';
 import { mapBusinessProfileForUpdates, mapUsageStatsToBusinessUsage } from '@/utils/business-data-mappers';
+import { type TransformedGeneratedPage, transformGeneratedPages } from '@/utils/page-transformers';
 
 interface UpdatesTabProps {
   initialBusinessProfile?: FeatureBusinessProfile | null;
@@ -41,8 +44,12 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
   // API state
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPublishing, setIsPublishing] = useState<string[]>([]);
+  const [isDeleting, setIsDeleting] = useState<string[]>([]);
   const [currentUpdate, setCurrentUpdate] = useState<BusinessUpdate | null>(null);
-  const [generatedPages, setGeneratedPages] = useState<GeneratedPage[]>([]);
+  const [generatedPages, setGeneratedPages] = useState<TransformedGeneratedPage[]>([]);
+  
+  // Selection state
+  const [selectedPages, setSelectedPages] = useState<Set<string>>(new Set());
   
   // Initialize with mapped server data if available
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(
@@ -77,7 +84,11 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
 
     const pagesSubscription = BusinessUpdatesService.subscribeToGeneratedPages(
       currentUpdate.id,
-      setGeneratedPages
+      (pages) => {
+        // Transform pages when received from subscription
+        const transformedPages = transformGeneratedPages(pages);
+        setGeneratedPages(transformedPages);
+      }
     );
 
     return () => {
@@ -91,7 +102,9 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
   const loadGeneratedPages = async (updateId: string) => {
     const response = await BusinessUpdatesService.getGeneratedPages(updateId);
     if (response.success && response.data) {
-      setGeneratedPages(response.data);
+      // Transform the raw data to include computed URLs and handle data contract mismatch
+      const transformedPages = transformGeneratedPages(response.data);
+      setGeneratedPages(transformedPages);
     }
   };
 
@@ -171,7 +184,9 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
       }
 
       const result = processResponse.data;
-      setGeneratedPages(result.pages);
+      // Transform the pages from edge function response (handles url -> file_path mapping)
+      const transformedPages = transformGeneratedPages(result.pages);
+      setGeneratedPages(transformedPages);
       toast({
         title: "Pages generated!",
         description: `Successfully created ${result.total_pages} AI-optimized pages in ${result.processingTime}ms`,
@@ -251,6 +266,220 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
       setErrorMessage(errorMsg);
     } finally {
       setIsPublishing([]);
+    }
+  };
+
+  const handleDeletePage = async (page: TransformedGeneratedPage) => {
+    setIsDeleting(prev => [...prev, page.id]);
+    setErrorMessage('');
+
+    try {
+      const response = await BusinessUpdatesService.deleteGeneratedPage(page.id);
+      
+      if (response.success) {
+        // Remove the page from local state
+        setGeneratedPages(prev => prev.filter(p => p.id !== page.id));
+        
+        toast({
+          title: "Page deleted",
+          description: `Successfully deleted "${page.title}"`,
+        });
+      } else {
+        toast({
+          title: "Failed to delete page",
+          description: response.error || "An unknown error occurred",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete page';
+      toast({
+        title: "Failed to delete page",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(prev => prev.filter(id => id !== page.id));
+    }
+  };
+
+  const handleDeleteSelectedPages = async (pageIds: string[]) => {
+    if (pageIds.length === 0) return;
+
+    setIsDeleting(pageIds);
+    setErrorMessage('');
+
+    try {
+      // Delete pages one by one (we can optimize this later with batch delete)
+      const deletePromises = pageIds.map(id => 
+        BusinessUpdatesService.deleteGeneratedPage(id)
+      );
+      
+      const results = await Promise.allSettled(deletePromises);
+      
+      // Check results and update UI accordingly
+      const successful = results.filter(r => r.status === 'fulfilled' && r.value.success);
+      const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success));
+      
+      if (successful.length > 0) {
+        // Remove successfully deleted pages from local state
+        setGeneratedPages(prev => prev.filter(p => !pageIds.includes(p.id)));
+        
+        toast({
+          title: "Pages deleted",
+          description: `Successfully deleted ${successful.length} page${successful.length > 1 ? 's' : ''}`,
+        });
+      }
+      
+      if (failed.length > 0) {
+        toast({
+          title: "Some deletions failed",
+          description: `${failed.length} page${failed.length > 1 ? 's' : ''} could not be deleted`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete pages';
+      toast({
+        title: "Failed to delete pages",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting([]);
+    }
+  };
+
+  // Selection handlers
+  const handlePageSelection = (pageId: string, selected: boolean) => {
+    setSelectedPages(prev => {
+      const newSet = new Set(prev);
+      if (selected) {
+        newSet.add(pageId);
+      } else {
+        newSet.delete(pageId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleBulkSelection = (pageIds: string[], selected: boolean) => {
+    setSelectedPages(prev => {
+      const newSet = new Set(prev);
+      pageIds.forEach(id => {
+        if (selected) {
+          newSet.add(id);
+        } else {
+          newSet.delete(id);
+        }
+      });
+      return newSet;
+    });
+  };
+
+  const handlePublishSelected = async (pageIds: string[]) => {
+    if (pageIds.length === 0) return;
+    
+    setIsPublishing(pageIds);
+    setErrorMessage('');
+
+    try {
+      const response = await BusinessUpdatesService.publishPages(pageIds);
+      
+      if (response.success) {
+        // Update the page status in local state
+        setGeneratedPages(prev => 
+          prev.map(page => 
+            pageIds.includes(page.id)
+              ? { ...page, published: true, published_at: new Date().toISOString() }
+              : page
+          )
+        );
+
+        // Clear selection for published pages
+        setSelectedPages(prev => {
+          const newSet = new Set(prev);
+          pageIds.forEach(id => newSet.delete(id));
+          return newSet;
+        });
+
+        toast({
+          title: "Pages published",
+          description: `Successfully published ${pageIds.length} page${pageIds.length > 1 ? 's' : ''}`,
+        });
+      } else {
+        toast({
+          title: "Failed to publish pages",
+          description: response.error || "An unknown error occurred",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to publish pages';
+      toast({
+        title: "Failed to publish pages",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    } finally {
+      setIsPublishing([]);
+    }
+  };
+
+  const handleDeleteSelected = async (pageIds: string[]) => {
+    if (pageIds.length === 0) return;
+
+    setIsDeleting(pageIds);
+    setErrorMessage('');
+
+    try {
+      const deletePromises = pageIds.map(id => 
+        BusinessUpdatesService.deleteGeneratedPage(id)
+      );
+      
+      const results = await Promise.allSettled(deletePromises);
+      
+      const successful = results.filter((r, index) => 
+        r.status === 'fulfilled' && r.value.success
+      ).map((_, index) => pageIds[index]);
+      
+      const failed = results.filter((r, index) => 
+        r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+      ).length;
+      
+      if (successful.length > 0) {
+        // Remove successfully deleted pages from local state
+        setGeneratedPages(prev => prev.filter(p => !successful.includes(p.id)));
+        
+        // Clear selection for deleted pages
+        setSelectedPages(prev => {
+          const newSet = new Set(prev);
+          successful.forEach(id => newSet.delete(id));
+          return newSet;
+        });
+        
+        toast({
+          title: "Pages deleted",
+          description: `Successfully deleted ${successful.length} page${successful.length > 1 ? 's' : ''}`,
+        });
+      }
+      
+      if (failed > 0) {
+        toast({
+          title: "Some deletions failed",
+          description: `${failed} page${failed > 1 ? 's' : ''} could not be deleted`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete pages';
+      toast({
+        title: "Failed to delete pages",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting([]);
     }
   };
 
@@ -446,20 +675,29 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
       {generatedPages.length > 0 && (
         <Card title={`Generated Pages (${generatedPages.length})`}>
           <div className='space-y-4'>
-            {/* Bulk actions */}
-            <div className='flex items-center justify-between'>
-              <p className='text-sm text-zinc-400'>
-                {generatedPages.filter(p => p.published).length} of {generatedPages.length} pages published
-              </p>
-              {generatedPages.some(page => !page.published) && (
-                <Button
-                  size='sm'
-                  onClick={handlePublishAllPages}
-                  disabled={isPublishing.length > 0}
-                >
-                  {isPublishing.length > 0 ? 'Publishing...' : 'Publish All'}
-                </Button>
-              )}
+            {/* Bulk selector and actions */}
+            <div className='space-y-4'>
+              <div className='flex items-center justify-between'>
+                <p className='text-sm text-zinc-400'>
+                  {generatedPages.filter(p => p.published).length} of {generatedPages.length} pages published
+                </p>
+              </div>
+              
+              <BulkPageSelector
+                pages={generatedPages}
+                selectedPages={selectedPages}
+                onSelectionChange={handleBulkSelection}
+                disabled={isPublishing.length > 0 || isDeleting.length > 0}
+              />
+              
+              <BulkActions
+                selectedPages={selectedPages}
+                pages={generatedPages}
+                onPublishSelected={handlePublishSelected}
+                onDeleteSelected={handleDeleteSelected}
+                isPublishing={isPublishing.length > 0}
+                isDeleting={isDeleting.length > 0}
+              />
             </div>
 
             {/* Generated pages list */}
@@ -467,21 +705,23 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
               {generatedPages.map((page) => (
                 <div
                   key={page.id}
-                  className='flex items-center justify-between rounded-md bg-zinc-800 p-4'
+                  className='flex items-start justify-between rounded-md bg-zinc-800 p-4'
                 >
-                  <div className='flex-1'>
-                    <div className='flex items-center gap-2'>
-                      <span className='text-white font-medium'>{page.title}</span>
-                      <Badge variant='outline' className='text-xs'>
-                        {page.intent_type}
-                      </Badge>
-                      {page.published && (
-                        <Badge variant='default' className='text-xs'>
-                          Published
+                  <div className='flex-1 pr-4'>
+                    <div className='flex items-start gap-2 flex-wrap'>
+                      <span className='text-white font-medium leading-tight'>{page.title}</span>
+                      <div className='flex gap-1 flex-shrink-0'>
+                        <Badge variant='outline' className='text-xs'>
+                          {page.intent_type}
                         </Badge>
-                      )}
+                        {page.published && (
+                          <Badge variant='default' className='text-xs'>
+                            Published
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <p className='text-sm text-zinc-400 mt-1'>
+                    <p className='text-sm text-zinc-400 mt-2'>
                       {page.slug} • {page.estimated_html_size_kb || page.rendered_size_kb}KB
                     </p>
                     {page.published_at && (
@@ -493,25 +733,81 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
                   <div className='flex gap-2'>
                     {!page.published ? (
                       <>
-                        <Button size='sm' variant='secondary' asChild>
-                          <a href={`https://pub-31a9302263d148d4b7988d574b3c2488.r2.dev${page.file_path}/index.html`} target='_blank' rel='noopener noreferrer'>
+                        <Button 
+                          size='sm' 
+                          variant='secondary' 
+                          asChild
+                          disabled={!page.hasValidFilePath}
+                        >
+                          <a 
+                            href={page.previewUrl || '#'} 
+                            target='_blank' 
+                            rel='noopener noreferrer'
+                            onClick={(e) => {
+                              if (!page.hasValidFilePath) {
+                                e.preventDefault();
+                                toast({
+                                  title: "Preview not available",
+                                  description: "This page has an invalid file path",
+                                  variant: "destructive"
+                                });
+                              }
+                            }}
+                          >
                             Preview
                           </a>
                         </Button>
                         <Button
                           size='sm'
                           onClick={() => handlePublishPage(page)}
-                          disabled={isPublishing.includes(page.id)}
+                          disabled={isPublishing.includes(page.id) || !page.hasValidFilePath}
                         >
                           {isPublishing.includes(page.id) ? 'Publishing...' : 'Publish'}
                         </Button>
+                        <Button
+                          size='sm'
+                          variant='destructive'
+                          onClick={() => handleDeletePage(page)}
+                          disabled={isDeleting.includes(page.id)}
+                        >
+                          {isDeleting.includes(page.id) ? 'Deleting...' : 'Delete'}
+                        </Button>
                       </>
                     ) : (
-                      <Button size='sm' variant='outline' asChild>
-                        <a href={`https://locraven.com${page.file_path}`} target='_blank' rel='noopener noreferrer'>
-                          View Live
-                        </a>
-                      </Button>
+                      <>
+                        <Button 
+                          size='sm' 
+                          variant='outline' 
+                          asChild
+                          disabled={!page.hasValidFilePath}
+                        >
+                          <a 
+                            href={page.liveUrl || '#'} 
+                            target='_blank' 
+                            rel='noopener noreferrer'
+                            onClick={(e) => {
+                              if (!page.hasValidFilePath) {
+                                e.preventDefault();
+                                toast({
+                                  title: "Page not available",
+                                  description: "This page has an invalid file path",
+                                  variant: "destructive"
+                                });
+                              }
+                            }}
+                          >
+                            View Live
+                          </a>
+                        </Button>
+                        <Button
+                          size='sm'
+                          variant='destructive'
+                          onClick={() => handleDeletePage(page)}
+                          disabled={isDeleting.includes(page.id)}
+                        >
+                          {isDeleting.includes(page.id) ? 'Deleting...' : 'Delete'}
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
