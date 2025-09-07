@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 import { MarketingLayout, PageSection } from '@/components/marketing-layout';
 
@@ -218,9 +219,9 @@ export default function PrivacyPage() {
               privacy@locraven.com
             </a>{' '}
             or use our{' '}
-            <a href="/support" className="text-green-300 hover:text-green-200">
+            <Link href="/support" className="text-green-300 hover:text-green-200">
               privacy request form
-            </a>
+            </Link>
             .
           </p>
         </div>
@@ -334,9 +335,9 @@ export default function PrivacyPage() {
 
         <p>
           To exercise your CCPA rights, visit our{' '}
-          <a href="/support" className="text-blue-400 hover:text-blue-300">
+          <Link href="/support" className="text-blue-400 hover:text-blue-300">
             privacy request form
-          </a>{' '}
+          </Link>{' '}
           or email privacy@locraven.com.
         </p>
       </PageSection>

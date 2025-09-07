@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 import { MarketingLayout, PageSection } from '@/components/marketing-layout';
 
@@ -83,7 +84,7 @@ export default function SupportPage() {
           <div className="bg-zinc-900 p-6 rounded-lg">
             <h3 className="text-lg font-semibold mb-4 text-white">Step 1: Create Your Account</h3>
             <ol className="list-decimal ml-6 space-y-2 text-neutral-200">
-              <li>Visit our <a href="/pricing" className="text-blue-400 hover:text-blue-300">pricing page</a> and choose your plan</li>
+              <li>Visit our <Link href="/pricing" className="text-blue-400 hover:text-blue-300">pricing page</Link> and choose your plan</li>
               <li>Click &quot;Get Started&quot; and enter your business email</li>
               <li>Verify your email address and set a secure password</li>
               <li>Complete your business profile with accurate information</li>
@@ -412,9 +413,9 @@ export default function SupportPage() {
             <p className="text-neutral-300 mb-4">
               Track your page performance and discovery metrics in real-time.
             </p>
-            <a href="/dashboard" className="text-blue-400 hover:text-blue-300">
+            <Link href="/dashboard" className="text-blue-400 hover:text-blue-300">
               View Dashboard →
-            </a>
+            </Link>
           </div>
 
           <div className="bg-zinc-900 p-6 rounded-lg">

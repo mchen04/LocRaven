@@ -332,19 +332,19 @@ export default function AboutUsPage() {
               hello@locraven.com
             </a>
             <span className="text-neutral-600">•</span>
-            <a 
+            <Link 
               href="/support" 
               className="text-blue-400 hover:text-blue-300"
             >
               Get Support
-            </a>
+            </Link>
             <span className="text-neutral-600">•</span>
-            <a 
+            <Link 
               href="/pricing" 
               className="text-blue-400 hover:text-blue-300"
             >
               View Pricing
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -51,10 +51,10 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
   const [selectedPages, setSelectedPages] = useState<Set<string>>(new Set());
   
   // Initialize with mapped server data if available
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(
+  const [businessProfile, _setBusinessProfile] = useState<BusinessProfile | null>(
     initialBusinessProfile ? mapBusinessProfileForUpdates(initialBusinessProfile) : null
   );
-  const [businessUsage, setBusinessUsage] = useState<BusinessUsage | null>(
+  const [businessUsage, _setBusinessUsage] = useState<BusinessUsage | null>(
     initialUsageStats && initialBusinessProfile 
       ? mapUsageStatsToBusinessUsage(initialUsageStats, initialBusinessProfile.id) 
       : null
@@ -156,12 +156,9 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
     setSuccessMessage('');
 
     try {
-      console.log('🔄 Starting page generation process...');
       
       // Step 1: Create the update
-      console.log('📝 Creating update record...');
       const createResponse = await BusinessUpdatesService.createUpdate(formData);
-      console.log('✅ Create response:', createResponse);
       
       if (!createResponse.success || !createResponse.data) {
         console.error('❌ Failed to create update:', createResponse.error);
@@ -169,13 +166,10 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
       }
 
       const update = createResponse.data;
-      console.log('✅ Created update:', update);
       setCurrentUpdate(update);
 
       // Step 2: Process with AI template generation
-      console.log('🤖 Processing with AI template generation...');
       const processResponse = await BusinessUpdatesService.processUpdateWithTemplate(update, formData);
-      console.log('🔄 Process response:', processResponse);
       
       if (!processResponse.success || !processResponse.data) {
         console.error('❌ Failed to process update:', processResponse.error);
@@ -233,6 +227,8 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
     }
   };
 
+  // TODO: Implement bulk publish functionality in UI
+  /*
   const handlePublishAllPages = async () => {
     const unpublishedPages = generatedPages.filter(page => !page.published);
     if (unpublishedPages.length === 0) return;
@@ -267,6 +263,7 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
       setIsPublishing([]);
     }
   };
+  */
 
   const handleDeletePage = async (page: TransformedGeneratedPage) => {
     setIsDeleting(prev => [...prev, page.id]);
@@ -302,7 +299,7 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
     }
   };
 
-  const handleDeleteSelectedPages = async (pageIds: string[]) => {
+  const _handleDeleteSelectedPages = async (pageIds: string[]) => {
     if (pageIds.length === 0) return;
 
     setIsDeleting(pageIds);
@@ -350,7 +347,7 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
   };
 
   // Selection handlers
-  const handlePageSelection = (pageId: string, selected: boolean) => {
+  const _handlePageSelection = (pageId: string, selected: boolean) => {
     setSelectedPages(prev => {
       const newSet = new Set(prev);
       if (selected) {

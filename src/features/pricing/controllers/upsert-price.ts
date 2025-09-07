@@ -26,6 +26,6 @@ export async function upsertPrice(price: Stripe.Price) {
   if (error) {
     throw error;
   } else {
-    console.info(`Price inserted/updated: ${price.id}`);
+    // Price inserted/updated - consider proper logging service
   }
 }

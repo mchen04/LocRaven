@@ -123,7 +123,7 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
         console.error('Failed to generate business page:', result);
         // Don't fail onboarding if page generation fails
       } else {
-        console.log('Business page generated successfully:', result.page_url);
+        // Business page generated successfully - consider implementing proper logging
       }
     } catch (error) {
       console.error('Error calling generate-business-page function:', error);

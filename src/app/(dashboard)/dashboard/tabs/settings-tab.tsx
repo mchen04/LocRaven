@@ -43,7 +43,7 @@ export function SettingsTab({ userEmail, userName }: SettingsTabProps) {
           variant: 'destructive',
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -90,7 +90,7 @@ export function SettingsTab({ userEmail, userName }: SettingsTabProps) {
         });
       }
       // If successful, the server action will redirect automatically
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to delete account',
