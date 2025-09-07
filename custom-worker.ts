@@ -1,3 +1,4 @@
+// @ts-ignore - .open-next/worker.js is generated at build time
 import { default as handler } from "./.open-next/worker.js";
 
 // Helper functions for R2 static page serving
@@ -54,4 +55,5 @@ export default {
 };
 
 // Re-export the Durable Object handlers from OpenNext
+// @ts-ignore - .open-next/worker.js is generated at build time
 export { DOQueueHandler, DOShardedTagCache, BucketCachePurge } from "./.open-next/worker.js";
