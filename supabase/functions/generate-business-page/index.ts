@@ -9,7 +9,7 @@ import {
 import { renderBusinessTemplate } from '../_shared/templates/intent-templates.ts'
 
 // Generate permanent business page with new URL structure and feature flags
-async function generateBusinessPage(supabase: any, businessId: string, useNewUrlStructure: boolean = true): Promise<{ success: boolean; error?: string; pageUrl?: string }> {
+async function generateBusinessPage(supabase: any, businessId: string, useNewUrlStructure: boolean = true, forceRegenerate: boolean = false): Promise<{ success: boolean; error?: string; pageUrl?: string }> {
   try {
     console.log(`Generating permanent business page for business: ${businessId} (new URL structure: ${useNewUrlStructure})`);
     
@@ -35,20 +35,22 @@ async function generateBusinessPage(supabase: any, businessId: string, useNewUrl
       return { success: false, error: 'Business has not completed onboarding with new URL structure' };
     }
 
-    // Check if page already exists in generated_pages
+    // Check if page already exists in generated_pages (skip if forcing regeneration)
     const newPagePath = `/${business.city_state_slug}/${business.url_slug}`;
     
-    const { data: existingPage } = await supabase
-      .from('generated_pages')
-      .select('id, file_path, published')
-      .eq('business_id', businessId)
-      .eq('page_category', 'business')
-      .eq('file_path', newPagePath)
-      .single();
-    
-    if (existingPage && existingPage.published) {
-      const pageUrl = `https://locraven.com${newPagePath}`;
-      return { success: true, pageUrl };
+    if (!forceRegenerate) {
+      const { data: existingPage } = await supabase
+        .from('generated_pages')
+        .select('id, file_path, published')
+        .eq('business_id', businessId)
+        .eq('page_category', 'business')
+        .eq('file_path', newPagePath)
+        .single();
+      
+      if (existingPage && existingPage.published) {
+        const pageUrl = `https://locraven.com${newPagePath}`;
+        return { success: true, pageUrl };
+      }
     }
     
 
@@ -164,11 +166,28 @@ async function generateBusinessPage(supabase: any, businessId: string, useNewUrl
       html_content: htmlContent
     };
 
-    const { data: insertedPage, error: insertError } = await supabase
-      .from('generated_pages')
-      .insert(pageRecord)
-      .select('id, file_path')
-      .single();
+    // Use upsert when regenerating to handle existing pages
+    let insertedPage, insertError;
+    if (forceRegenerate) {
+      const { data, error } = await supabase
+        .from('generated_pages')
+        .upsert(pageRecord, { 
+          onConflict: 'intent_type,slug',
+          ignoreDuplicates: false 
+        })
+        .select('id, file_path')
+        .single();
+      insertedPage = data;
+      insertError = error;
+    } else {
+      const { data, error } = await supabase
+        .from('generated_pages')
+        .insert(pageRecord)
+        .select('id, file_path')
+        .single();
+      insertedPage = data;
+      insertError = error;
+    }
 
     if (insertError) {
       console.error('Failed to store business page in generated_pages:', insertError);
@@ -197,7 +216,7 @@ serve(async (req) => {
 
   try {
     const supabase = createSupabaseClient(req);
-    const { business_id, use_new_url_structure = true, feature_flags = {} } = await req.json();
+    const { business_id, use_new_url_structure = true, feature_flags = {}, regenerate = false } = await req.json();
 
     if (!business_id) {
       return errorResponse('business_id is required', 400);
@@ -212,7 +231,7 @@ serve(async (req) => {
       feature_flags
     });
 
-    const result = await generateBusinessPage(supabase, business_id, useNewUrlStructure);
+    const result = await generateBusinessPage(supabase, business_id, useNewUrlStructure, regenerate);
 
     if (result.success) {
       return successResponse({ 

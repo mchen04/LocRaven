@@ -100,6 +100,24 @@ export async function upsertBusinessProfile(data: UpsertBusinessProfileData) {
         throw new Error('Failed to update business profile');
       }
 
+      // Trigger page regeneration for onboarded businesses (non-blocking)
+      if (updatedBusiness.is_onboarded && updatedBusiness.city_state_slug && updatedBusiness.url_slug) {
+        fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-business-page`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+          body: JSON.stringify({ 
+            business_id: updatedBusiness.id,
+            regenerate: true
+          }),
+        }).catch(error => {
+          console.error('Page regeneration failed (non-blocking):', error);
+          // Don't throw - let user operation succeed
+        });
+      }
+
       revalidatePath('/dashboard');
       return { success: true, data: updatedBusiness };
     } else {

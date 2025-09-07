@@ -277,7 +277,18 @@ ${renderIfExists(data.business.description, `<p>Description: ${data.business.des
 ${renderList(data.business.services, (services) => `<p>Services: ${services.join(', ')}</p>`)}
 ${renderList(data.business.specialties, (specialties) => `<p>Specialties: ${specialties.join(', ')}</p>`)}
 ${renderIfExists(data.business.hours, `<p>Hours: ${data.business.hours}</p>`)}
-${renderIfExists(data.business.price_positioning, `<p>Price Range: ${data.business.price_positioning}</p>`)}`;
+${renderIfExists(data.business.price_positioning, `<p>Price Range: ${data.business.price_positioning}</p>`)}
+${renderIfExists(data.business.service_area, `<p>Service Area: ${data.business.service_area}</p>`)}
+${renderIfExists(data.business.established_year, `<p>Established: ${data.business.established_year}</p>`)}
+${renderPaymentMethods(data)}
+${renderLanguages(data)}
+${renderAccessibilityFeatures(data)}
+${renderEnhancedParking(data)}
+${renderSocialMedia(data)}
+${renderAwards(data)}
+${renderCertifications(data)}
+${renderFeaturedItems(data)}
+${renderReviewSummary(data)}`;
 }
 
 export function renderFAQSection(data: PageData): string {
@@ -476,4 +487,194 @@ export function getCategoryDisplay(category: string): string {
     'transportation-delivery': 'Transportation & Delivery'
   };
   return categoryMap[category] || category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+// ===== NEW HELPER FUNCTIONS FOR MISSING BUSINESS FIELDS =====
+
+// Helper for payment method icons
+function getPaymentIcon(method: string): string {
+  const icons: Record<string, string> = {
+    'Cash': '💵',
+    'Credit Card': '💳',
+    'Debit Card': '💳',
+    'PayPal': '📱',
+    'Venmo': '📱',
+    'Apple Pay': '🍎',
+    'Google Pay': '📱',
+    'Check': '📝',
+    'Zelle': '📱',
+    'CashApp': '📱'
+  };
+  return icons[method] || '💰';
+}
+
+// Helper for social media icons
+function getSocialIcon(platform: string): string {
+  const icons: Record<string, string> = {
+    'facebook': '📘',
+    'instagram': '📸',
+    'twitter': '🐦',
+    'linkedin': '💼',
+    'youtube': '📺',
+    'tiktok': '🎵',
+    'snapchat': '👻',
+    'pinterest': '📌'
+  };
+  return icons[platform.toLowerCase()] || '🔗';
+}
+
+// Helper for price range display
+function getPriceDisplay(positioning: string): string {
+  const displays: Record<string, string> = {
+    'budget': '$ - Budget Friendly',
+    'mid-range': '$$ - Mid Range',
+    'premium': '$$$ - Premium',
+    'luxury': '$$$$ - Luxury'
+  };
+  return displays[positioning] || positioning;
+}
+
+// Render payment methods section
+export function renderPaymentMethods(data: PageData): string {
+  return renderList(data.business.payment_methods, (methods) => 
+    `<div class="payment-methods">
+      <h3>💳 Payment Accepted</h3>
+      <ul class="payment-list">
+        ${methods.map(method => `<li>${getPaymentIcon(method)} ${method}</li>`).join('')}
+      </ul>
+    </div>`
+  );
+}
+
+// Render languages spoken section
+export function renderLanguages(data: PageData): string {
+  return renderList(data.business.languages_spoken, (languages) =>
+    `<div class="languages">
+      <h3>🗣️ Languages Spoken</h3>
+      <p class="language-list">${languages.join(', ')}</p>
+    </div>`
+  );
+}
+
+// Render accessibility features section
+export function renderAccessibilityFeatures(data: PageData): string {
+  return renderList(data.business.accessibility_features, (features) =>
+    `<div class="accessibility">
+      <h3>♿ Accessibility Features</h3>
+      <ul class="accessibility-list">
+        ${features.map(feature => `<li>✓ ${feature}</li>`).join('')}
+      </ul>
+    </div>`
+  );
+}
+
+// Render social media links section
+export function renderSocialMedia(data: PageData): string {
+  if (!data.business.social_media) return '';
+  
+  const links = Object.entries(data.business.social_media)
+    .filter(([_, url]) => url && url.trim())
+    .map(([platform, url]) => 
+      `<a href="${url}" target="_blank" rel="noopener nofollow" class="social-link">
+        ${getSocialIcon(platform)} ${platform.charAt(0).toUpperCase() + platform.slice(1)}
+      </a>`
+    );
+  
+  return links.length > 0 ? 
+    `<section class="social-media">
+      <h3>🌐 Follow Us</h3>
+      <div class="social-links">
+        ${links.join(' ')}
+      </div>
+    </section>` : '';
+}
+
+// Render awards section
+export function renderAwards(data: PageData): string {
+  return renderList(data.business.awards, (awards) => 
+    `<div class="awards">
+      <h3>🏆 Awards & Recognition</h3>
+      <ul class="awards-list">
+        ${awards.map(award => `<li>${award}</li>`).join('')}
+      </ul>
+    </div>`
+  );
+}
+
+// Render certifications section
+export function renderCertifications(data: PageData): string {
+  return renderList(data.business.certifications, (certifications) => 
+    `<div class="certifications">
+      <h3>📜 Certifications</h3>
+      <ul class="certifications-list">
+        ${certifications.map(cert => `<li>${cert}</li>`).join('')}
+      </ul>
+    </div>`
+  );
+}
+
+// Render featured items section
+export function renderFeaturedItems(data: PageData): string {
+  return renderList(data.business.featured_items, (items) => 
+    `<div class="featured-items">
+      <h3>⭐ Featured Items</h3>
+      <div class="featured-grid">
+        ${items.map(item => `
+          <div class="featured-item">
+            <h4>${item.name || item.title}</h4>
+            ${item.description ? `<p>${item.description}</p>` : ''}
+            ${item.price ? `<span class="price">${item.price}</span>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>`
+  );
+}
+
+// Render enhanced parking info
+export function renderEnhancedParking(data: PageData): string {
+  if (!data.business.enhanced_parking_info && !data.business.parking_info) return '';
+  
+  const enhanced = data.business.enhanced_parking_info;
+  const basic = data.business.parking_info;
+  
+  if (enhanced && typeof enhanced === 'object') {
+    return `
+      <div class="parking-enhanced">
+        <h3>🚗 Parking Information</h3>
+        ${enhanced.type ? `<p><strong>Type:</strong> ${enhanced.type}</p>` : ''}
+        ${enhanced.cost ? `<p><strong>Cost:</strong> ${enhanced.cost}</p>` : ''}
+        ${enhanced.instructions ? `<p><strong>Instructions:</strong> ${enhanced.instructions}</p>` : ''}
+        ${enhanced.availability ? `<p><strong>Availability:</strong> ${enhanced.availability}</p>` : ''}
+      </div>`;
+  } else if (basic) {
+    return `
+      <div class="parking">
+        <h3>🚗 Parking</h3>
+        <p>${basic}</p>
+      </div>`;
+  }
+  
+  return '';
+}
+
+// Render review summary
+export function renderReviewSummary(data: PageData): string {
+  if (!data.business.review_summary) return '';
+  
+  const review = data.business.review_summary;
+  if (typeof review === 'object' && review.rating && review.count) {
+    const stars = '⭐'.repeat(Math.floor(review.rating));
+    return `
+      <div class="review-summary">
+        <h3>📝 Customer Reviews</h3>
+        <div class="rating">
+          <span class="stars">${stars}</span>
+          <span class="rating-text">${review.rating}/5 (${review.count} reviews)</span>
+        </div>
+        ${review.summary ? `<p class="review-text">${review.summary}</p>` : ''}
+      </div>`;
+  }
+  
+  return '';
 }
