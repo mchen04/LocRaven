@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 
+import { EditUpdateModal } from '@/components/edit-update-modal';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { BusinessProfile } from '@/features/business/types/business-types';
 import { LinksTabProps, UserLink } from '@/features/links/types/links-types';
 import { BusinessUpdatesService } from '@/services/business-updates';
-import { BusinessProfile } from '@/features/business/types/business-types';
+import type { GeneratedPage } from '@/types/business-updates';
 
 export function LinksTab({ links, businessProfile }: LinksTabProps & { businessProfile?: BusinessProfile | null }) {
   const [activeSection, setActiveSection] = useState('active');
@@ -14,6 +16,11 @@ export function LinksTab({ links, businessProfile }: LinksTabProps & { businessP
   const [visibleExpiredCount, setVisibleExpiredCount] = useState(5);
   const [localLinks, setLocalLinks] = useState(links);
   const [isDeletingIds, setIsDeletingIds] = useState<string[]>([]);
+  
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingLink, setEditingLink] = useState<UserLink | null>(null);
+  
   const { toast } = useToast();
   
   const activeLinks = localLinks?.filter((link) => link.status === 'active') || [];
@@ -28,8 +35,17 @@ export function LinksTab({ links, businessProfile }: LinksTabProps & { businessP
   };
 
   const handleEditLink = (linkId: string) => {
-    // TODO: Implement edit functionality
-    console.log('Editing link:', linkId);
+    const link = localLinks?.find(l => l.id === linkId);
+    if (link) {
+      setEditingLink(link);
+      setIsEditModalOpen(true);
+    } else {
+      toast({
+        title: "Cannot Edit",
+        description: "Link not found",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteLink = async (linkId: string) => {
@@ -70,6 +86,27 @@ export function LinksTab({ links, businessProfile }: LinksTabProps & { businessP
 
   const handleLoadMoreExpired = () => {
     setVisibleExpiredCount(prev => prev + 5);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditingLink(null);
+  };
+
+  const handleEditSuccess = (updatedPages?: GeneratedPage[]) => {
+    // For now, we'll just show a success message
+    // In a full implementation, we might want to refresh the links data
+    // or update the local state with the new page information
+    toast({
+      title: "Update Successful",
+      description: updatedPages 
+        ? `Successfully updated with ${updatedPages.length} regenerated pages` 
+        : "Update saved successfully",
+    });
+
+    // Refresh local links by refetching if needed
+    // For MVP, we'll just close the modal
+    handleEditModalClose();
   };
 
   const visibleActiveLinks = activeLinks.slice(0, visibleActiveCount);
@@ -177,6 +214,7 @@ export function LinksTab({ links, businessProfile }: LinksTabProps & { businessP
                     key={link.id}
                     link={link}
                     onCopy={handleCopyLink}
+                    onEdit={handleEditLink}
                     onDelete={handleDeleteLink}
                     isDeletingIds={isDeletingIds}
                   />
@@ -213,6 +251,7 @@ export function LinksTab({ links, businessProfile }: LinksTabProps & { businessP
                     key={link.id}
                     link={link}
                     onCopy={handleCopyLink}
+                    onEdit={handleEditLink}
                     onDelete={handleDeleteLink}
                     isDeletingIds={isDeletingIds}
                   />
@@ -237,6 +276,16 @@ export function LinksTab({ links, businessProfile }: LinksTabProps & { businessP
           </Card>
         </div>
       )}
+
+      {/* Edit Modal */}
+      {editingLink && (
+        <EditUpdateModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          link={editingLink}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }
@@ -244,11 +293,13 @@ export function LinksTab({ links, businessProfile }: LinksTabProps & { businessP
 function LinkItem({
   link,
   onCopy,
+  onEdit,
   onDelete,
   isDeletingIds,
 }: {
   link: UserLink;
   onCopy: (url: string) => void;
+  onEdit: (linkId: string) => void;
   onDelete: (linkId: string) => void;
   isDeletingIds: string[];
 }) {
@@ -296,9 +347,8 @@ function LinkItem({
             <Button
               size='sm'
               variant='secondary'
-              disabled={true}
-              className='opacity-50 cursor-not-allowed flex-1 sm:flex-none text-xs sm:text-sm'
-              title='Edit functionality coming soon'
+              onClick={() => onEdit(link.id)}
+              className='flex-1 sm:flex-none text-xs sm:text-sm'
             >
               Edit
             </Button>

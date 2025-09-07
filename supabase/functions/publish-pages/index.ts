@@ -404,7 +404,7 @@ serve(async (req) => {
     return successResponse({
       publishedPages: publishedPages?.map(page => ({
         id: page.id,
-        url: page.file_path,
+        file_path: page.file_path,
         title: page.title,
         intent_type: page.intent_type,
         page_variant: page.page_variant,

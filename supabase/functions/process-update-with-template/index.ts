@@ -27,24 +27,41 @@ interface AIOptimizedFAQ {
 
 // Template-based page generator using the professional template
 serve(async (req) => {
+  console.log('🚀 Edge function started, handling CORS...');
   const corsResponse = handleCors(req);
-  if (corsResponse) return corsResponse;
+  if (corsResponse) {
+    console.log('✅ CORS response returned');
+    return corsResponse;
+  }
 
+  let updateId: string;
   try {
-    const { updateId, temporalInfo, specialHours, faqData } = await safeJsonParse(req);
-    console.log('Edge Function called with:', { updateId });
+    console.log('📥 Parsing request JSON...');
+    const { updateId: parsedUpdateId, temporalInfo, specialHours, faqData } = await safeJsonParse(req);
+    updateId = parsedUpdateId;
+    console.log('✅ Request parsed successfully:', { 
+      updateId, 
+      hasTemporalInfo: !!temporalInfo, 
+      hasSpecialHours: !!specialHours,
+      hasFaqData: !!faqData 
+    });
     
+    console.log('🔗 Creating Supabase client...');
     const supabase = createSupabaseClient();
+    console.log('✅ Supabase client created');
 
     const startTime = Date.now()
     
+    console.log('🔍 Validating UUID format...');
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(updateId)) {
-      console.error('Invalid UUID format for updateId:', updateId);
+      console.error('❌ Invalid UUID format for updateId:', updateId);
       throw new Error(`Invalid UUID format for updateId: ${updateId}`);
     }
+    console.log('✅ UUID validation passed');
     
+    console.log('📝 Updating status to processing...');
     // Use RPC to bypass RLS policies for service role operations
     const { error: updateError } = await supabase.rpc('update_business_update_status', {
       update_id: updateId,
@@ -56,39 +73,55 @@ serve(async (req) => {
     });
 
     if (updateError) {
-      console.error('Error updating status:', updateError);
+      console.error('❌ Error updating status:', updateError);
       throw new Error(`Failed to update status: ${updateError.message}`);
     }
+    console.log('✅ Status updated to processing');
 
+    console.log('🏢 Fetching update and business details...');
     // Get update details first to get business_id
-    const { data: updateRecord } = await supabase
+    const { data: updateRecord, error: fetchError } = await supabase
       .from('updates')
       .select('*, businesses(*)')
       .eq('id', updateId)
       .single()
 
+    if (fetchError) {
+      console.error('❌ Error fetching update record:', fetchError);
+      throw new Error(`Failed to fetch update: ${fetchError.message}`);
+    }
+
     if (!updateRecord) {
+      console.error('❌ Update record not found');
       throw new Error('Update not found')
     }
+    console.log('✅ Update record fetched:', { id: updateRecord.id, content_length: updateRecord.content_text?.length });
 
     const business = updateRecord.businesses
     if (!business) {
+      console.error('❌ Business record not found');
       throw new Error('Business not found')
     }
+    console.log('✅ Business record fetched:', { id: business.id, name: business.name });
 
     // Use the actual business_id and content from the update record
     const businessId = business.id
     const contentText = updateRecord.content_text
+    console.log('📝 Content text length:', contentText?.length || 0);
 
     // Generate batch ID for coordinated multi-page lifecycle
     const batchId = crypto.randomUUID();
+    console.log('🆔 Generated batch ID:', batchId);
     
     // Generate 6 AI-optimized pages with different search intents
     const intentTypes: ('direct' | 'local' | 'category' | 'branded-local' | 'service-urgent' | 'competitive')[] = 
       ['direct', 'local', 'category', 'branded-local', 'service-urgent', 'competitive'];
-    const aiProvider = business.ai_provider || 'gemini';
+    const aiProvider = 'gemini';
+    console.log('🎯 Intent types to generate:', intentTypes);
+    console.log('🤖 Using AI provider:', aiProvider);
     
     // Generate all 6 pages in parallel for maximum efficiency
+    console.log('⚡ Starting parallel page generation...');
     const pageGenerationPromises = intentTypes.map(async (intentType) => {
       try {
         console.log(`Generating ${intentType} content for business: ${business.name}`);
@@ -268,7 +301,7 @@ serve(async (req) => {
     return successResponse({
       pages: insertedPages?.map(page => ({
         id: page.id,
-        url: page.file_path,
+        file_path: page.file_path,
         title: page.title,
         intent_type: page.intent_type,
         page_variant: page.page_variant,
@@ -287,20 +320,35 @@ serve(async (req) => {
       message: 'Pages generated as drafts. Use publish-pages function to make them live.'
     })
   } catch (error) {
-    console.error('Error processing update with template:', error)
+    console.error('💥 FATAL ERROR in edge function:', error);
+    console.error('Error stack:', error.stack);
     
     const supabase = createSupabaseClient()
     
-    const { updateId } = await req.json().catch(() => ({}))
-    if (updateId) {
+    // Try to get updateId from different sources
+    let errorUpdateId = updateId;
+    if (!errorUpdateId) {
+      try {
+        const { updateId: fallbackId } = await req.json().catch(() => ({}));
+        errorUpdateId = fallbackId;
+      } catch (parseError) {
+        console.error('❌ Could not parse request for updateId:', parseError);
+      }
+    }
+    
+    if (errorUpdateId) {
+      console.log('📝 Marking update as failed in database...');
       await supabase.rpc('update_business_update_status', {
-        update_id: updateId,
+        update_id: errorUpdateId,
         new_status: 'failed',
         error_msg: error.message
       });
+      console.log('✅ Update marked as failed');
     }
     
-    return errorResponse(error.message)
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    console.error('🚨 Returning error response:', errorMsg);
+    return errorResponse(errorMsg);
   }
 })
 
