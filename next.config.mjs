@@ -140,15 +140,8 @@ const nextConfig = withBundleAnalyzer({
       })
     );
 
-    // Add server-side secrets for build-time analysis (Cloudflare runtime will override)
-    if (isServer) {
-      config.plugins.push(
-        new webpack.DefinePlugin({
-          'process.env.SUPABASE_SERVICE_ROLE_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhtenRyaXRtcXNzY3huamhydnFpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDcyMjE1OCwiZXhwIjoyMDcwMjk4MTU4fQ.placeholder-for-build-time-analysis'),
-          'process.env.STRIPE_SECRET_KEY': JSON.stringify('sk_placeholder_for_build_time_analysis'),
-        })
-      );
-    }
+    // Server-side secrets will be provided by Cloudflare Workers runtime environment
+    // Removed hardcoded values to allow runtime environment variables to work properly
     
     console.log('✅ Environment variables explicitly defined in client and server bundles');
     

@@ -15,12 +15,12 @@ export default async function WelcomePage() {
     redirect('/login');
   }
 
-  if (!businessProfile?.is_onboarded) {
+  if (!(businessProfile as any)?.is_onboarded) {
     redirect('/onboarding');
   }
 
-  const permanentPageUrl = businessProfile?.city_state_slug && businessProfile?.url_slug ? 
-    `https://locraven.com/${businessProfile.city_state_slug}/${businessProfile.url_slug}` : null;
+  const permanentPageUrl = (businessProfile as any)?.city_state_slug && (businessProfile as any)?.url_slug ? 
+    `https://locraven.com/${(businessProfile as any).city_state_slug}/${(businessProfile as any).url_slug}` : null;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">

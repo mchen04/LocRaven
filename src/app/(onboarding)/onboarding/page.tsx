@@ -16,14 +16,14 @@ export default async function OnboardingPage() {
   }
 
   // If user has already completed onboarding, redirect to dashboard
-  if (businessProfile?.is_onboarded) {
+  if ((businessProfile as any)?.is_onboarded) {
     redirect('/dashboard');
   }
 
   return (
     <div className="space-y-8">
       <OnboardingWizard 
-        initialData={businessProfile}
+        initialData={businessProfile as any}
         userEmail={user.email || ''}
       />
     </div>

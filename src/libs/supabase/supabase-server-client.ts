@@ -24,6 +24,16 @@ export async function createSupabaseServerClient() {
           cookieStore.set({ name, value: '', ...options });
         },
       },
+      // Edge Runtime compatibility - disable realtime features that use Node.js APIs
+      realtime: {
+        disabled: true,
+      },
+      // Additional edge runtime optimizations
+      global: {
+        headers: {
+          'User-Agent': 'LocRaven-EdgeRuntime/1.0',
+        },
+      },
     }
   );
 }

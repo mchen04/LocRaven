@@ -17,7 +17,7 @@ export async function getSubscription() {
     .from('subscriptions')
     .select('*, prices(*, products(*))')
     .eq('user_id', user.id)
-    .in('status', ['trialing', 'active'])
+    .or('status.eq.trialing,status.eq.active')
     .is('canceled_at', null)
     .order('created', { ascending: false })
     .maybeSingle();

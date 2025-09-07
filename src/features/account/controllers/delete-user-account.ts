@@ -20,7 +20,7 @@ export async function deleteUserAccount() {
 
     // Delete business data first (if exists)
     if (user.email) {
-      await supabase.from('businesses').delete().eq('email', user.email);
+      await supabase.from('businesses').delete().eq('email', user.email as any);
     }
     
     // Delete the auth user

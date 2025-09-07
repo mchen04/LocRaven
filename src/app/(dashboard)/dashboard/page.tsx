@@ -29,14 +29,14 @@ export default async function DashboardPage() {
     <section className='rounded-lg bg-black px-4 py-16'>
       <h1 className='mb-8 text-center'>Dashboard</h1>
       <DashboardTabs 
-        subscription={subscription} 
-        businessProfile={businessProfile}
-        usageStats={usageStats}
+        subscription={subscription as any} 
+        businessProfile={businessProfile as any}
+        usageStats={usageStats as any}
         userProduct={userProduct}
         userPrice={userPrice}
         userEmail={user.email}
         userName={user.user_metadata?.full_name || user.user_metadata?.name}
-        userLinks={userLinks}
+        userLinks={userLinks as any}
       />
     </section>
   );

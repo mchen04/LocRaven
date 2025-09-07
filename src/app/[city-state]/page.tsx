@@ -52,17 +52,17 @@ export default async function CityHubPage({ params }: CityHubPageProps) {
     const { data: generatedPage } = await supabase
       .from('generated_pages')
       .select('html_content, title, published')
-      .eq('file_path', `/${resolvedParams['city-state']}`)
-      .eq('page_category', 'city-hub')
-      .eq('published', true)
+      .eq('file_path', `/${resolvedParams['city-state']}` as any)
+      .eq('page_category', 'city-hub' as any)
+      .eq('published', true as any)
       .single();
 
     // If we have pre-rendered HTML, serve it directly
-    if (generatedPage?.html_content) {
+    if ((generatedPage as any)?.html_content) {
       return (
         <div 
           className="min-h-screen"
-          dangerouslySetInnerHTML={{ __html: generatedPage.html_content }}
+          dangerouslySetInnerHTML={{ __html: (generatedPage as any).html_content }}
         />
       );
     }
@@ -71,8 +71,8 @@ export default async function CityHubPage({ params }: CityHubPageProps) {
     const { data: businesses, error } = await supabase
       .from('businesses')
       .select('name, url_slug, description, primary_category, address_street, address_city, address_state')
-      .eq('city_state_slug', resolvedParams['city-state'])
-      .eq('is_onboarded', true);
+      .eq('city_state_slug', resolvedParams['city-state'] as any)
+      .eq('is_onboarded', true as any);
 
     if (error) {
       console.error('Error loading businesses:', error);
@@ -128,7 +128,7 @@ export default async function CityHubPage({ params }: CityHubPageProps) {
               
               {businesses && businesses.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {businesses.map((business) => (
+                  {(businesses as any)?.map((business: any) => (
                     <Link
                       key={business.url_slug}
                       href={`/${resolvedParams['city-state']}/${business.url_slug}`}

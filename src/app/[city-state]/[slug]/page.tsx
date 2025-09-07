@@ -79,8 +79,8 @@ export async function generateMetadata({ params }: SlugPageProps): Promise<Metad
   const { data: business } = await supabase
     .from('businesses')
     .select('name, description, address_city, address_state, primary_category')
-    .eq('city_state_slug', resolvedParams['city-state'])
-    .eq('url_slug', resolvedParams.slug)
+    .eq('city_state_slug', resolvedParams['city-state'] as any)
+    .eq('url_slug', resolvedParams.slug as any)
     .single();
 
   if (!business) {
@@ -90,9 +90,9 @@ export async function generateMetadata({ params }: SlugPageProps): Promise<Metad
     };
   }
 
-  const title = `${business.name} - ${business.address_city}, ${business.address_state}`;
-  const description = business.description || 
-    `Visit ${business.name} in ${business.address_city}, ${business.address_state}. ${business.primary_category} services and more.`;
+  const title = `${(business as any).name} - ${(business as any).address_city}, ${(business as any).address_state}`;
+  const description = (business as any).description || 
+    `Visit ${(business as any).name} in ${(business as any).address_city}, ${(business as any).address_state}. ${(business as any).primary_category} services and more.`;
 
   return {
     title,

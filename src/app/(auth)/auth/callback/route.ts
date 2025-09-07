@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const { data: userSubscription } = await supabase
       .from('subscriptions')
       .select('*, prices(*, products(*))')
-      .in('status', ['trialing', 'active'])
+      .or('status.eq.trialing,status.eq.active')
       .maybeSingle();
 
     if (!userSubscription) {

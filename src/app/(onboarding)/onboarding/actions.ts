@@ -46,7 +46,7 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
     const { data: business, error: fetchError } = await supabase
       .from('businesses')
       .select('*')
-      .eq('email', userEmail)
+      .eq('email', userEmail as any)
       .single();
 
     if (fetchError || !business) {
@@ -56,17 +56,20 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
       };
     }
 
+    // Cast business to any to handle type inference issues
+    const businessData = business as any;
+
     // Check if already onboarded
-    if (business.is_onboarded) {
+    if (businessData.is_onboarded) {
       return {
         success: true,
-        permanentPageUrl: business.city_state_slug && business.url_slug ? 
-          `https://locraven.com/${business.city_state_slug}/${business.url_slug}` : undefined
+        permanentPageUrl: businessData.city_state_slug && businessData.url_slug ? 
+          `https://locraven.com/${businessData.city_state_slug}/${businessData.url_slug}` : undefined
       };
     }
 
     // Validate required fields for onboarding
-    if (!business.name || !business.address_city || !business.address_state) {
+    if (!businessData.name || !businessData.address_city || !businessData.address_state) {
       return {
         success: false,
         error: 'Please complete all required fields: business name, city, and state.'
@@ -75,11 +78,11 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
 
     // Generate new URL structure slugs
     const cityStateSlug = generateCityStateSlug(
-      business.address_city,
-      business.address_state
+      businessData.address_city,
+      businessData.address_state
     );
     
-    const urlSlug = generateUrlSlug(business.name);
+    const urlSlug = generateUrlSlug(businessData.name);
 
     // Update business with onboarding completion and new URL structure
     const { error: updateError } = await supabase
@@ -89,8 +92,8 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
         onboarded_at: new Date().toISOString(),
         city_state_slug: cityStateSlug,
         url_slug: urlSlug
-      })
-      .eq('id', business.id);
+      } as any)
+      .eq('id', businessData.id);
 
     if (updateError) {
       console.error('Failed to update business onboarding status:', updateError);
@@ -109,7 +112,7 @@ export async function completeOnboarding(userEmail: string): Promise<OnboardingR
           'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
         },
         body: JSON.stringify({ 
-          business_id: business.id,
+          business_id: businessData.id,
           use_new_url_structure: true,
           feature_flags: {
             new_url_structure: true
