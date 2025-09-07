@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 import { MarketingLayout, PageSection } from '@/components/marketing-layout';
 
@@ -293,18 +294,18 @@ export default function AboutUsPage() {
 
         <div className="text-center">
           <div className="inline-flex gap-4">
-            <a 
+            <Link 
               href="/pricing" 
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
             >
               Get Started Today
-            </a>
-            <a 
+            </Link>
+            <Link 
               href="/support" 
               className="bg-transparent border border-zinc-600 hover:border-zinc-500 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
             >
               Learn More
-            </a>
+            </Link>
           </div>
           
           <p className="text-neutral-400 mt-4">

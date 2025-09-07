@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { config } from '@/config/urls';
 import type { UsageStats } from '@/features/account/controllers/get-usage-stats';
 import type { BusinessProfile as FeatureBusinessProfile } from '@/features/business/types/business-types';
 import { BusinessUpdatesService } from '@/services/business-updates';

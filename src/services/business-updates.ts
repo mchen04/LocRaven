@@ -6,7 +6,6 @@ import type {
   BusinessUpdate,
   BusinessUsage,
   GeneratedPage,
-  ProcessUpdateRequest,
   ProcessUpdateResponse,
   PublishPagesRequest,
   PublishPagesResponse,
