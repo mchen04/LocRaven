@@ -64,7 +64,6 @@ export async function middleware(request: NextRequest) {
         }
       }
     } catch (error) {
-      console.error('Middleware onboarding check error:', error);
       // On error, let the request continue - the page will handle auth
     }
   }
@@ -104,7 +103,7 @@ export async function middleware(request: NextRequest) {
         }
       }
     } catch (error) {
-      console.error('Middleware onboarding redirect check error:', error);
+      // Silent error handling to reduce CPU usage
     }
   }
   

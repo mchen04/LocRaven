@@ -6,10 +6,7 @@ let _supabaseAdminClient: ReturnType<typeof createClient<Database>> | null = nul
 
 export function getSupabaseAdminClient() {
   if (!_supabaseAdminClient) {
-    console.log('[supabaseAdmin] Initializing Supabase admin client...');
-    
     try {
-      // Try standard method first
       const supabaseUrl = getEnvVar(process.env.NEXT_PUBLIC_SUPABASE_URL, 'NEXT_PUBLIC_SUPABASE_URL');
       const serviceRoleKey = getEnvVar(process.env.SUPABASE_SERVICE_ROLE_KEY, 'SUPABASE_SERVICE_ROLE_KEY');
       
@@ -30,38 +27,25 @@ export function getSupabaseAdminClient() {
         }
       );
       
-      console.log('[supabaseAdmin] Supabase admin client initialized successfully');
-      
     } catch (error) {
-      console.error('[supabaseAdmin] Standard initialization failed:', error);
+      // Fallback to compatibility method
+      const supabaseUrl = getEnvVarCompat('NEXT_PUBLIC_SUPABASE_URL');
+      const serviceRoleKey = getEnvVarCompat('SUPABASE_SERVICE_ROLE_KEY');
       
-      try {
-        // Fallback to compatibility method
-        console.log('[supabaseAdmin] Attempting compatibility mode initialization...');
-        const supabaseUrl = getEnvVarCompat('NEXT_PUBLIC_SUPABASE_URL');
-        const serviceRoleKey = getEnvVarCompat('SUPABASE_SERVICE_ROLE_KEY');
-        
-        _supabaseAdminClient = createClient<Database>(
-          supabaseUrl,
-          serviceRoleKey,
-          {
-            realtime: {
-              disabled: true,
+      _supabaseAdminClient = createClient<Database>(
+        supabaseUrl,
+        serviceRoleKey,
+        {
+          realtime: {
+            disabled: true,
+          },
+          global: {
+            headers: {
+              'User-Agent': 'LocRaven-Admin-EdgeRuntime-Compat/1.0',
             },
-            global: {
-              headers: {
-                'User-Agent': 'LocRaven-Admin-EdgeRuntime-Compat/1.0',
-              },
-            },
-          }
-        );
-        
-        console.log('[supabaseAdmin] Supabase admin client initialized via compatibility mode');
-        
-      } catch (compatError) {
-        console.error('[supabaseAdmin] Compatibility mode also failed:', compatError);
-        throw new Error(`Failed to initialize Supabase admin client: ${compatError instanceof Error ? compatError.message : 'Unknown error'}`);
-      }
+          },
+        }
+      );
     }
   }
   return _supabaseAdminClient;
@@ -70,12 +54,6 @@ export function getSupabaseAdminClient() {
 // For backward compatibility
 export const supabaseAdminClient = new Proxy({} as any, {
   get(target, prop) {
-    try {
-      console.log(`[supabaseAdmin] Accessing Supabase admin method: ${String(prop)}`);
-      return getSupabaseAdminClient()[prop as keyof ReturnType<typeof getSupabaseAdminClient>];
-    } catch (error) {
-      console.error(`[supabaseAdmin] Error accessing Supabase admin method ${String(prop)}:`, error);
-      throw error;
-    }
+    return getSupabaseAdminClient()[prop as keyof ReturnType<typeof getSupabaseAdminClient>];
   }
 });
