@@ -137,71 +137,7 @@ const nextConfig = withBundleAnalyzer({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
   
-  // Add build-time validation and explicit environment variable definition
-  webpack: (config, { isServer, webpack }) => {
-    // ⚡ CLOUDFLARE WORKERS BUNDLE SIZE OPTIMIZATIONS ⚡
-    
-    // Advanced tree-shaking for Cloudflare Workers
-    config.optimization = {
-      ...config.optimization,
-      usedExports: true,
-      providedExports: true,
-      sideEffects: false,
-      // Aggressive dead code elimination
-      minimize: true,
-      // Split chunks for better caching and smaller bundles
-      splitChunks: isServer ? false : {
-        chunks: 'all',
-        minSize: 20000,
-        maxSize: 100000,
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-            maxSize: 100000,
-          },
-          supabase: {
-            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
-            name: 'supabase',
-            chunks: 'all',
-            maxSize: 50000,
-          },
-          stripe: {
-            test: /[\\/]node_modules[\\/]stripe[\\/]/,
-            name: 'stripe', 
-            chunks: 'all',
-            maxSize: 50000,
-          }
-        }
-      }
-    };
-
-    // Resolve optimizations for smaller bundles  
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      // No special alias needed - use default Stripe resolution
-    };
-
-    // Optimize bundle size by handling large string serialization
-    if (!isServer) {
-      config.cache = {
-        type: 'memory',
-        maxGenerations: 2,
-      };
-    }
-    
-    // Module federation optimizations for CF Workers
-    config.plugins.push(
-      new webpack.DefinePlugin({
-        'process.env.CF_WORKERS': JSON.stringify(true),
-      })
-    );
-    
-    console.log('✅ Cloudflare Workers bundle optimizations enabled');
-    
-    return config;
-  },
+  // Removed webpack optimizations that were causing bundle bloat
 });
 
 export default nextConfig;
