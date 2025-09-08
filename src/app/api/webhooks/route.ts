@@ -6,6 +6,9 @@ import { upsertProduct } from '@/features/pricing/controllers/upsert-product';
 import { stripeAdmin } from '@/libs/stripe/stripe-admin';
 import { getEnvVar } from '@/utils/get-env-var';
 
+// In-memory cache for processed events (in production, use Redis or database)
+const processedEvents = new Set<string>();
+
 const relevantEvents = new Set([
   'product.created',
   'product.updated',
@@ -28,9 +31,16 @@ export async function POST(req: Request) {
 
   try {
     if (!sig || !webhookSecret) return;
-    event = stripeAdmin.webhooks.constructEvent(body, sig, webhookSecret);
+    
+    // Construct event with 5-minute tolerance for replay attack protection
+    event = stripeAdmin.webhooks.constructEvent(body, sig, webhookSecret, 300);
   } catch (error) {
     return Response.json(`Webhook Error: ${(error as any).message}`, { status: 400 });
+  }
+
+  // Idempotency check: prevent duplicate event processing
+  if (processedEvents.has(event.id)) {
+    return Response.json({ received: true, note: 'Event already processed' });
   }
 
   if (relevantEvents.has(event.type)) {
@@ -69,12 +79,20 @@ export async function POST(req: Request) {
         default:
           throw new Error('Unhandled relevant event!');
       }
+      
+      // Mark event as processed after successful handling
+      processedEvents.add(event.id);
+      
     } catch (error) {
       console.error(error);
       return Response.json('Webhook handler failed. View your nextjs function logs.', {
         status: 400,
       });
     }
+  } else {
+    // Mark irrelevant events as processed to avoid re-processing
+    processedEvents.add(event.id);
   }
+  
   return Response.json({ received: true });
 }

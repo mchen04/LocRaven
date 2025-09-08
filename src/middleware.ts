@@ -1,36 +1,52 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
 import { updateSession } from '@/libs/supabase/supabase-middleware-client';
+import { getEnvVar } from '@/utils/get-env-var';
+import { createServerClient } from '@supabase/ssr';
 
 export async function middleware(request: NextRequest) {
-  // First, update the session
+  // First, update the session and get user info
   const response = await updateSession(request);
   
   const pathname = request.nextUrl.pathname;
   
-  // 2025 Security Compliance: Minimal middleware with optimistic checks only
-  // No database operations per CVE-2025-29927 guidelines
-  // Subscription and business logic moved to Data Access Layer (controllers)
+  // 2025 Security Compliance: Enhanced middleware with proper session validation
+  // Using Supabase auth.getUser() result for secure route protection
   
-  // Basic session validation for protected routes
+  // Protected routes that require authentication
   const protectedRoutes = ['/onboarding', '/dashboard', '/account', '/manage-subscription'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   
   if (isProtectedRoute) {
-    // Simple auth token check - no database queries for security/performance
-    const cookies = request.cookies;
-    const hasAuthCookie = cookies.has('sb-access-token') || 
-                         cookies.has('sb-hmztritmqsscxnjhrvqi-auth-token') ||
-                         cookies.toString().includes('supabase-auth-token');
+    // Enhanced session validation using Supabase client
+    const supabase = createServerClient(
+      getEnvVar(process.env.NEXT_PUBLIC_SUPABASE_URL, 'NEXT_PUBLIC_SUPABASE_URL'),
+      getEnvVar(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, 'NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            // Don't modify cookies in validation check
+            return;
+          },
+        },
+      }
+    );
     
-    if (!hasAuthCookie) {
+    // Verify actual user session
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (!user || error) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
+      url.searchParams.set('redirectedFrom', pathname);
       return NextResponse.redirect(url);
     }
   }
   
-  // Note: Subscription verification and onboarding checks now implemented in:
+  // Note: Subscription verification and onboarding checks implemented in:
   // - Page components (client-side UX)  
   // - Data Access Layer controllers (server-side security)
   // - RLS policies (database-level enforcement)
