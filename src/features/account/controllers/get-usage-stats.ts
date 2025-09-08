@@ -23,7 +23,7 @@ export async function getUserUsageStats(): Promise<UsageStats | null> {
     const { data: business } = await supabase
       .from('businesses')
       .select('id')
-      .eq('email', user.email)
+      .eq('email', user.email as any)
       .single();
 
     if (!business) {

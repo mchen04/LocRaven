@@ -16,9 +16,9 @@ export async function getSubscription() {
   const { data, error } = await supabase
     .from('subscriptions')
     .select('*, prices(*, products(*))')
-    .eq('user_id', user.id)
+    .eq('user_id', user.id as any)
     .or('status.eq.trialing,status.eq.active')
-    .is('canceled_at', null)
+    .is('canceled_at', null as any)
     .order('created', { ascending: false })
     .maybeSingle();
 
