@@ -13,8 +13,13 @@ export function getStripeAdmin(): Stripe {
       const secretKey = getEnvVar(process.env.STRIPE_SECRET_KEY, 'STRIPE_SECRET_KEY');
       
       _stripeAdmin = new Stripe(secretKey, {
+        // Cloudflare Workers compatibility: use fetch-based HTTP client
+        httpClient: Stripe.createFetchHttpClient(),
         // https://github.com/stripe/stripe-node#configuration
         apiVersion: '2025-02-24.acacia',
+        // Workers-specific timeout configuration
+        timeout: 30000, // 30 seconds for Workers environment
+        maxNetworkRetries: 3,
         // Register this as an official Stripe plugin.
         // https://stripe.com/docs/building-plugins#setappinfo
         appInfo: {
@@ -34,7 +39,12 @@ export function getStripeAdmin(): Stripe {
         const secretKey = getEnvVarCompat('STRIPE_SECRET_KEY');
         
         _stripeAdmin = new Stripe(secretKey, {
+          // Cloudflare Workers compatibility: use fetch-based HTTP client
+          httpClient: Stripe.createFetchHttpClient(),
           apiVersion: '2025-02-24.acacia',
+          // Workers-specific timeout configuration
+          timeout: 30000, // 30 seconds for Workers environment
+          maxNetworkRetries: 3,
           appInfo: {
             name: 'LocRaven',
             version: '0.1.0',
