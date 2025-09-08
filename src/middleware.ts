@@ -1,8 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
 import { updateSession } from '@/libs/supabase/supabase-middleware-client';
-import { getEnvVar } from '@/utils/get-env-var';
-import { createServerClient } from '@supabase/ssr';
 
 export async function middleware(request: NextRequest) {
   // First, update the session
@@ -10,102 +8,32 @@ export async function middleware(request: NextRequest) {
   
   const pathname = request.nextUrl.pathname;
   
-  // Check for onboarding requirements
+  // 2025 Security Compliance: Minimal middleware with optimistic checks only
+  // No database operations per CVE-2025-29927 guidelines
+  // Subscription and business logic moved to Data Access Layer (controllers)
   
-  // Skip onboarding checks for certain paths
-  const skipOnboardingPaths = [
-    '/login', '/signup', '/auth', '/api', '/_next', '/favicon.ico',
-    '/onboarding', '/welcome', // Allow access to onboarding pages
-    // Add paths that start with these patterns
-  ];
+  // Basic session validation for protected routes
+  const protectedRoutes = ['/onboarding', '/dashboard', '/account', '/manage-subscription'];
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   
-  if (skipOnboardingPaths.some(path => pathname.startsWith(path))) {
-    return response;
-  }
-  
-  // Check if user needs onboarding for protected routes
-  const protectedRoutes = ['/dashboard'];
-  const needsOnboardingCheck = protectedRoutes.some(route => pathname.startsWith(route));
-  
-  if (needsOnboardingCheck) {
-    try {
-      // Create Supabase client to check business status
-      const supabase = createServerClient(
-        getEnvVar(process.env.NEXT_PUBLIC_SUPABASE_URL, 'NEXT_PUBLIC_SUPABASE_URL'),
-        getEnvVar(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, 'NEXT_PUBLIC_SUPABASE_ANON_KEY'),
-        {
-          cookies: {
-            getAll() {
-              return request.cookies.getAll();
-            },
-            setAll(_cookiesToSet) {
-              // Don't modify cookies in this check
-            },
-          },
-        }
-      );
-      
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user && user.email) {
-        // Check if business profile exists and is onboarded
-        const { data: business } = await supabase
-          .from('businesses')
-          .select('is_onboarded')
-          .eq('email', user.email)
-          .single();
-        
-        // If no business profile or not onboarded, redirect to onboarding
-        if (!business || !business.is_onboarded) {
-          const url = request.nextUrl.clone();
-          url.pathname = '/onboarding';
-          return NextResponse.redirect(url);
-        }
-      }
-    } catch (error) {
-      // On error, let the request continue - the page will handle auth
+  if (isProtectedRoute) {
+    // Simple auth token check - no database queries for security/performance
+    const cookies = request.cookies;
+    const hasAuthCookie = cookies.has('sb-access-token') || 
+                         cookies.has('sb-hmztritmqsscxnjhrvqi-auth-token') ||
+                         cookies.toString().includes('supabase-auth-token');
+    
+    if (!hasAuthCookie) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      return NextResponse.redirect(url);
     }
   }
   
-  // If user is accessing onboarding but already completed, redirect to dashboard
-  if (pathname === '/onboarding') {
-    try {
-      const supabase = createServerClient(
-        getEnvVar(process.env.NEXT_PUBLIC_SUPABASE_URL, 'NEXT_PUBLIC_SUPABASE_URL'),
-        getEnvVar(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, 'NEXT_PUBLIC_SUPABASE_ANON_KEY'),
-        {
-          cookies: {
-            getAll() {
-              return request.cookies.getAll();
-            },
-            setAll(_cookiesToSet) {
-              // Don't modify cookies in this check
-            },
-          },
-        }
-      );
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user && user.email) {
-        const { data: business } = await supabase
-          .from('businesses')
-          .select('is_onboarded')
-          .eq('email', user.email)
-          .single();
-        
-        // If already onboarded, redirect to dashboard
-        if (business && business.is_onboarded) {
-          const url = request.nextUrl.clone();
-          url.pathname = '/dashboard';
-          return NextResponse.redirect(url);
-        }
-      }
-    } catch (error) {
-      // Silent error handling to reduce CPU usage
-    }
-  }
+  // Note: Subscription verification and onboarding checks now implemented in:
+  // - Page components (client-side UX)  
+  // - Data Access Layer controllers (server-side security)
+  // - RLS policies (database-level enforcement)
   
   return response;
 }

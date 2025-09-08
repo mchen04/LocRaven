@@ -33,9 +33,22 @@ export async function GET(request: NextRequest) {
 
     if (!userSubscription) {
       return NextResponse.redirect(`${siteUrl}/pricing`);
-    } else {
-      return NextResponse.redirect(`${siteUrl}/dashboard`);
     }
+
+    // Check if user has completed onboarding
+    const { data: business } = await supabase
+      .from('businesses')
+      .select('is_onboarded')
+      .eq('email', user.email)
+      .single();
+
+    // If has subscription but not onboarded, go to onboarding
+    if (!business || !business.is_onboarded) {
+      return NextResponse.redirect(`${siteUrl}/onboarding`);
+    }
+
+    // If has subscription and onboarded, go to dashboard
+    return NextResponse.redirect(`${siteUrl}/dashboard`);
   }
 
   return NextResponse.redirect(siteUrl);

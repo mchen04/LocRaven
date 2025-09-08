@@ -43,7 +43,7 @@ export async function createCheckoutAction({ price }: { price: Price }) {
     ],
     mode: price.type === 'recurring' ? 'subscription' : 'payment',
     allow_promotion_codes: true,
-    success_url: `${getURL()}/account`,
+    success_url: `${getURL()}/onboarding`,
     cancel_url: `${getURL()}/`,
   });
 

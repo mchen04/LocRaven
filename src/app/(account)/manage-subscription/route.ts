@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { getAuthUser } from '@/features/account/controllers/get-auth-user';
 import { getCustomerId } from '@/features/account/controllers/get-customer-id';
+import { requireActiveSubscription } from '@/features/account/controllers/subscription-data-layer';
 import { stripeAdmin } from '@/libs/stripe/stripe-admin';
 import { getURL } from '@/utils/get-url';
 
@@ -18,6 +19,9 @@ export async function GET() {
         { status: 401 }
       );
     }
+
+    // Data Access Layer: Require active subscription
+    await requireActiveSubscription();
 
     // 2. Retrieve or create the customer in Stripe
     const customer = await getCustomerId({
