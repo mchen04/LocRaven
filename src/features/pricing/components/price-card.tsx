@@ -86,13 +86,22 @@ export function PricingCard({
         {createCheckoutAction && (
           <div className='py-4'>
             {currentPrice && (
-              <Button
-                variant={buttonVariantMap[metadata.priceCardVariant]}
-                className='w-full'
-                onClick={() => createCheckoutAction({ price: currentPrice })}
-              >
-                Get Started
-              </Button>
+              <form action={async () => {
+                'use server'
+                try {
+                  await createCheckoutAction({ price: currentPrice })
+                } catch (error) {
+                  console.error('Checkout failed:', error)
+                }
+              }}>
+                <Button
+                  type="submit"
+                  variant={buttonVariantMap[metadata.priceCardVariant]}
+                  className='w-full'
+                >
+                  Get Started
+                </Button>
+              </form>
             )}
             {!currentPrice && (
               <Button variant={buttonVariantMap[metadata.priceCardVariant]} className='w-full' asChild>
