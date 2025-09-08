@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 
 import { SexyBoarder } from '@/components/sexy-boarder';
 import { Button } from '@/components/ui/button';
@@ -14,15 +14,16 @@ import { BillingInterval, Price, ProductWithPrices } from '../types';
 export function PricingCard({
   product,
   price,
-  createCheckoutAction,
+  enableCheckout = false,
 }: {
   product: ProductWithPrices;
   price?: Price;
-  createCheckoutAction?: ({ price }: { price: Price }) => void;
+  enableCheckout?: boolean;
 }) {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>(
     price ? (price.interval as BillingInterval) : 'month'
   );
+  const [isLoading, setIsLoading] = useState(false);
 
   // Determine the price to render
   const currentPrice = useMemo(() => {
@@ -55,6 +56,43 @@ export function PricingCard({
     setBillingInterval(billingInterval);
   }
 
+  async function handleCheckout() {
+    if (!currentPrice) return;
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ priceId: currentPrice.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401 && data.redirectUrl) {
+          // User is not authenticated, redirect to signup
+          window.location.href = data.redirectUrl;
+          return;
+        }
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      if (data.checkoutUrl) {
+        // Redirect to Stripe checkout
+        window.location.href = data.checkoutUrl;
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      // You might want to show a toast notification here
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <WithSexyBorder variant={metadata.priceCardVariant} className='w-full flex-1'>
       <div className='flex w-full flex-col rounded-md border border-zinc-800 bg-black p-4 lg:p-8'>
@@ -83,18 +121,24 @@ export function PricingCard({
           {<CheckItem text={`${metadata.supportLevel} support`} />}
         </div>
 
-        {createCheckoutAction && (
+        {enableCheckout && (
           <div className='py-4'>
             {currentPrice && (
-              <form action={createCheckoutAction.bind(null, { price: currentPrice })}>
-                <Button
-                  type="submit"
-                  variant={buttonVariantMap[metadata.priceCardVariant]}
-                  className='w-full'
-                >
-                  Get Started
-                </Button>
-              </form>
+              <Button
+                onClick={handleCheckout}
+                disabled={isLoading}
+                variant={buttonVariantMap[metadata.priceCardVariant]}
+                className='w-full'
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Get Started'
+                )}
+              </Button>
             )}
             {!currentPrice && (
               <Button variant={buttonVariantMap[metadata.priceCardVariant]} className='w-full' asChild>
