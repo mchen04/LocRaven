@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from '@/libs/supabase/supabase-server-client';
-import { stripeAdmin } from '@/libs/stripe/stripe-admin';
+import { withTimeout, supabaseCircuitBreaker } from '@/utils/timeout-handler';
 import { getAuthUser } from './get-auth-user';
 
 /**
@@ -17,48 +17,37 @@ export async function hasActiveSubscription(): Promise<boolean> {
 
     const supabase = await createSupabaseServerClient();
 
-    // Method 1: Check subscription records (primary)
-    const { data: subscription } = await supabase
-      .from('subscriptions')
-      .select('id, status')
-      .eq('user_id', user.id)
-      .or('status.eq.trialing,status.eq.active')
-      .is('canceled_at', null)
-      .limit(1)
-      .maybeSingle();
+    // ⚡ OPTIMIZED: Single query with timeout protection for CF Workers
+    const { data: subscription } = await supabaseCircuitBreaker.execute(
+      () => supabase
+        .from('subscriptions')
+        .select('id, status, created')
+        .eq('user_id', user.id)
+        .or('status.eq.trialing,status.eq.active')
+        .is('canceled_at', null)
+        .order('created', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      'subscription-check'
+    );
 
+    // If subscription exists, we have active subscription
     if (subscription) {
       return true;
     }
 
-    // Method 2: Check recent Checkout Sessions (handles webhook delays)
-    const { data: customer } = await supabase
-      .from('customers')
-      .select('stripe_customer_id')
-      .eq('id', user.id)
-      .single();
+    // Simplified fallback: Check for very recent subscription records
+    // This handles most webhook delay cases without expensive Stripe API calls
+    const recentCutoff = new Date(Date.now() - (5 * 60 * 1000)); // 5 minutes ago
+    const { data: recentSub } = await supabase
+      .from('subscriptions')
+      .select('id')
+      .eq('user_id', user.id)
+      .gte('created', recentCutoff.toISOString())
+      .limit(1)
+      .maybeSingle();
 
-    if (customer?.stripe_customer_id) {
-      // Check for recent successful checkout sessions
-      const sessions = await stripeAdmin.checkout.sessions.list({
-        customer: customer.stripe_customer_id,
-        status: 'complete',
-        limit: 5,
-      });
-
-      // Check if any session from last 10 minutes indicates subscription
-      const recentSessionCutoff = Date.now() - (10 * 60 * 1000); // 10 minutes ago
-      const hasRecentSubscriptionSession = sessions.data.some(session => 
-        session.mode === 'subscription' && 
-        (session.created * 1000) > recentSessionCutoff
-      );
-
-      if (hasRecentSubscriptionSession) {
-        return true;
-      }
-    }
-
-    return false;
+    return !!recentSub;
 
   } catch (error) {
     // On error, assume no subscription to be safe

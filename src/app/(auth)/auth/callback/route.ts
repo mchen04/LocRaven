@@ -24,30 +24,30 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${siteUrl}/login`);
     }
 
-    // Check if user is subscribed, if not redirect to pricing page
-    const { data: userSubscription } = await supabase
-      .from('subscriptions')
-      .select('*, prices(*, products(*))')
-      .or('status.eq.trialing,status.eq.active')
-      .maybeSingle();
+    // ⚡ OPTIMIZED: Single query with JOIN to reduce CPU time
+    const { data: userStatus, error } = await supabase
+      .rpc('get_user_auth_status', {
+        user_id: user.id,
+        user_email: user.email
+      });
 
-    if (!userSubscription) {
+    if (error) {
+      console.error('[auth-callback] Failed to get user status:', error);
+      return NextResponse.redirect(`${siteUrl}/login`);
+    }
+
+    const { has_subscription, is_onboarded } = userStatus[0] || {};
+
+    // Redirect based on combined status
+    if (!has_subscription) {
       return NextResponse.redirect(`${siteUrl}/pricing`);
     }
 
-    // Check if user has completed onboarding
-    const { data: business } = await supabase
-      .from('businesses')
-      .select('is_onboarded')
-      .eq('email', user.email)
-      .single();
-
-    // If has subscription but not onboarded, go to onboarding
-    if (!business || !business.is_onboarded) {
+    if (!is_onboarded) {
       return NextResponse.redirect(`${siteUrl}/onboarding`);
     }
 
-    // If has subscription and onboarded, go to dashboard
+    // User has subscription and completed onboarding
     return NextResponse.redirect(`${siteUrl}/dashboard`);
   }
 

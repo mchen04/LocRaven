@@ -587,10 +587,6 @@ export type Database = {
         Args: { business_id_param: string }
         Returns: boolean
       }
-      cleanup_regeneration_queue: {
-        Args: { retention_days?: number }
-        Returns: number
-      }
       debug_usage_lookup: {
         Args: { business_id_param: string }
         Returns: {
@@ -601,7 +597,9 @@ export type Database = {
         }[]
       }
       execute_intent_query: {
-        Args: { city_state_param: string; query_sql: string }
+        Args:
+          | Record<PropertyKey, never>
+          | { city_state_param: string; query_sql: string }
         Returns: {
           content_text: string
           created_at: string
@@ -617,17 +615,6 @@ export type Database = {
           structured_hours: Json
           update_category: string
           url_slug: string
-        }[]
-      }
-      get_cascade_health_status: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          avg_processing_time_ms: number
-          circuit_breaker_recommendation: string
-          failed_jobs_last_hour: number
-          health_score: number
-          oldest_pending_job: string
-          queue_depth: number
         }[]
       }
       get_current_usage_period: {
@@ -657,7 +644,7 @@ export type Database = {
         }
       }
       get_discovery_page_stats: {
-        Args: { city_state_param: string }
+        Args: Record<PropertyKey, never> | { city_state_param: string }
         Returns: {
           deals_count: number
           events_count: number
@@ -668,15 +655,11 @@ export type Database = {
           total_updates: number
         }[]
       }
-      get_seo_health_report: {
-        Args: { days_back?: number }
+      get_user_auth_status: {
+        Args: { user_email: string; user_id: string }
         Returns: {
-          avg_seo_score: number
-          improvement_trend: number
-          pages_with_critical_issues: number
-          recommendation: string
-          top_issue_category: string
-          total_pages: number
+          has_subscription: boolean
+          is_onboarded: boolean
         }[]
       }
       get_user_subscription_status: {
@@ -698,11 +681,13 @@ export type Database = {
         Returns: undefined
       }
       should_regenerate_discovery_page: {
-        Args: {
-          city_state_param: string
-          last_generated: string
-          page_type: string
-        }
+        Args:
+          | Record<PropertyKey, never>
+          | {
+              city_state_param: string
+              last_generated: string
+              page_type: string
+            }
         Returns: boolean
       }
       update_business_update_status: {
@@ -716,19 +701,6 @@ export type Database = {
           special_hours?: string
           update_id: string
         }
-        Returns: undefined
-      }
-      update_regeneration_metrics: {
-        Args: {
-          metric_date: string
-          metric_hour: number
-          outcome_type: string
-          processing_time: number
-        }
-        Returns: undefined
-      }
-      update_seo_performance_metrics: {
-        Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }

@@ -4,6 +4,7 @@ import { getAuthUser } from '@/features/account/controllers/get-auth-user';
 import { getCustomerId } from '@/features/account/controllers/get-customer-id';
 import { requireActiveSubscription } from '@/features/account/controllers/subscription-data-layer';
 import { stripeAdmin } from '@/libs/stripe/stripe-admin';
+import { stripeCircuitBreaker } from '@/utils/timeout-handler';
 import { getURL } from '@/utils/get-url';
 
 export const dynamic = 'force-dynamic';
@@ -35,11 +36,13 @@ export async function GET() {
       );
     }
 
-    // 3. Create portal link and redirect user
-    const { url } = await stripeAdmin.billingPortal.sessions.create({
-      customer,
-      return_url: `${getURL()}/account`,
-    });
+    // 3. Create portal link with timeout protection
+    const { url } = await stripeCircuitBreaker.execute(async () => {
+      return await stripeAdmin.billingPortal.sessions.create({
+        customer,
+        return_url: `${getURL()}/account`,
+      });
+    }, 'stripe-portal-creation');
 
     return NextResponse.redirect(url);
 

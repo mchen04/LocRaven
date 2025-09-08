@@ -1,4 +1,4 @@
-import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+import path from 'path';
 
 // Bundle analyzer setup
 const withBundleAnalyzer = process.env.ANALYZE === 'true' 
@@ -105,10 +105,23 @@ const nextConfig = withBundleAnalyzer({
     ];
   },
   
-  // Experimental features for better performance
+  // Experimental features for better performance and smaller bundles
   experimental: {
     scrollRestoration: true,
+    // Optimize package imports for tree-shaking
+    optimizePackageImports: [
+      'lucide-react',
+      'react-icons',
+      '@radix-ui/react-icons',
+      'clsx',
+      'tailwind-merge'
+    ],
   },
+  
+  // Server external packages (moved from experimental) - Keep empty for dynamic imports
+  serverExternalPackages: [
+    // Removed stripe to allow dynamic imports to work properly
+  ],
   
   // Turbopack configuration (Next.js 15.5)
   turbopack: {
@@ -126,6 +139,50 @@ const nextConfig = withBundleAnalyzer({
   
   // Add build-time validation and explicit environment variable definition
   webpack: (config, { isServer, webpack }) => {
+    // ⚡ CLOUDFLARE WORKERS BUNDLE SIZE OPTIMIZATIONS ⚡
+    
+    // Advanced tree-shaking for Cloudflare Workers
+    config.optimization = {
+      ...config.optimization,
+      usedExports: true,
+      providedExports: true,
+      sideEffects: false,
+      // Aggressive dead code elimination
+      minimize: true,
+      // Split chunks for better caching and smaller bundles
+      splitChunks: isServer ? false : {
+        chunks: 'all',
+        minSize: 20000,
+        maxSize: 100000,
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            maxSize: 100000,
+          },
+          supabase: {
+            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
+            name: 'supabase',
+            chunks: 'all',
+            maxSize: 50000,
+          },
+          stripe: {
+            test: /[\\/]node_modules[\\/]stripe[\\/]/,
+            name: 'stripe', 
+            chunks: 'all',
+            maxSize: 50000,
+          }
+        }
+      }
+    };
+
+    // Resolve optimizations for smaller bundles  
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // No special alias needed - use default Stripe resolution
+    };
+
     // Optimize bundle size by handling large string serialization
     if (!isServer) {
       config.cache = {
@@ -133,22 +190,18 @@ const nextConfig = withBundleAnalyzer({
         maxGenerations: 2,
       };
     }
-    // NEXT_PUBLIC_ variables will be provided by Cloudflare Build Variables
-    // This allows proper build-time inlining per OpenNext documentation
-    // Runtime server-side secrets are handled separately by Cloudflare Workers environment
-
-    // Server-side secrets will be provided by Cloudflare Workers runtime environment
-    // Removed hardcoded values to allow runtime environment variables to work properly
     
-    console.log('✅ Environment variables explicitly defined in client and server bundles');
+    // Module federation optimizations for CF Workers
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.CF_WORKERS': JSON.stringify(true),
+      })
+    );
+    
+    console.log('✅ Cloudflare Workers bundle optimizations enabled');
     
     return config;
   },
 });
 
 export default nextConfig;
-
-// Initialize OpenNext for local development
-if (process.env.NODE_ENV === 'development') {
-  initOpenNextCloudflareForDev();
-}
