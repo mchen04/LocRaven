@@ -87,7 +87,6 @@ export function PricingCard({
           <div className='py-4'>
             {currentPrice && (
               <form action={async () => {
-                'use server'
                 try {
                   await createCheckoutAction({ price: currentPrice })
                 } catch (error) {
