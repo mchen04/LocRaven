@@ -1,5 +1,8 @@
 import Stripe from 'stripe';
 
+// Required for Cloudflare Pages deployment
+export const runtime = 'edge';
+
 import { upsertUserSubscription } from '@/features/account/controllers/upsert-user-subscription';
 import { upsertPrice } from '@/features/pricing/controllers/upsert-price';
 import { upsertProduct } from '@/features/pricing/controllers/upsert-product';
