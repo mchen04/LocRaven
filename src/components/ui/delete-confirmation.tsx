@@ -88,7 +88,7 @@ export function DeleteConfirmation({
         {isMultiple && pages && (
           <div className="rounded-md bg-muted p-3 text-sm max-h-32 overflow-y-auto">
             <div className="font-medium mb-2">Pages to delete:</div>
-            {pages.slice(0, 5).map((p, index) => (
+            {pages.slice(0, 5).map((p, _index) => (
               <div key={p.id} className="text-muted-foreground">
                 • {p.title}
               </div>

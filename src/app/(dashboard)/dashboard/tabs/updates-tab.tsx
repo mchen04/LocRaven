@@ -435,11 +435,11 @@ export function UpdatesTab({ initialBusinessProfile, initialUsageStats }: Update
       
       const results = await Promise.allSettled(deletePromises);
       
-      const successful = results.filter((r, index) => 
+      const successful = results.filter((r, _index) => 
         r.status === 'fulfilled' && r.value.success
       ).map((_, index) => pageIds[index]);
       
-      const failed = results.filter((r, index) => 
+      const failed = results.filter((r, _index) => 
         r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
       ).length;
       

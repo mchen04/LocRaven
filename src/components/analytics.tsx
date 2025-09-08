@@ -6,7 +6,7 @@ export function Analytics() {
   useReportWebVitals((metric) => {
     // Log Core Web Vitals to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('Web Vitals:', metric)
+      console.warn('Web Vitals:', metric)
     }
 
     // Send to analytics service in production

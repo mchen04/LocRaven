@@ -129,7 +129,6 @@ export function BulkActions({
   );
   
   const unpublishedSelected = selectedValidPages.filter(page => !page.published);
-  const publishedSelected = selectedValidPages.filter(page => page.published);
   
   const canPublish = unpublishedSelected.length > 0;
   const canDelete = selectedValidPages.length > 0;
