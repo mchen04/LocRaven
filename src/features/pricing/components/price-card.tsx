@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
+import { isRedirectError } from 'next/dist/client/components/redirect';
 
 import { SexyBoarder } from '@/components/sexy-boarder';
 import { Button } from '@/components/ui/button';
@@ -90,7 +91,13 @@ export function PricingCard({
                 try {
                   await createCheckoutAction({ price: currentPrice })
                 } catch (error) {
+                  // Re-throw redirect errors to allow Next.js navigation to work
+                  if (isRedirectError(error)) {
+                    throw error;
+                  }
+                  // Log actual errors for debugging
                   console.error('Checkout failed:', error)
+                  // In a production app, you might want to show a toast notification here
                 }
               }}>
                 <Button
