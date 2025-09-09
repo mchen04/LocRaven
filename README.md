@@ -1,4 +1,4 @@
-# 🎯 LocRaven - AI-Native Local Business Discovery Platform
+# LocRaven - AI-Native Local Business Discovery Platform
 
 ![LocRaven Logo](https://img.shields.io/badge/LocRaven-AI--Native%20Business%20Discovery-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-15.5-black)
@@ -7,11 +7,11 @@
 
 > **World's first AI-native local business discovery platform** - Optimized for AI search engines like ChatGPT, Perplexity, and Claude with 849% citation boost through advanced content structuring.
 
-## 🌟 **What is LocRaven?**
+## **What is LocRaven?**
 
 LocRaven revolutionizes local business discovery by creating AI-optimized content that gets businesses found by AI search engines. Unlike traditional SEO, LocRaven uses **Generative Engine Optimization (GEO)** for 2025 AI search trends.
 
-### **🎯 Core Value Proposition**
+### ** Core Value Proposition**
 - **AI Discovery**: Get found by ChatGPT, Claude, Perplexity, and voice assistants
 - **Hyper-Local Optimization**: Location-specific content for maximum local visibility  
 - **Real-Time Updates**: 60-second business updates that sync across all AI platforms
@@ -19,9 +19,9 @@ LocRaven revolutionizes local business discovery by creating AI-optimized conten
 
 ---
 
-## 🏗️ **Architecture Overview**
+##  **Architecture Overview**
 
-### **🌐 Technology Stack**
+### ** Technology Stack**
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
@@ -33,7 +33,7 @@ LocRaven revolutionizes local business discovery by creating AI-optimized conten
 | **Payments** | Stripe | Subscription management |
 | **Caching** | Durable Objects + R2 | Multi-layer performance |
 
-### **📊 Performance Characteristics**
+### ** Performance Characteristics**
 - **Global Response Time**: Sub-50ms via R2 CDN
 - **AI Content Generation**: 6 optimized variants in 2-4 seconds
 - **Concurrent Users**: Unlimited scaling via edge deployment
@@ -41,7 +41,7 @@ LocRaven revolutionizes local business discovery by creating AI-optimized conten
 
 ---
 
-## 🚀 **Quick Start**
+##  **Quick Start**
 
 ### **Prerequisites**
 - Node.js 18+ with npm
@@ -96,9 +96,9 @@ npm run cf:preview
 
 ---
 
-## 📁 **Project Structure**
+##  **Project Structure**
 
-### **🎨 Frontend (`src/app/`)**
+### ** Frontend (`src/app/`)**
 ```
 app/
 ├── (auth)/          # Authentication pages (login, signup)
@@ -111,7 +111,7 @@ app/
 └── [legal pages]   # Privacy, terms, about, support
 ```
 
-### **🧩 Components (`src/components/`)**
+### ** Components (`src/components/`)**
 ```
 components/
 ├── ui/             # Radix UI component library
@@ -120,7 +120,7 @@ components/
 └── [shared]/       # Reusable UI components
 ```
 
-### **⚙️ Features (`src/features/`)**
+### ** Features (`src/features/`)**
 ```
 features/
 ├── account/        # User account management
@@ -129,14 +129,14 @@ features/
 └── links/          # Business link management
 ```
 
-### **🔧 Core Services (`src/libs/`)**
+### ** Core Services (`src/libs/`)**
 ```
 libs/
 ├── supabase/       # Database clients (server, client, middleware)
 └── stripe/         # Payment processing
 ```
 
-### **🌐 Supabase Edge Functions (`supabase/functions/`)**
+### ** Supabase Edge Functions (`supabase/functions/`)**
 ```
 functions/
 ├── _shared/                    # Shared utilities and templates
@@ -150,7 +150,7 @@ functions/
 
 ---
 
-## 🌐 **Cloudflare Infrastructure**
+##  **Cloudflare Infrastructure**
 
 ### **Workers Configuration** (`wrangler.jsonc`)
 - **Runtime**: OpenNext with Next.js 15.5
@@ -182,7 +182,7 @@ Buckets:
 
 ---
 
-## 🗃️ **Database Schema (Supabase)**
+##  **Database Schema (Supabase)**
 
 ### **Core Tables**
 ```sql
@@ -208,7 +208,7 @@ intent_mapping         # AI search intent optimization
 
 ---
 
-## 💳 **Stripe Integration**
+##  **Stripe Integration**
 
 ### **Subscription Tiers**
 ```yaml
@@ -237,7 +237,7 @@ Enterprise: Custom pricing
 
 ---
 
-## 🤖 **AI Optimization System**
+##  **AI Optimization System**
 
 ### **Generative Engine Optimization (GEO)**
 - **6-Intent Strategy**: Direct, Local, Category, Branded-Local, Service-Urgent, Competitive
@@ -262,7 +262,7 @@ R2 Upload + Global CDN Distribution
 
 ---
 
-## ⚙️ **Development Commands**
+##  **Development Commands**
 
 ### **Local Development**
 ```bash
@@ -297,7 +297,7 @@ npm run deploy:functions   # Deploy Supabase Edge Functions
 
 ---
 
-## 🔧 **Configuration Files**
+##  **Configuration Files**
 
 ### **Core Configuration**
 - **`next.config.mjs`**: Next.js with Cloudflare optimizations
@@ -313,22 +313,22 @@ npm run deploy:functions   # Deploy Supabase Edge Functions
 
 ---
 
-## 🎯 **Key Features**
+##  **Key Features**
 
-### **🏢 Business Dashboard**
+### **Business Dashboard**
 - **Profile Management**: Complete business information
 - **Real-Time Updates**: 60-second update publishing
 - **AI Content Preview**: See generated content before publishing
 - **Usage Tracking**: Monitor subscription limits and performance
 - **Link Management**: Social media and website integration
 
-### **🤖 AI Content System**  
+### ** AI Content System**  
 - **Smart Templates**: 6 intent-based templates for maximum AI coverage
 - **Voice Search Optimization**: Natural language query targeting
 - **Local SEO**: Hyper-geographic content optimization
 - **Real-Time Generation**: Updates processed and live in under 60 seconds
 
-### **📊 Analytics & Insights**
+### ** Analytics & Insights**
 - **AI Citation Tracking**: Monitor mentions in AI responses  
 - **Geographic Performance**: Local search visibility metrics
 - **Competition Analysis**: Market positioning insights
@@ -336,7 +336,7 @@ npm run deploy:functions   # Deploy Supabase Edge Functions
 
 ---
 
-## 🔐 **Security & Compliance**
+##  **Security & Compliance**
 
 ### **Data Protection**
 - **Encryption**: All data encrypted at rest and in transit
@@ -352,7 +352,7 @@ npm run deploy:functions   # Deploy Supabase Edge Functions
 
 ---
 
-## 🚀 **Deployment Architecture**
+##  **Deployment Architecture**
 
 ### **Production Flow**
 ```
@@ -373,7 +373,7 @@ GitHub → Cloudflare Pages → Workers → OpenNext → R2 CDN
 
 ---
 
-## 🔄 **Business Logic Flow**
+##  **Business Logic Flow**
 
 ### **Business Update Cycle**
 1. **Input**: Business owner submits update via dashboard
@@ -391,7 +391,7 @@ GitHub → Cloudflare Pages → Workers → OpenNext → R2 CDN
 
 ---
 
-## 📈 **Performance Optimization**
+##  **Performance Optimization**
 
 ### **Frontend Performance**
 - **Bundle Size**: Optimized with tree-shaking and code splitting
@@ -407,7 +407,7 @@ GitHub → Cloudflare Pages → Workers → OpenNext → R2 CDN
 
 ---
 
-## 🛠️ **Development Workflow**
+##  **Development Workflow**
 
 ### **Local Development Setup**
 1. **Environment**: Configure `.env.local` with all required secrets
@@ -429,7 +429,7 @@ git push → Cloudflare Build → Worker Deployment → Global Distribution
 
 ---
 
-## 🎨 **Design System**
+##  **Design System**
 
 ### **UI Framework**
 - **Base**: Tailwind CSS for utility-first styling
@@ -445,7 +445,7 @@ git push → Cloudflare Build → Worker Deployment → Global Distribution
 
 ---
 
-## 🔌 **API Integration**
+##  **API Integration**
 
 ### **External Services**
 ```yaml
@@ -476,7 +476,7 @@ Cloudflare:
 
 ---
 
-## 📊 **Business Intelligence**
+##  **Business Intelligence**
 
 ### **Usage Tracking**
 - **Business Updates**: Track usage against subscription limits
@@ -492,7 +492,7 @@ Cloudflare:
 
 ---
 
-## 🔮 **2025 AI Optimization Strategy**
+##  **2025 AI Optimization Strategy**
 
 ### **Generative Engine Optimization (GEO)**
 Unlike traditional SEO that optimizes for search results pages, GEO optimizes for direct AI responses where users get answers without clicking links.
@@ -511,7 +511,7 @@ Unlike traditional SEO that optimizes for search results pages, GEO optimizes fo
 
 ---
 
-## 🚨 **Troubleshooting**
+##  **Troubleshooting**
 
 ### **Common Issues**
 
@@ -558,7 +558,7 @@ npm run cf:build-check
 
 ---
 
-## 📚 **Documentation**
+##  **Documentation**
 
 ### **Architecture Documentation**
 - **[SYSTEM_OVERVIEW.md](./docs/SYSTEM_OVERVIEW.md)**: Complete system architecture
@@ -576,7 +576,7 @@ npm run cf:build-check
 
 ---
 
-## 🤝 **Contributing**
+##  **Contributing**
 
 ### **Development Standards**
 - **TypeScript**: Full type safety required
@@ -601,17 +601,17 @@ npm run cf:deploy
 
 ---
 
-## 🏆 **Achievements & Recognition**
+##  **Achievements & Recognition**
 
-- 🥇 **World's First**: AI-native local business platform
-- 📈 **849% Improvement**: AI citation rate vs traditional SEO  
-- ⚡ **Sub-50ms**: Global response time via edge optimization
-- 🌍 **Global Scale**: 300+ edge locations worldwide
-- 🎯 **Voice Ready**: Optimized for 2025 voice search trends
+-  **World's First**: AI-native local business platform
+-  **849% Improvement**: AI citation rate vs traditional SEO  
+-  **Sub-50ms**: Global response time via edge optimization
+-  **Global Scale**: 300+ edge locations worldwide
+-  **Voice Ready**: Optimized for 2025 voice search trends
 
 ---
 
-## 📞 **Support & Resources**
+##  **Support & Resources**
 
 ### **Getting Help**
 - **Documentation**: Comprehensive guides in `/docs/`
@@ -627,11 +627,11 @@ npm run cf:deploy
 
 ---
 
-## 📄 **License**
+##  **License**
 
 MIT License - See [LICENSE](./LICENSE) file for details.
 
 ---
 
-**Built with ❤️ for the future of local business discovery**  
+**Built for the future of local business discovery**  
 *Optimizing businesses for the AI-powered world of 2025 and beyond*
