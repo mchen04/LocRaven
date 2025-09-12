@@ -5,9 +5,9 @@ export async function getProducts() {
 
   // Only show these specific product IDs (Basic, Professional, Enterprise)
   const allowedProductIds = [
-    'prod_Sx3iazF08CXOO4', // Basic
-    'prod_Sx3kcnMn618dMB', // Professional  
-    'prod_Sx3l3qxTKsxFZn'  // Enterprise
+    'prod_T1kSCZZQ3GWfg2', // Basic
+    'prod_T1kSa9lueUC1NV', // Professional  
+    'prod_T1kSfmegY2kBXH'  // Enterprise
   ];
 
   const { data, error } = await supabase
