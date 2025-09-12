@@ -495,7 +495,7 @@ Cloudflare:
 ##  **2025 AI Optimization Strategy**
 
 ### **Generative Engine Optimization (GEO)**
-Unlike traditional SEO that optimizes for search results pages, GEO optimizes for direct AI responses where users get answers without clicking links.
+Unlike traditional SEO that optimizes for search results pages, GEO optimizes for direct AI responses where users get answers without clicking links
 
 ### **AI Search Engine Targeting**
 - **ChatGPT**: Structured data for GPT model training
